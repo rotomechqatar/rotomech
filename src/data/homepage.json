@@ -1,5 +1,22 @@
 {
-  "title": "New Title from Postman. testing github api endpoints. updaed from admin dashboard. testing after route change . staging changes commit 5",
-  "description": "This description was updated via Postman. updated via admin dashboard. route change detected, staging commit 5.2",
-  "image": "/images/rotomech-oil-pump.webp"
+  "banner": {
+    "tagline": "Supplying the Energy that Moves You",
+    "sub": "Together from Source to Success",
+    "image": "/images/banner-image-1.webp",
+    "alt": "Rotomech-pumps-and-mechs-suppliers"
+  },
+  "ourLegacy": {
+    "head": "Our Legacy",
+    "text": "Rotomech International & Co stands at the forefront of supplying MRO spare parts to heavy industrial plants in Qatar. With a robust presence that spans local, regional, and international markets, we deliver a wide array of industrial solutions tailored to sectors such as oil & gas, petrochemicals, and utilities. Our success is driven by an unwavering commitment to our customers—founded on integrity and flexibility. We prioritize our clients' achievements, ensuring that our innovative products and services empower them to focus on their core operations with complete confidence.",
+    "image1": "/images/banner-image-2.webp",
+    "alt1": "Rotomech-pumps-and-mechs-suppliers",
+    "image2": "/images/rotomech-oil-pump.webp",
+    "alt2": "Rotomech-pumps-and-mechs-suppliers",
+    "image3": "/images/rotomech-pump-suppliers.webp",
+    "alt3": "Rotomech-pumps-and-mechs-suppliers",
+    "image4": "/images/plant-image3.webp",
+    "alt4": "Rotomech-pumps-and-mechs-suppliers",
+    "image5": "/images/plant-image2.webp",
+    "alt5": "Rotomech-pumps-and-mechs-suppliers"
+  }
 }
