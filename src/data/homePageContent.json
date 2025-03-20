@@ -1,9 +1,4 @@
 {
-<<<<<<< HEAD
-    "title": "New Title from Postman. testing github api endpoints. updaed from admin dashboard",
-    "description": "This description was updated via Postman. updated via admin dashboard"
-=======
   "title": "New Title from Postman. testing github api endpoints. updaed from admin dashboard. testing after route change",
   "description": "This description was updated via Postman. updated via admin dashboard. route change detected"
->>>>>>> eae1b2c9679b422600f630482a408e98535361dd
 }
