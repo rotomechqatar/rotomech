@@ -2,7 +2,8 @@ import { Buffer } from "buffer";
 
 export async function POST(request) {
   try {
-    const { title, description } = await request.json();
+    // Now reading title, description, and image from the request body
+    const { title, description, image } = await request.json();
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
     const repo =
@@ -35,8 +36,8 @@ export async function POST(request) {
     }
     const sha = fileData.sha;
 
-    // Step 2: Prepare the new content
-    const newContent = { title, description };
+    // Step 2: Prepare the new content, now including the image field
+    const newContent = { title, description, image };
     const contentString = JSON.stringify(newContent, null, 2);
     const contentBase64 = Buffer.from(contentString).toString("base64");
 
