@@ -11,7 +11,7 @@ export async function POST(request) {
       process.env.GITHUB_REPO.replace("https://github.com/", "").split(
         "/"
       )[1] || process.env.GITHUB_REPO;
-    const branch = process.env.GITHUB_BRANCH || "master";
+    const branch = process.env.GITHUB_STAGING_BRANCH || "master";
     const filePath = `public/images/${filename}`;
 
     // Create a new file on GitHub
