@@ -10,7 +10,7 @@ export default async function Header() {
   const content = JSON.parse(data);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md flex justify-between items-center mx-[10rem] my-[1rem] py-4 px-8 rounded-2xl shadow-lg">
+    <div className="relative z-50 bg-black backdrop-blur-md flex justify-between items-center px-[15rem] py-[2rem] shadow-lg text-white">
       <Logo />
       <ul className="flex justify-center items-center gap-[2rem] text-[2rem] font-[500]">
         {content.menu.map((item, index) => (

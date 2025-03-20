@@ -5,16 +5,6 @@ import Image from "next/image";
 export default function DirectorMessageSlideUp({ content }) {
   return (
     <div className="relative p-8 overflow-hidden bg-white text-gray-800">
-      {/* Logo Behind Text */}
-      <div className="absolute inset-0 opacity-10">
-        <Image
-          src="/images/rotomech-logo.png"
-          alt="Company Logo"
-          fill
-          style={{ objectFit: "contain" }}
-        />
-      </div>
-
       {/* Director's Message using GlassCard */}
       <GlassCard
         heading={content.head}

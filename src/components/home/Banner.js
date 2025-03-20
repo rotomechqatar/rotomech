@@ -24,7 +24,7 @@ export default function Banner({ content }) {
         </h2>
         <div className="mt-8">
           <Link href="/products-and-partners">
-            <Button text="Explore More" textSize="3rem" bgc="var(--ui-blue)" />
+            <Button text="Explore More" textSize="3rem" />
           </Link>
         </div>
       </div>
