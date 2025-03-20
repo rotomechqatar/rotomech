@@ -1,76 +1,86 @@
-// app/admin/page.jsx
-"use client";
-import { useState, useEffect } from "react";
+import { Buffer } from "buffer";
 
-export default function AdminPage() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [message, setMessage] = useState("");
-  const [updatedContent, setUpdatedContent] = useState(null);
+export async function POST(request) {
+  try {
+    const { title, description } = await request.json();
+    const token = process.env.GITHUB_TOKEN;
+    const owner = process.env.GITHUB_OWNER;
+    // Ensure GITHUB_REPO contains just the repo name (e.g., "rotomech")
+    const repo =
+      process.env.GITHUB_REPO.replace("https://github.com/", "").split(
+        "/"
+      )[1] || process.env.GITHUB_REPO;
+    const branch = process.env.GITHUB_BRANCH || "master";
+    const filePath = "src/data/homePageContent.json";
 
-  // Fetch current content from our API endpoint
-  useEffect(() => {
-    fetch("/api/getContent")
-      .then((res) => res.json())
-      .then((data) => {
-        setTitle(data.title);
-        setDescription(data.description);
-      })
-      .catch((err) => console.error("Error fetching content:", err));
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setUpdatedContent(null);
-    try {
-      const res = await fetch("/api/updateContent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description }),
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setMessage("Content updated successfully.");
-        setUpdatedContent(result.content);
-      } else {
-        setMessage(`Error updating content: ${result.error}`);
+    // Step 1: Retrieve the current file info from GitHub to get the SHA
+    const getResponse = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
+      {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github+json",
+        },
       }
-    } catch (error) {
-      setMessage("Error updating content: " + error.message);
+    );
+    const fileData = await getResponse.json();
+    if (!getResponse.ok) {
+      console.error("Error fetching file info:", fileData);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to retrieve current content info",
+          details: fileData,
+        }),
+        { status: 500 }
+      );
     }
-  };
+    const sha = fileData.sha;
 
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Admin Panel</h1>
-      <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
-        <div style={{ marginBottom: "0.5rem" }}>
-          <label style={{ display: "block" }}>Title:</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-        <div style={{ marginBottom: "0.5rem" }}>
-          <label style={{ display: "block" }}>Description:</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            style={{ width: "100%", height: "100px" }}
-          />
-        </div>
-        <button type="submit">Update Content</button>
-      </form>
-      {message && <p>{message}</p>}
-      {updatedContent && (
-        <div>
-          <h3>Updated Content:</h3>
-          <pre>{JSON.stringify(updatedContent, null, 2)}</pre>
-        </div>
-      )}
-    </div>
-  );
+    // Step 2: Prepare the new content
+    const newContent = { title, description };
+    const contentString = JSON.stringify(newContent, null, 2);
+    const contentBase64 = Buffer.from(contentString).toString("base64");
+
+    // Step 3: Update the file on GitHub using a PUT request
+    const putResponse = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: "Update content via admin panel",
+          content: contentBase64,
+          sha,
+          branch,
+        }),
+      }
+    );
+    const updateData = await putResponse.json();
+    if (!putResponse.ok) {
+      console.error("Error updating file:", updateData);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to update content on GitHub",
+          details: updateData,
+        }),
+        { status: 500 }
+      );
+    }
+
+    // Return the full updated content as the response
+    return new Response(
+      JSON.stringify({ success: true, content: newContent }),
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error("Server error:", err);
+    return new Response(
+      JSON.stringify({ error: "Server error", details: err.message }),
+      { status: 500 }
+    );
+  }
 }
