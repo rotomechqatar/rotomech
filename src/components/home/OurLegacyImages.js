@@ -9,7 +9,7 @@ export default function OurLegacyImages({ images }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 1000);
+    }, 2500);
     return () => clearInterval(interval);
   }, [images.length]);
 
@@ -72,7 +72,7 @@ export default function OurLegacyImages({ images }) {
         return (
           <div
             key={index}
-            className={`absolute transition-all duration-700 ease-in-out border-4 p-2 border-blue-500 rounded-2xl ${
+            className={`absolute transition-all duration-700 ease-in-out border-1 p-2 border-green rounded-2xl ${
               isActive ? "z-20 scale-110" : "z-10 scale-100"
             }`}
             style={inlineStyle}
@@ -80,7 +80,7 @@ export default function OurLegacyImages({ images }) {
             <Image
               src={image.src}
               alt={image.alt}
-              className="w-full h-auto object-cover block rounded-2xl"
+              className="w-full h-auto object-cover block rounded-2xl hover:scale-110 transition-all duration-300"
               width={500}
               height={500}
             />
