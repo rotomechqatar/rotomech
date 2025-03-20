@@ -10,7 +10,7 @@ export default function AdminPage() {
 
   // Fetch current content from our API endpoint
   useEffect(() => {
-    fetch("/api/get-content")
+    fetch("/api/getContent")
       .then((res) => res.json())
       .then((data) => {
         setTitle(data.title);
@@ -24,7 +24,7 @@ export default function AdminPage() {
     setMessage("");
     setUpdatedContent(null);
     try {
-      const res = await fetch("/api/update-content", {
+      const res = await fetch("/api/updateContent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, description }),

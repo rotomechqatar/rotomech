@@ -5,7 +5,6 @@ export async function POST(request) {
     const { title, description } = await request.json();
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
-    // Ensure GITHUB_REPO contains just the repo name (e.g., "rotomech")
     const repo =
       process.env.GITHUB_REPO.replace("https://github.com/", "").split(
         "/"
