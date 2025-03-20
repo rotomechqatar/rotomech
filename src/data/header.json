@@ -1,0 +1,29 @@
+{
+    "menu": [
+        {
+            "name": "Home",
+            "link": "/"
+        },
+        {
+            "name": "About Us",
+            "link": "/about-us"
+        },
+        {
+            "name": "Products & Partners",
+            "link": "/products-and-partners"
+        },
+        {
+            "name": "Clients",
+            "link": "/clients"
+        },
+        {
+            "name": "Contact Us",
+            "link": "/contact-us"
+        },
+        {
+            "name": "Careers",
+            "link": "/careers"
+        }
+    ],
+    "profile": "https://drive.google.com/file/d/1HOaJtyWPH_V3uQh0E_VUbQeXl2r6RM9W/preview"
+}
