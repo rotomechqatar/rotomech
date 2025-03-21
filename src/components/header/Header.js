@@ -11,14 +11,10 @@ export default async function Header() {
   const content = JSON.parse(data);
 
   return (
-    <div className="relative z-50 bg-black backdrop-blur-md flex justify-between items-center px-[15rem] py-[2rem] shadow-lg text-white max-14xl:px-[10rem] max-6xl:px-[5rem]">
+    <div className="relative z-50 bg-black backdrop-blur-md flex justify-between items-center px-[10rem] py-[2rem] mx-[5rem] my-[2rem] rounded-[25px] shadow-lg text-white max-14xl:px-[10rem] max-6xl:px-[2rem]">
       {/* Left side: Logo (always visible) */}
       <Logo />
 
-      {/* 
-        Desktop Menu + Button
-        Visible ONLY above 900px (hidden below) => max-9xl:hidden 
-      */}
       <div className="max-9xl:hidden flex items-center gap-[2rem]">
         <ul className="flex justify-center items-center gap-[2rem] text-[2rem] font-[500] max-16xl:text-[1.5rem]">
           {content.menu.map((item, index) => (

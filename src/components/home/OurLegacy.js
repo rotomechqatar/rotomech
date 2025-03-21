@@ -39,7 +39,7 @@ export default function OurLegacy({ content }) {
   }
 
   return (
-    <section className="flex w-full min-h-[80vh] px-[15rem] py-[10rem] max-15xl:px-[10rem]  max-9xl:flex-col max-6xl:px-[5rem]">
+    <section className="flex w-full min-h-[80vh] px-[15rem] py-[5rem] max-15xl:px-[10rem]  max-9xl:flex-col max-6xl:px-[5rem]">
       {/* Left Half: Image Carousel */}
       <OurLegacyImages images={images} />
 

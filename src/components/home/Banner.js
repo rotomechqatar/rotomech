@@ -5,12 +5,12 @@ import BannerBackground from "./BannerBackground";
 
 export default function Banner({ content }) {
   return (
-    <section className="relative w-full h-[90vh]">
+    <section className="relative top-[-15rem] w-full h-[102vh]">
       {/* Background Image */}
       <BannerBackground content={content} />
 
       {/* Black Overlay */}
-      <div className="absolute inset-0 bg-black opacity-30 z-10"></div>
+      <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
 
       {/* Text and CTA Container */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">

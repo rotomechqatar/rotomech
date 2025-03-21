@@ -12,7 +12,7 @@ export default function ClientSection({ content }) {
   return (
     <section className="my-[5rem] overflow-x-hidden px-[15rem] pb-[5rem] max-11xl:px-[10rem] max-6xl:px-[5rem]">
       <h2 className="text-[5rem] font-bold text-left mb-[3rem]">Our Clients</h2>
-      <div className="gradient-border p-[1rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
+      <div className="gradient-border p-[.5rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
         <div className="bg-white rounded-xl p-[3rem]">
           <Carousel items={clientLogos} autoPlaySpeed={3000} direction="left" />
         </div>

@@ -14,7 +14,7 @@ export default function PartnerSection({ content }) {
       <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
         Our Partners
       </h2>
-      <div className="gradient-border p-[1rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
+      <div className="gradient-border p-[.5rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
         <div className="bg-white rounded-xl p-[3rem]">
           <Carousel
             items={partnerLogos}
