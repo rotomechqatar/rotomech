@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function DirectorMessageSlideUp({ content }) {
   return (
-    <section className="relative p-8 overflow-hidden bg-white text-gray-800 my-[5rem]">
+    <section className="relative p-8 overflow-hidden bg-white text-gray-800 pt-[5rem] pb-[15rem]">
       {/* Director's Message using GlassCard */}
       <GlassCard
         heading={content.head}
@@ -99,7 +99,7 @@ const GlassCard = ({ heading, paragraph, starter }) => {
           justify-content: space-around;
           align-items: center;
           gap: 1rem;
-          height: 150%;
+          height: 100%;
         }
         /* Starter text styling */
         .content h4 {
@@ -124,11 +124,11 @@ const GlassCard = ({ heading, paragraph, starter }) => {
           opacity: 1;
         }
         h2 {
-          font-size: 5em;
+          font-size: 4em;
           margin-bottom: 15px;
         }
         p {
-          font-size: 3em;
+          font-size: 2em;
           line-height: 1.6em;
           margin-bottom: 15px;
         }
