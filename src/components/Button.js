@@ -51,7 +51,7 @@ export default function Button({ text, textSize, bgc }) {
     <button
       ref={buttonRef}
       onMouseEnter={createRipple}
-      className="cursor-pointer relative overflow-hidden px-8 py-4 rounded-xl border backdrop-blur-3xl transition-all duration-300 text-black bg-white shadow-sm hover:scale-102"
+      className="cursor-pointer relative overflow-hidden px-8 py-4 rounded-xl border backdrop-blur-3xl transition-all duration-300 text-black bg-white shadow-xl hover:scale-102"
       style={{
         fontSize: textSize ? `${textSize}` : undefined,
         filter: "brightness(1.2)",

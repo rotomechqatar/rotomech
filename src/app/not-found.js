@@ -1,10 +1,9 @@
 import UnderDevelopment from "@/components/UnderDevelopment";
 
-export default function page() {
+export default function NotFound() {
   return (
     <div>
       <UnderDevelopment />
-      Clients
     </div>
   );
 }

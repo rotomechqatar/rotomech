@@ -7,7 +7,7 @@ import BannerBackground from "./BannerBackground";
 
 export default function Banner({ content }) {
   return (
-    <div className="relative w-full h-[90vh]">
+    <section className="relative w-full h-[90vh]">
       {/* Background Image */}
       <BannerBackground content={content} />
 
@@ -28,6 +28,6 @@ export default function Banner({ content }) {
           </Link>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

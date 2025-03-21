@@ -4,14 +4,14 @@ import Image from "next/image";
 
 export default function DirectorMessageSlideUp({ content }) {
   return (
-    <div className="relative p-8 overflow-hidden bg-white text-gray-800">
+    <section className="relative p-8 overflow-hidden bg-white text-gray-800 my-[5rem]">
       {/* Director's Message using GlassCard */}
       <GlassCard
         heading={content.head}
         paragraph={`${content.quote} - ${content.author}`}
         starter={content.start}
       />
-    </div>
+    </section>
   );
 }
 

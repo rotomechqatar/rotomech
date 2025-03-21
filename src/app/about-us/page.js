@@ -1,3 +1,10 @@
+import UnderDevelopment from "@/components/UnderDevelopment";
+
 export default function page() {
-  return <div>About Us</div>;
+  return (
+    <div>
+      <UnderDevelopment />
+      About Us
+    </div>
+  );
 }

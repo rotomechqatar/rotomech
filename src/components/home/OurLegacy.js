@@ -39,7 +39,7 @@ export default function OurLegacy({ content }) {
   }
 
   return (
-    <div className="flex w-full min-h-[80vh] px-[15rem] py-[10rem]">
+    <section className="flex w-full min-h-[80vh] px-[15rem] py-[10rem]">
       {/* Left Half: Image Carousel */}
       <OurLegacyImages images={images} />
 
@@ -66,6 +66,6 @@ export default function OurLegacy({ content }) {
           ))}
         </p>
       </motion.div>
-    </div>
+    </section>
   );
 }
