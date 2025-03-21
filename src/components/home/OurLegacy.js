@@ -39,13 +39,13 @@ export default function OurLegacy({ content }) {
   }
 
   return (
-    <section className="flex w-full min-h-[80vh] px-[15rem] py-[10rem]">
+    <section className="flex w-full min-h-[80vh] px-[15rem] py-[10rem] max-15xl:px-[10rem]  max-9xl:flex-col max-6xl:px-[5rem]">
       {/* Left Half: Image Carousel */}
       <OurLegacyImages images={images} />
 
       {/* Right Half: Text Content with inline animated text chunks */}
       <motion.div
-        className="w-1/2 p-8 flex flex-col justify-center"
+        className="w-1/2 max-9xl:w-full p-8 flex flex-col justify-center"
         variants={revealContainer}
         initial="hidden"
         whileInView="show"
