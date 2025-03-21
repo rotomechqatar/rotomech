@@ -10,7 +10,7 @@ export default function PartnerSection({ content }) {
   }));
 
   return (
-    <section className="mt-[10rem] overflow-x-hidden pb-[5rem] px-[15rem]">
+    <section className="mt-[10rem] overflow-x-hidden pb-[5rem] px-[15rem] max-11xl:px-[10rem] max-6xl:px-[5rem]">
       <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
         Our Partners
       </h2>

@@ -20,14 +20,14 @@ const revealContainer = {
 
 export default function CtaSection({ content }) {
   return (
-    <section className="h-[80vh] flex justify-between items-center gap-[2rem] px-[15rem] my-[5rem]">
+    <section className="h-[80vh] flex justify-between items-center gap-[2rem] px-[15rem] my-[5rem]  max-11xl:px-[10rem] max-8xl:flex-col max-8xl:px-[5rem]">
       {/* Left Side: Text */}
       <motion.div
         variants={revealContainer}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
-        className="w-[50%]"
+        className="w-[50%] max-8xl:w-[100%]"
       >
         <motion.h2
           variants={revealItem}
@@ -37,7 +37,7 @@ export default function CtaSection({ content }) {
         </motion.h2>
         <motion.p
           variants={revealItem}
-          className="text-[2rem] mb-[5rem] w-[80%]"
+          className="text-[2rem] mb-[5rem] w-[80%] max-6xl:w-[100%]"
         >
           {content.text}
         </motion.p>
@@ -47,7 +47,7 @@ export default function CtaSection({ content }) {
       </motion.div>
 
       {/* Right Side: Lottie Animation */}
-      <div className="w-[50%]">
+      <div className="w-[50%] max-8xl:w-[70%] max-6xl:w-[100%]">
         <LottieAnimation />
       </div>
     </section>
