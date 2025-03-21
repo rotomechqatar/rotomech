@@ -4,6 +4,8 @@ import Banner from "@/components/home/Banner";
 import OurLegacy from "@/components/home/OurLegacy";
 import DirectorMessage from "@/components/home/DirectorMessage";
 import CtaSection from "@/components/CTA/CTASection";
+import PartnerSection from "@/components/home/PartnerSection";
+import ClientSection from "@/components/home/ClientSection";
 
 export default async function HomePage() {
   const filePath = path.join(process.cwd(), "src/data", "homepage.json");
@@ -15,7 +17,9 @@ export default async function HomePage() {
       <Banner content={content.banner} />
       <OurLegacy content={content.ourLegacy} />
       <DirectorMessage content={content.directorMessage} />
+      <PartnerSection content={content.partnerLogos} />
       <CtaSection content={content.CTA} />
+      <ClientSection content={content.clientLogos} />
     </div>
   );
 }
