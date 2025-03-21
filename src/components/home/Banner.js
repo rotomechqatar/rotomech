@@ -1,5 +1,3 @@
-// components/home/Banner.js
-import Image from "next/image";
 import Button from "../Button";
 import Link from "next/link";
 import AnimatedText from "../AnimatedText";
@@ -16,7 +14,7 @@ export default function Banner({ content }) {
 
       {/* Text and CTA Container */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-white text-8xl font-bold">
+        <h1 className="text-white text-8xl font-bold max-4xl:text-7xl">
           <AnimatedText text={content.tagline} />
         </h1>
         <h2 className="text-white text-5xl mt-10">

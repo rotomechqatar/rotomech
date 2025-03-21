@@ -30,7 +30,9 @@
   --breakpoint-16xl: 1600px;
   --breakpoint-15xl: 1500px;
   --breakpoint-14xl: 1400px;
+  --breakpoint-13xl: 1400px;
   --breakpoint-12xl: 1200px;
+  --breakpoint-11xl: 1200px;
   --breakpoint-10xl: 1000px;
   --breakpoint-9xl: 900px;
   --breakpoint-8xl: 800px;
@@ -49,6 +51,15 @@
 }
 html {
   font-size: 62.5%;
+  @media (max-width: 1200px) {
+    font-size: 50%;
+  }
+  @media (max-width: 900px) {
+    font-size: 42.5%;
+  }
+  @media (max-width: 600px) {
+    font-size: 35.5%;
+  }
 }
 body {
   padding: 0;
