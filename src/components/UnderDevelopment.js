@@ -16,17 +16,16 @@ export default function UnderDevelopment() {
       <p className="text-5xl mb-8">This page is currently under development.</p>
       <div className="space-y-2 text-xl">
         <p className="animate-pulse text-3xl">
-          Developer -
+          Design and Development -
           <a
             href="https://www.melvinprince.io"
             className="underline hover:text-gray-200"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Melvin Prince (Checkout My Website)
+            Melvin Prince
           </a>
         </p>
-        <p>Design by ROI, Doha Qatar</p>
       </div>
     </div>
   );
