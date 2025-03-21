@@ -9,10 +9,12 @@ export default async function Footer() {
   const data = await fs.readFile(filePath, "utf8");
   const content = JSON.parse(data);
   return (
-    <div className="bg-black text-white grid grid-cols-3 px-[15rem] py-[5rem]">
-      <div className="flex flex-col gap-[2rem]">
+    <div className="bg-black text-white grid grid-cols-3 px-[15rem] py-[5rem] max-11xl:px-[10rem] max-6xl:px-[5rem] max-8xl:grid-cols-2 max-6xl:grid-cols-1 max-6xl:gap-[2rem]">
+      <div className="flex flex-col gap-[2rem] max-8xl:items-center">
         <Logo type="footer" />
-        <p className="text-[1.5rem] w-[50%]">{content.address}</p>
+        <p className="text-[1.5rem] w-[50%] max-8xl:w-[80%] max-8xl:text-center">
+          {content.address}
+        </p>
         <ul className="flex gap-[1rem]">
           {content.contacts.map((item, index) => (
             <li key={index}>
@@ -28,7 +30,7 @@ export default async function Footer() {
         </ul>
       </div>
 
-      <ul className="flex flex-col justify-center gap-[1rem] text-[2rem]">
+      <ul className="flex flex-col justify-center gap-[1rem] text-[2rem] max-8xl:grid max-8xl:grid-cols-3 max-8xl:gap-0 max-8xl:items-center max-6xl:grid-cols-6 max-6xl:row-start-1 max-6xl:mx-auto max-5xl:grid-cols-3 max-5xl:gap-[1rem]">
         {content.menu.map((item, index) => (
           <li
             key={index}
@@ -44,7 +46,7 @@ export default async function Footer() {
         ))}
       </ul>
 
-      <div className="rounded-[25px] overflow-hidden">
+      <div className="rounded-[25px] overflow-hidden max-8xl:col-span-2 max-8xl:mt-[3rem] max-6xl:col-span-1">
         <iframe
           title="Our Location"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3609.2742745263745!2d51.49119637593057!3d25.22768543046412!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e45d18046ffba0d%3A0x567fec3d3a15b0e5!2sRotomech%20International!5e0!3m2!1sen!2sqa!4v1742578826557!5m2!1sen!2sqa"
