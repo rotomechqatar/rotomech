@@ -5,7 +5,7 @@ import AnimatedSectionText from "../AnimatedSectionText";
 export default function PageIntro({ contnet }) {
   return (
     <section className="flex justify-center items-center w-full min-h-[80vh] px-[15rem] pb-[5rem] max-15xl:px-[10rem]  max-9xl:flex-col max-6xl:px-[5rem]">
-      <div className="h-[40vh] w-[50%] rounded-[25px] overflow-hidden shadow-2xl">
+      <div className="h-[40vh] w-[40%] rounded-[25px] overflow-hidden shadow-2xl">
         <ImageCarouselDirection images={contnet.images} />
       </div>
 
