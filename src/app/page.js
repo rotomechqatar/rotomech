@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import Banner from "@/components/home/Banner";
+import Banner from "@/components/Banner";
 import OurLegacy from "@/components/home/OurLegacy";
 import DirectorMessage from "@/components/home/DirectorMessage";
 import CtaSection from "@/components/CTA/CTASection";
@@ -14,7 +14,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <Banner content={content.banner} />
+      <Banner content={content.banner} btn={true} />
       <OurLegacy content={content.ourLegacy} />
       <DirectorMessage content={content.directorMessage} />
       <PartnerSection content={content.partnerLogos} />

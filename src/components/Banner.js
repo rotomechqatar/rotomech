@@ -1,11 +1,11 @@
-import Button from "../Button";
+import Button from "./Button";
 import Link from "next/link";
-import AnimatedText from "../AnimatedText";
+import AnimatedText from "./AnimatedText";
 import BannerBackground from "./BannerBackground";
 
-export default function Banner({ content }) {
+export default function Banner({ content, btn }) {
   return (
-    <section className="relative top-[-15rem] w-full h-[102vh]">
+    <section className="relative w-full h-[100vh]">
       {/* Background Image */}
       <BannerBackground content={content} />
 
@@ -20,11 +20,13 @@ export default function Banner({ content }) {
         <h2 className="text-white text-5xl mt-10">
           <AnimatedText text={content.sub} />
         </h2>
-        <div className="mt-8">
-          <Link href="/products-and-partners">
-            <Button text="Explore More" textSize="3rem" />
-          </Link>
-        </div>
+        {btn && (
+          <div className="mt-8">
+            <Link href="/products-and-partners">
+              <Button text="Explore More" textSize="3rem" />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

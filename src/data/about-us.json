@@ -1,12 +1,19 @@
 {
-    "banner-image": "/images/qatar-image-1.webp",
+    "banner": {
+        "tagline": "Supplying the Energy that Moves You",
+        "sub": "Energy that drives the future",
+        "image": "/images/qatar-image-1.webp",
+        "alt": "about-us-banner"
+    },
     "aboutUs": {
         "head": "About Us",
         "text": "Rotomech International Trading and Contracting is a leading provider of Maintenance, Repair, and Operations (MRO) spare parts serving heavy industrial plants across Qatar. Our proven track record is built upon creating successful business groups recognized locally, regionally, and internationally. Today, through our diversified divisions, we deliver comprehensive solutions tailored specifically for industries including Oil & Gas, Petrochemical, Utilities, and nfrastructure.",
         "text2": "At Rotomech, customer success is the cornerstone of our business. We are dedicated to ensuring our customers' and clients' success through integrity, flexibility, and personalized attention to their unique needs.",
-        "image1": "/images/qatar-image-2.webp",
-        "image2": "/images/qatar-image-3.webp",
-        "image3": "/images/qatar-image-4.webp"
+        "images": [
+            "/images/qatar-image-5.webp",
+            "/images/qatar-image-6.webp",
+            "/images/qatar-image-4.webp"
+        ]
     },
     "ourMission": {
         "head": "Our Mission",
@@ -22,7 +29,7 @@
             {
                 "head": "Can-do Attitude",
                 "text": "We approach every challenge with optimism and determination."
-            }
+            },
             {
                 "head": "Passion for Quality",
                 "text": "Excellence is embedded in every service we provide."
@@ -40,7 +47,7 @@
                 "text": "We believe in mutual growth, benefiting clients, employees, and partners alike."
             }
         ],
-        "image": "/images/qatar-image-5.webp"
+        "image": "/images/qatar-image-2.webp"
     },
     "whyChooseUs": {
         "head": "Why Choose Us",
@@ -48,7 +55,7 @@
             {
                 "head": "Extensive Industry Expertise",
                 "text": "We specialize in critical industries like Oil & Gas, Petrochemicals, Utilities, and Infrastructure."
-            }
+            },
             {
                 "head": "Tailored Solutions",
                 "text": "Customizable services designed specifically for your unique business needs."
@@ -66,7 +73,7 @@
                 "text": "Personalized attention ensuring our customers’ satisfaction and ongoing success."
             }
         ],
-        "image": "/images/qatar-image-6.webp"
+        "image": "/images/qatar-image-3.webp"
     },
     "cta": {
         "head": "Ready to Experience Excellence?",
