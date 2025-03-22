@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 import OurValues from "./OurValues";
 import WhyChooseUs from "./WhyChooseUs";
+import CTA from "./CTA";
 
 export default async function page() {
   const filePath = path.join(process.cwd(), "src/data", "about-us.json");
@@ -21,6 +22,7 @@ export default async function page() {
       />
       <OurValues content={content.ourValues} />
       <WhyChooseUs content={content.whyChooseUs} />
+      <CTA content={content.cta} />
     </div>
   );
 }

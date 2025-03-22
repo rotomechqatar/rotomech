@@ -4,7 +4,7 @@ import LottieAnimation from "@/components/LottieAnimation";
 
 export default function OurValues({ content }) {
   return (
-    <section className="px-[15rem] py-[10rem] mt-[5rem] bg-black text-white flex justify-center items-center gap-[5rem] transition-all duration-300 hover:scale-105 hover:bg-white hover:text-black">
+    <section className="px-[15rem] py-[10rem] mt-[5rem] bg-black text-white flex justify-center items-center gap-[5rem] transition-all duration-300 hover:scale-105">
       <div className="">
         <AnimatedSectionText
           heading={content.head}

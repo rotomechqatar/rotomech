@@ -67,3 +67,21 @@ body {
   box-sizing: border-box;
   font-family: var(--font-primary);
 }
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient {
+  background: linear-gradient(270deg, #35fd1e, #22b5f3, #35fd1e);
+  background-size: 600% 600%;
+  animation: gradient 5s ease infinite;
+}
