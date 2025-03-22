@@ -48,19 +48,15 @@ const SlidingImage = ({ src, offsetX, offsetY, onTransitionEnd }) => {
 };
 
 const ImageCarouselDirection = ({ images }) => {
-  if (!images || images.length < 3) {
-    return (
-      <div className="text-red-500">
-        Minimum 3 images required to display the carousel.
-      </div>
-    );
-  }
-
+  // Always call hooks, regardless of the images prop
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [prevImageIndex, setPrevImageIndex] = useState(null);
   const [directionIndex, setDirectionIndex] = useState(0);
 
   useEffect(() => {
+    // If images is undefined or doesn't meet the minimum requirement, do nothing.
+    if (!images || images.length < 3) return;
+
     const interval = setInterval(() => {
       setPrevImageIndex(currentImageIndex);
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -68,7 +64,16 @@ const ImageCarouselDirection = ({ images }) => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [currentImageIndex, images.length]);
+  }, [currentImageIndex, images, images?.length]);
+
+  // Check for valid images after the hooks have been called.
+  if (!images || images.length < 3) {
+    return (
+      <div className="text-red-500">
+        Minimum 3 images required to display the carousel.
+      </div>
+    );
+  }
 
   const { x, y } = directions[directionIndex];
 
