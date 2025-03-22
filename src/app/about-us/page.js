@@ -3,6 +3,7 @@ import PageIntro from "@/components/about-us/PageIntro";
 import Banner from "@/components/Banner";
 import fs from "fs/promises";
 import path from "path";
+import OurValues from "./OurValues";
 
 export default async function page() {
   const filePath = path.join(process.cwd(), "src/data", "about-us.json");
@@ -16,6 +17,7 @@ export default async function page() {
         mission={content.ourMission}
         vision={content.ourVision}
       />
+      <OurValues content={content.ourValues} />
     </div>
   );
 }
