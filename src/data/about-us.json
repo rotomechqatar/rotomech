@@ -1,0 +1,76 @@
+{
+    "banner-image": "/images/qatar-image-1.webp",
+    "aboutUs": {
+        "head": "About Us",
+        "text": "Rotomech International Trading and Contracting is a leading provider of Maintenance, Repair, and Operations (MRO) spare parts serving heavy industrial plants across Qatar. Our proven track record is built upon creating successful business groups recognized locally, regionally, and internationally. Today, through our diversified divisions, we deliver comprehensive solutions tailored specifically for industries including Oil & Gas, Petrochemical, Utilities, and nfrastructure.",
+        "text2": "At Rotomech, customer success is the cornerstone of our business. We are dedicated to ensuring our customers' and clients' success through integrity, flexibility, and personalized attention to their unique needs.",
+        "image1": "/images/qatar-image-2.webp",
+        "image2": "/images/qatar-image-3.webp",
+        "image3": "/images/qatar-image-4.webp"
+    },
+    "ourMission": {
+        "head": "Our Mission",
+        "text": "Our mission is to enable our clients to concentrate on their core businesses by consistently providing world-class general services. We are committed to excellence, ensuring that every service we offer meets or surpasses the expectations of our clients and partners."
+    },
+    "ourVision": {
+        "head": "Our Vision",
+        "text": "Our vision is to become the premier global provider of innovative mechanical sealing solutions and comprehensive industrial support services. By continually pushing technological boundaries, we aim to improve efficiency, reliability, and sustainability across diverse industrial processes, solidifying our reputation for excellence worldwide."
+    },
+    "ourValues": {
+        "head": "Our Values",
+        "points": [
+            {
+                "head": "Can-do Attitude",
+                "text": "We approach every challenge with optimism and determination."
+            }
+            {
+                "head": "Passion for Quality",
+                "text": "Excellence is embedded in every service we provide."
+            },
+            {
+                "head": "Exceptional Service",
+                "text": "We consistently deliver beyond our clients' expectations."
+            },
+            {
+                "head": "Teamwork",
+                "text": "Collaboration is fundamental to our success."
+            },
+            {
+                "head": "Shared Success",
+                "text": "We believe in mutual growth, benefiting clients, employees, and partners alike."
+            }
+        ],
+        "image": "/images/qatar-image-5.webp"
+    },
+    "whyChooseUs": {
+        "head": "Why Choose Us",
+        "points": [
+            {
+                "head": "Extensive Industry Expertise",
+                "text": "We specialize in critical industries like Oil & Gas, Petrochemicals, Utilities, and Infrastructure."
+            }
+            {
+                "head": "Tailored Solutions",
+                "text": "Customizable services designed specifically for your unique business needs."
+            },
+            {
+                "head": "Unmatched Reliability",
+                "text": "Commitment to timely delivery, high-quality standards, and responsive support."
+            },
+            {
+                "head": "Innovative Technologies",
+                "text": "Leveraging cutting-edge technology and industry best practices to provide superior solutions."
+            },
+            {
+                "head": "Dedicated Customer Support",
+                "text": "Personalized attention ensuring our customers’ satisfaction and ongoing success."
+            }
+        ],
+        "image": "/images/qatar-image-6.webp"
+    },
+    "cta": {
+        "head": "Ready to Experience Excellence?",
+        "tagline": "Partner with Rotomech and Transform Your Industrial Operations Today!",
+        "text": "Unlock unparalleled efficiency and reliability with Rotomech's industry-leading solutions. Contact us now to elevate your business success."
+    }
+}
