@@ -3,11 +3,10 @@
 import dynamic from "next/dynamic";
 import { useRef } from "react";
 import { gsap } from "gsap";
-import animationData from "@/animations/oil-and-gas.json";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
-export default function LottieAnimation() {
+export default function LottieAnimation({ animationData }) {
   const containerRef = useRef(null);
 
   const handleMouseMove = (e) => {

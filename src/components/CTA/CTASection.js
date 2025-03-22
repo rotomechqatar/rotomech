@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import LottieAnimation from "./LottieAnimation";
+import LottieAnimation from "../LottieAnimation";
 import Button from "../Button";
 import { motion } from "framer-motion";
+import animationData from "@/animations/oil-and-gas.json";
 
 const revealItem = {
   hidden: { opacity: 0, y: 30 },
@@ -48,7 +49,7 @@ export default function CtaSection({ content }) {
 
       {/* Right Side: Lottie Animation */}
       <div className="w-[50%] max-8xl:w-[70%] max-6xl:w-[100%]">
-        <LottieAnimation />
+        <LottieAnimation animationData={animationData} />
       </div>
     </section>
   );
