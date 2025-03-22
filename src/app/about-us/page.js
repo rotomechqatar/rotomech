@@ -1,3 +1,4 @@
+import MissionAndVision from "@/components/about-us/MissionAndVision";
 import PageIntro from "@/components/about-us/PageIntro";
 import Banner from "@/components/Banner";
 import fs from "fs/promises";
@@ -11,6 +12,10 @@ export default async function page() {
     <div>
       <Banner content={content.banner} />
       <PageIntro contnet={content.aboutUs} />
+      <MissionAndVision
+        mission={content.ourMission}
+        vision={content.ourVision}
+      />
     </div>
   );
 }
