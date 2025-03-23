@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-export default function MobileMenu({ menu, profile }) {
+export default function MobileMenu({ menu }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -44,7 +44,7 @@ export default function MobileMenu({ menu, profile }) {
 
       {/* Mobile menu panel (shown when isOpen === true) */}
       {isOpen && (
-        <div className="absolute top-[6rem] right-0 w-[40rem] bg-black text-white px-[2rem] py-[2rem] z-50">
+        <div className="absolute top-[6rem] right-0 w-[40rem] bg-black text-white px-[2rem] py-[2rem] z-[500]">
           <ul>
             {menu.map((item, index) => (
               <li key={index} className="py-2">
