@@ -1,46 +1,51 @@
 "use client";
-
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
-// Define the 8 directions with their initial offsets.
+// Define 8 directions for the slide-in.
 const directions = [
   { x: "0", y: "-100%" }, // top
   { x: "-100%", y: "0" }, // left
   { x: "0", y: "100%" }, // bottom
   { x: "100%", y: "0" }, // right
-  { x: "100%", y: "-100%" }, // top right
-  { x: "-100%", y: "-100%" }, // top left
-  { x: "100%", y: "100%" }, // bottom right
-  { x: "-100%", y: "100%" }, // bottom left
+  { x: "100%", y: "-100%" }, // top-right
+  { x: "-100%", y: "-100%" }, // top-left
+  { x: "100%", y: "100%" }, // bottom-right
+  { x: "-100%", y: "100%" }, // bottom-left
 ];
 
-const SlidingImage = ({ src, offsetX, offsetY, onTransitionEnd }) => {
+const SlidingImage = ({ src, offsetX, offsetY, onSlideComplete }) => {
+  const [loaded, setLoaded] = useState(false);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
-    // Trigger the animation on the next frame after mounting.
-    const timer = requestAnimationFrame(() => {
-      setInView(true);
-    });
-    return () => cancelAnimationFrame(timer);
-  }, []);
+    // Start the slide only after the image is fully loaded.
+    if (loaded) {
+      requestAnimationFrame(() => {
+        setInView(true);
+      });
+    }
+  }, [loaded]);
 
   return (
     <div
-      className="absolute w-full h-full rounded-[25px] overflow-hidden"
+      className="absolute inset-0 overflow-hidden"
       style={{
+        zIndex: 10, // Put this above the old image.
         transform: inView
           ? "translate(0, 0)"
           : `translate(${offsetX}, ${offsetY})`,
         transition: "transform 1s ease-in-out",
       }}
-      onTransitionEnd={onTransitionEnd}
+      // When the slide finishes, we can remove the old image from the DOM.
+      onTransitionEnd={onSlideComplete}
     >
       <Image
         src={src}
         alt=""
         fill
+        onLoadingComplete={() => setLoaded(true)}
+        // Slight zoom on hover, purely optional:
         className="object-cover hover:scale-110 transition-all duration-300"
       />
     </div>
@@ -48,25 +53,23 @@ const SlidingImage = ({ src, offsetX, offsetY, onTransitionEnd }) => {
 };
 
 const ImageCarouselDirection = ({ images }) => {
-  // Always call hooks, regardless of the images prop
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [prevImageIndex, setPrevImageIndex] = useState(null);
+  // If the user passes an invalid array, show a message (after calling hooks).
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(null);
   const [directionIndex, setDirectionIndex] = useState(0);
 
   useEffect(() => {
-    // If images is undefined or doesn't meet the minimum requirement, do nothing.
     if (!images || images.length < 3) return;
-
     const interval = setInterval(() => {
-      setPrevImageIndex(currentImageIndex);
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      setPrevIndex(currentIndex);
+      setCurrentIndex((prev) => (prev + 1) % images.length);
       setDirectionIndex((prev) => (prev + 1) % directions.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [currentImageIndex, images, images?.length]);
+  }, [currentIndex, images]);
 
-  // Check for valid images after the hooks have been called.
+  // Bail out early if no valid images.
   if (!images || images.length < 3) {
     return (
       <div className="text-red-500">
@@ -77,28 +80,27 @@ const ImageCarouselDirection = ({ images }) => {
 
   const { x, y } = directions[directionIndex];
 
-  const handleTransitionEnd = () => {
-    setPrevImageIndex(null);
+  const handleSlideComplete = () => {
+    // When the new image finishes its slide, we remove the old image.
+    setPrevIndex(null);
   };
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {prevImageIndex !== null && (
-        <div className="absolute w-full h-full">
-          <Image
-            src={images[prevImageIndex]}
-            alt=""
-            fill
-            className="object-cover"
-          />
+      {/* Old image stays behind the new one until the slide completes */}
+      {prevIndex !== null && (
+        <div className="absolute inset-0" style={{ zIndex: 5 }}>
+          <Image src={images[prevIndex]} alt="" fill className="object-cover" />
         </div>
       )}
+
+      {/* New sliding image */}
       <SlidingImage
-        key={currentImageIndex}
-        src={images[currentImageIndex]}
+        key={currentIndex}
+        src={images[currentIndex]}
         offsetX={x}
         offsetY={y}
-        onTransitionEnd={handleTransitionEnd}
+        onSlideComplete={handleSlideComplete}
       />
     </div>
   );

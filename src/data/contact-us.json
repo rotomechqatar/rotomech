@@ -1,0 +1,22 @@
+{
+    "banner": {
+        "tagline": "Contact Us",
+        "sub": "Energy meets excellence",
+        "image": "/images/qatar-image-8.webp",
+        "alt": "contact-us-banner"
+    },
+    "head": "Let's Connect and Collaborate",
+    "text": "Got a question or want to partner with Rotomech? We’re here to help. Our team delivers top-quality industrial solutions—MRO spare parts, mechanical seals, and more. Just fill out the form below, and we’ll respond quickly. Your success drives us—together, we’ll enhance efficiency, reliability, and safety for your operations. We can’t wait to collaborate with you! Let’s explore the possibilities together.",
+    "cta": {
+        "text": "Ready to get started? Fill out the form below to let us know how we can help. Or reach us directly by phone or email:",
+        "tel": "+974 4481 2900",
+        "mobile": "+974 77645511",
+        "email": "info@rotomechts.com"
+    },
+    "location": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3609.2742745263745!2d51.49119637593057!3d25.22768543046412!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e45d18046ffba0d%3A0x567fec3d3a15b0e5!2sRotomech%20International!5e0!3m2!1sen!2sqa!4v1742578826557!5m2!1sen!2sqa",
+    "images": [
+        "/images/contact-image-1.webp",
+        "/images/contact-image-2.webp",
+        "/images/contact-image-3.webp"
+    ]
+}

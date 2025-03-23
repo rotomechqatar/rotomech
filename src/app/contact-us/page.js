@@ -1,10 +1,20 @@
-import UnderDevelopment from "@/components/UnderDevelopment";
+import Banner from "@/components/Banner";
+import ContactForm from "@/components/contact-us/ContactForm";
+import Location from "@/components/contact-us/Location";
+import PageIntro from "@/components/contact-us/PageIntro";
+import fs from "fs/promises";
+import path from "path";
 
-export default function page() {
+export default async function page() {
+  const filePath = path.join(process.cwd(), "src/data", "contact-us.json");
+  const data = await fs.readFile(filePath, "utf8");
+  const content = JSON.parse(data);
   return (
     <div>
-      <UnderDevelopment />
-      Contact Us
+      <Banner content={content.banner} />
+      <PageIntro content={content} />
+      <Location content={content} />
+      <ContactForm content={content.images} />
     </div>
   );
 }

@@ -3,10 +3,12 @@
 import { useRef } from "react";
 import gsap from "gsap";
 
-export default function Button({ text, textSize, bgc }) {
+export default function Button({ text, textSize, bgc, disabled = false }) {
   const buttonRef = useRef(null);
 
   const createRipple = (e) => {
+    if (disabled) return; // Prevent ripple if disabled
+
     const button = buttonRef.current;
     const rect = button.getBoundingClientRect();
     const ripple = document.createElement("span");
@@ -19,7 +21,7 @@ export default function Button({ text, textSize, bgc }) {
     ripple.style.left = `${initialX}px`;
     ripple.style.top = `${initialY}px`;
 
-    // Style the ripple: this is the only place where the gradient background appears.
+    // Style the ripple.
     ripple.style.position = "absolute";
     ripple.style.borderRadius = "50%";
     ripple.style.background =
@@ -50,8 +52,11 @@ export default function Button({ text, textSize, bgc }) {
   return (
     <button
       ref={buttonRef}
+      disabled={disabled}
       onMouseEnter={createRipple}
-      className="cursor-pointer relative overflow-hidden px-8 py-4 rounded-xl border backdrop-blur-3xl transition-all duration-300 text-black bg-white shadow-xl hover:scale-102"
+      className={`cursor-pointer relative overflow-hidden px-8 py-4 rounded-xl border backdrop-blur-3xl transition-all duration-300 text-black bg-white shadow-xl hover:scale-102 ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
       style={{
         fontSize: textSize ? `${textSize}` : undefined,
         filter: "brightness(1.2)",

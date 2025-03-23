@@ -49,7 +49,7 @@ export default async function Footer() {
       <div className="rounded-[25px] overflow-hidden max-8xl:col-span-2 max-8xl:mt-[3rem] max-6xl:col-span-1">
         <iframe
           title="Our Location"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3609.2742745263745!2d51.49119637593057!3d25.22768543046412!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e45d18046ffba0d%3A0x567fec3d3a15b0e5!2sRotomech%20International!5e0!3m2!1sen!2sqa!4v1742578826557!5m2!1sen!2sqa"
+          src={content.location}
           loading="lazy"
           allowFullScreen
           width="100%"

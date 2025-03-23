@@ -85,3 +85,16 @@ body {
   background-size: 600% 600%;
   animation: gradient 5s ease infinite;
 }
+
+@keyframes drop {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-drop {
+  animation: drop 3s ease-in-out infinite;
+}
