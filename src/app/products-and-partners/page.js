@@ -1,10 +1,18 @@
-import UnderDevelopment from "@/components/UnderDevelopment";
+import Banner from "@/components/Banner";
+import fs from "fs/promises";
+import path from "path";
 
-export default function page() {
+export default async function page() {
+  const filePath = path.join(
+    process.cwd(),
+    "src/data",
+    "products-and-partners.json"
+  );
+  const data = await fs.readFile(filePath, "utf8");
+  const content = JSON.parse(data);
   return (
-    <div>
-      <UnderDevelopment />
-      Products and Partners
-    </div>
+    <section>
+      <Banner content={content.banner} />
+    </section>
   );
 }
