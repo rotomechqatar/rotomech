@@ -1,4 +1,5 @@
 import Banner from "@/components/Banner";
+import PartnerInfo from "@/components/products-and-partners/PartnerInfo";
 import fs from "fs/promises";
 import path from "path";
 
@@ -13,6 +14,7 @@ export default async function page() {
   return (
     <section>
       <Banner content={content.banner} />
+      <PartnerInfo content={content.partners} />
     </section>
   );
 }

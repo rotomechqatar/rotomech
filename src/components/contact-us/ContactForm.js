@@ -73,7 +73,7 @@ export default function ContactForm({ content }) {
   return (
     <section className="px-[15rem] mt-[5rem] my-[10rem] grid grid-cols-2 justify-between items-start relative max-16xl:gap-[5rem] max-11xl:grid-cols-1 max-14xl:px-[10rem] max-11xl:grid-rows-2 max-6xl:px-[5rem]">
       {/* Form column */}
-      <div className="relative w-[80%] mx-auto shadow-2xl hover:skew-1 rounded-[25px] transition-all duration-500 max-16xl:w-[100%]">
+      <div className="relative w-[80%] mx-auto shadow-2xl rounded-[25px] transition-all duration-500 max-16xl:w-[100%]">
         {status && (
           <div
             className={`
