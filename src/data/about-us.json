@@ -23,9 +23,25 @@
         "head": "Our Vision",
         "text": "Our vision is to become the premier global provider of innovative mechanical sealing solutions and comprehensive industrial support services. By continually pushing technological boundaries, we aim to improve efficiency, reliability, and sustainability across diverse industrial processes, solidifying our reputation for excellence worldwide."
     },
-    "ourValues": {
-        "head": "Our Values",
-        "text": "At our core, we embrace a can-do attitude—approaching every challenge with optimism and determination. We are passionate about quality, ensuring excellence is embedded in every service we provide. Our commitment to exceptional service means we consistently deliver beyond our clients' expectations. We foster teamwork through collaboration and believe in shared success, promoting mutual growth that benefits clients, employees, and partners alike.",
+    "coreValues": {
+        "head": "Core Values",
+        "text": "Core Values are at the heart of Rotomech's progress. What sets us apart is not just what we do, but how we do it. We believe that our continued success is built upon our core values",
+        "values": [
+            "Ethics",
+            "Integrity",
+            "Equality",
+            "Diversity",
+            "Quality",
+            "Commitment"
+        ],
+        "icons": [
+            "/icons/ethics.svg",
+            "/icons/integrity.svg",
+            "/icons/equality.svg",
+            "/icons/diversity.svg",
+            "/icons/quality.svg",
+            "/icons/commitment.svg"
+        ],
         "image": "/images/qatar-image-2.webp"
     },
     "whyChooseUs": {

@@ -20,7 +20,7 @@ export default async function page() {
         mission={content.ourMission}
         vision={content.ourVision}
       />
-      <OurValues content={content.ourValues} />
+      <OurValues content={content.coreValues} />
       <WhyChooseUs content={content.whyChooseUs} />
       <CTA content={content.cta} />
     </div>
