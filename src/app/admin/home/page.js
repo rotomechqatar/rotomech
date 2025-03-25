@@ -21,15 +21,49 @@ const EditIcon = ({ onClick }) => (
   </button>
 );
 
+// Success and Error Icons
+const SuccessIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-6 w-6 inline-block text-green-500 mr-2"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 13l4 4L19 7"
+    />
+  </svg>
+);
+
+const ErrorIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-6 w-6 inline-block text-red-500 mr-2"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+);
+
 // Reusable component to display a text field with inline editing.
-// It uses a textarea if the value is long (> 100 chars), else an input.
-// It resets its editing state when the value prop changes.
+// Uses a textarea if value is long (> 100 chars), else an input.
+// Resets editing state when the value prop changes.
 const EditableText = ({ section, field, label, value, onEdit }) => {
   const [editing, setEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
 
   useEffect(() => {
-    // When the parent's value changes, reset local state.
     setTempValue(value);
     setEditing(false);
   }, [value]);
@@ -45,7 +79,6 @@ const EditableText = ({ section, field, label, value, onEdit }) => {
 
   const handleSave = () => {
     onEdit(section, field, tempValue);
-    // Optionally, setEditing(false) here; the effect hook will update on value change.
     setEditing(false);
   };
 
@@ -97,6 +130,16 @@ export default function HomeAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  // Global notification: { status: 'success' | 'error', message: string }
+  const [notification, setNotification] = useState(null);
+
+  // Clear notification automatically after 3 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   // Fetch homepage content from the API
   useEffect(() => {
@@ -131,7 +174,6 @@ export default function HomeAdminPage() {
   const handleFieldUpdate = async (section, field, newValue) => {
     setSaving(true);
     try {
-      // Build partial update payload. E.g., { banner: { tagline: newValue } }
       const updatePayload = {
         [section]: {
           [field]: newValue,
@@ -148,7 +190,9 @@ export default function HomeAdminPage() {
       }
       const result = await res.json();
       setContent(result.content);
+      setNotification({ status: "success", message: "Saved successfully!" });
     } catch (err) {
+      setNotification({ status: "error", message: err.message });
       alert(`Error saving changes: ${err.message}`);
     } finally {
       setSaving(false);
@@ -160,7 +204,7 @@ export default function HomeAdminPage() {
     const images = [];
     for (const key in legacy) {
       if (key.startsWith("image")) {
-        const index = key.substring("image".length); // e.g., "1"
+        const index = key.substring("image".length);
         const altKey = `alt${index}`;
         images.push({
           key,
@@ -172,7 +216,6 @@ export default function HomeAdminPage() {
     return images;
   }
 
-  // Transform dynamic lists for ourLegacy, partnerLogos, and clientLogos
   const legacyImages = content.ourLegacy
     ? transformLegacyImages(content.ourLegacy)
     : [];
@@ -194,6 +237,12 @@ export default function HomeAdminPage() {
 
   return (
     <div className="w-4/5 mx-auto p-8 space-y-8">
+      {notification && (
+        <div className="text-2xl mb-4 p-4 border rounded flex items-center">
+          {notification.status === "success" ? <SuccessIcon /> : <ErrorIcon />}
+          <span>{notification.message}</span>
+        </div>
+      )}
       <h1 className="text-5xl font-bold mb-8">Edit Homepage Content</h1>
 
       {/* Banner Section */}
