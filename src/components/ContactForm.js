@@ -2,19 +2,26 @@
 import { useState, useRef, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 import ReCAPTCHA from "react-google-recaptcha";
-import Button from "../Button";
-import ImageCarouselDirection from "../ImageCarouselDirection";
+import Button from "./Button";
+import ImageCarouselDirection from "./ImageCarouselDirection";
+import { uploadFileWithCustomName } from "@/app/lib/fileUploadHelper";
+import LottieAnimation from "./LottieAnimation";
+import animationData from "../animations/career.json";
 
-export default function ContactForm({ content }) {
+export default function ContactForm({ content, type }) {
   const formRef = useRef(null);
   const recaptchaRef = useRef(null);
 
   const [status, setStatus] = useState("");
   const [captchaValue, setCaptchaValue] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [file, setFile] = useState(null);
 
   const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-  const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+  const templateId =
+    type === "contact"
+      ? process.env.NEXT_PUBLIC_EMAILJS_CONTACT_TEMPLATE_ID
+      : process.env.NEXT_PUBLIC_EMAILJS_CAREERS_TEMPLATE_ID;
   const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
   const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -29,26 +36,64 @@ export default function ContactForm({ content }) {
   }, [status]);
 
   const onRecaptchaChange = (value) => {
+    console.log("reCAPTCHA value:", value);
     setCaptchaValue(value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!captchaValue) {
+      console.error("reCAPTCHA challenge not completed.");
       setStatus("Please complete the reCAPTCHA challenge.");
       return;
     }
 
+    // Get the user name from the form. This will be used in the file name.
+    const formData = new FormData(formRef.current);
+    const userName = formData.get("name");
+    console.log("User name from form:", userName);
+
+    // For careers submissions, if a file was selected, upload it first.
+    let fileUrl = "";
+    if (type === "careers" && file) {
+      setStatus("Uploading file...");
+      console.log("Uploading file:", file);
+      fileUrl = await uploadFileWithCustomName(file, userName);
+      if (!fileUrl) {
+        console.error("Failed to get file URL after upload.");
+        setStatus("Failed to upload file. Please try again.");
+        return;
+      }
+      console.log("File uploaded successfully. URL:", fileUrl);
+      // Append a hidden input with the file URL so EmailJS can include it.
+      const fileUrlInput = document.createElement("input");
+      fileUrlInput.setAttribute("type", "hidden");
+      fileUrlInput.setAttribute("name", "fileUrl");
+      fileUrlInput.setAttribute("value", fileUrl);
+      formRef.current.appendChild(fileUrlInput);
+
+      // Remove the file input from the form so that EmailJS doesn't include the file blob.
+      const fileInput = formRef.current.querySelector(
+        'input[type="file"][name="resume"]'
+      );
+      if (fileInput) {
+        fileInput.remove();
+      }
+    }
+
     setStatus("Sending...");
+    console.log("Sending email with EmailJS...");
 
     emailjs.sendForm(serviceId, templateId, formRef.current, publicKey).then(
       () => {
+        console.log("EmailJS: Message sent successfully!");
         setStatus("Message sent successfully!");
         setIsSubmitted(true);
         formRef.current.reset();
         recaptchaRef.current.reset(); // Reset reCAPTCHA
         setCaptchaValue("");
+        setFile(null);
       },
       (error) => {
         console.error("EmailJS error:", error);
@@ -66,7 +111,8 @@ export default function ContactForm({ content }) {
     ) {
       return "text-gray-500";
     }
-    if (status === "Sending...") return "text-blue-500";
+    if (status === "Sending..." || status === "Uploading file...")
+      return "text-blue-500";
     return "text-black";
   };
 
@@ -130,6 +176,27 @@ export default function ContactForm({ content }) {
               className="border border-gray-300 rounded-xl py-3 px-4 text-[2rem] focus:outline-none focus:border-blue-500"
             />
           </div>
+          {type === "careers" && (
+            <>
+              <div className="flex flex-col">
+                <label htmlFor="resume" className="mb-1 text-[2rem]">
+                  Resume / Portfolio
+                </label>
+                <input
+                  type="file"
+                  id="resume"
+                  name="resume"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    console.log("File selected:", e.target.files[0]);
+                    setFile(e.target.files[0]);
+                  }}
+                  required
+                  className="border border-gray-300 rounded-xl py-3 px-4 text-[2rem] focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </>
+          )}
           <div className="flex flex-col">
             <label htmlFor="message" className="mb-1 text-[2rem]">
               Message
@@ -156,16 +223,25 @@ export default function ContactForm({ content }) {
           </div>
           <Button
             text="Send Message"
-            disabled={isSubmitted || status === "Sending..."}
+            disabled={
+              isSubmitted ||
+              status === "Sending..." ||
+              status === "Uploading file..."
+            }
             textSize="2rem"
           />
         </form>
       </div>
 
-      {/* Carousel column */}
-      <div className="h-[100%] w-[70%] rounded-[25px] overflow-hidden mx-auto shadow-2xl hover:scale-103 transition-all duration-500 max-16xl:w-[100%]">
-        <ImageCarouselDirection images={content} />
-      </div>
+      {type === "contact" ? (
+        <div className="h-[100%] w-[70%] rounded-[25px] overflow-hidden mx-auto shadow-2xl hover:scale-103 transition-all duration-500 max-16xl:w-[100%]">
+          <ImageCarouselDirection images={content} />
+        </div>
+      ) : (
+        <div className="h-[100%] w-[70%] mx-auto max-16xl:w-[100%]">
+          <LottieAnimation animationData={animationData} />
+        </div>
+      )}
     </section>
   );
 }

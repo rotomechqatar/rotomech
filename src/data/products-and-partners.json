@@ -1,9 +1,9 @@
 {
     "banner": {
         "tagline": "Products & Partners",
-        "sub": "The Energy that Drives Us",
+        "sub": "The Energy that Fuels Us",
         "image": "/images/partners-banner.webp",
-        "alt": "about-us-banner"
+        "alt": "products-and-partners-banner"
     },
     "partners": [
         {

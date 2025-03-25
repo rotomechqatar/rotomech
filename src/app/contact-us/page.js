@@ -1,5 +1,5 @@
 import Banner from "@/components/Banner";
-import ContactForm from "@/components/contact-us/ContactForm";
+import ContactForm from "@/components/ContactForm";
 import Location from "@/components/contact-us/Location";
 import PageIntro from "@/components/contact-us/PageIntro";
 import fs from "fs/promises";
@@ -14,7 +14,7 @@ export default async function page() {
       <Banner content={content.banner} />
       <PageIntro content={content} />
       <Location content={content} />
-      <ContactForm content={content.images} />
+      <ContactForm content={content.images} type="contact" />
     </div>
   );
 }
