@@ -1,8 +1,10 @@
-export async function DELETE(request) {
+import { NextResponse } from "next/server";
+
+export async function DELETE(request, { params }) {
   try {
     // Expecting JSON with { filename }
     const { filename } = await request.json();
-
+    const page = params.page; // dynamic parameter determines subfolder
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
     const repo =
@@ -10,7 +12,10 @@ export async function DELETE(request) {
         "/"
       )[1] || process.env.GITHUB_REPO;
     const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-    const filePath = `public/images/${filename}`;
+
+    // Construct file path dynamically based on the page
+    const filePath = `public/images/${page}/${filename}`;
+    console.log("Deleting file at path:", filePath);
 
     // Get the current file info to get the SHA
     const getResponse = await fetch(
@@ -45,7 +50,7 @@ export async function DELETE(request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: `Delete image ${filename} via admin panel`,
+          message: `Delete image ${filename} from ${page} via admin panel`,
           sha,
           branch,
         }),
