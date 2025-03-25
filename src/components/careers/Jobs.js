@@ -2,7 +2,7 @@ import Button from "../Button";
 
 export default function Jobs({ careers, noCareer }) {
   return (
-    <section className="px-[15rem] py-[10rem] grid grid-cols-2 gap-[5rem]">
+    <section className="px-[15rem] py-[10rem] grid grid-cols-2 gap-[5rem] max-14xl:px-[10rem] max-9xl:grid-cols-1 max-6xl:px-[5rem]">
       {careers.length > 0 ? (
         careers.map((item, index) => (
           <div
@@ -25,7 +25,7 @@ export default function Jobs({ careers, noCareer }) {
                 <span className="text-[2rem] font-bold">Date Posted</span>
                 <p className="text-[1.6rem]">{item.created_at}</p>
               </div>
-              <div className="w-[30%] self-end">
+              <div className="w-[20rem] self-end">
                 <Button text="Apply Now" textSize="2rem" />
               </div>
             </div>
