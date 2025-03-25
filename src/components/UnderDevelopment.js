@@ -12,7 +12,9 @@ export default function UnderDevelopment() {
         loop={true}
         style={{ height: "300px", width: "300px" }}
       />
-      <h1 className="text-6xl font-bold mb-4 animate-bounce">Stay Tuned</h1>
+      <h1 className="text-6xl font-bold mb-4 animate-bounce">
+        Stay Tuned. Page Do not exist yet!
+      </h1>
       <p className="text-5xl mb-8">This page is currently under development.</p>
       <div className="space-y-2 text-xl">
         <p className="animate-pulse text-3xl">

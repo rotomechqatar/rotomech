@@ -41,13 +41,11 @@
             "/icons/diversity.svg",
             "/icons/quality.svg",
             "/icons/commitment.svg"
-        ],
-        "image": "/images/qatar-image-2.webp"
+        ]
     },
     "whyChooseUs": {
         "head": "Why Choose Us",
-        "text": "Our extensive industry expertise spans critical sectors like Oil & Gas, Petrochemicals, Utilities, and Infrastructure, making us uniquely equipped to serve your needs. We offer tailored solutions designed specifically for your business, backed by unmatched reliability and a commitment to timely delivery, high-quality standards, and responsive support. Additionally, we leverage innovative technologies and best practices to provide superior solutions, all while ensuring dedicated customer support and personalized attention for your ongoing success.",
-        "image": "/images/qatar-image-3.webp"
+        "text": "Our extensive industry expertise spans critical sectors like Oil & Gas, Petrochemicals, Utilities, and Infrastructure, making us uniquely equipped to serve your needs. We offer tailored solutions designed specifically for your business, backed by unmatched reliability and a commitment to timely delivery, high-quality standards, and responsive support. Additionally, we leverage innovative technologies and best practices to provide superior solutions, all while ensuring dedicated customer support and personalized attention for your ongoing success."
     },
     "cta": {
         "head": "Ready to Experience Excellence?",
