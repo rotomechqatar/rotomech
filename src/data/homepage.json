@@ -1,0 +1,55 @@
+{
+  "banner": {
+    "tagline": "Supplying the Energy that Moves You",
+    "sub": "Together from Source to Success",
+    "image": "/images/home-banner-image.webp",
+    "alt": "Rotomech-pumps-and-mechs-suppliers"
+  },
+  "ourLegacy": {
+    "head": "Our Legacy",
+    "text": "Rotomech International & Co stands at the forefront of supplying MRO spare parts to heavy industrial plants in Qatar. With a robust presence that spans local, regional, and international markets, we deliver a wide array of industrial solutions tailored to sectors such as oil & gas, petrochemicals, and utilities. Our success is driven by an unwavering commitment to our customers—founded on integrity and flexibility. We prioritize our clients' achievements, ensuring that our innovative products and services empower them to focus on their core operations with complete confidence.",
+    "image1": "/images/legacy-image-1.webp",
+    "alt1": "Rotomech-pumps-and-mechs-suppliers",
+    "image2": "/images/legacy-image-2.webp",
+    "alt2": "Rotomech-pumps-and-mechs-suppliers",
+    "image3": "/images/legacy-image-3.webp",
+    "alt3": "Rotomech-pumps-and-mechs-suppliers",
+    "image4": "/images/legacy-image-4.webp",
+    "alt4": "Rotomech-pumps-and-mechs-suppliers",
+    "image5": "/images/legacy-image-5.webp",
+    "alt5": "Rotomech-pumps-and-mechs-suppliers"
+  },
+  "directorMessage": {
+    "start": "Message from Our Director",
+    "head": "Our integrity, our fairness and our ethics set us apart.",
+    "quote": "We knew from the beginning it would take a team of the best and the         brightest , truly extraordinary colleagues with intellect, integrity, passion and creativity , to succeed. And we were right.",
+    "author": "Stephen Hendel, Founding Managing Director"
+  },
+  "CTA": {
+    "head": "Ready to Elevate Your Operations?",
+    "text": "At Rotomech, your success is our success. Contact us today to discover how our tailored solutions can keep your operations running smoothly."
+  },
+  "partnerLogos": {
+    "logo1": "/logos/partnerLogo1.webp",
+    "logo2": "/logos/partnerLogo2.webp",
+    "logo3": "/logos/partnerLogo3.webp",
+    "logo4": "/logos/partnerLogo4.webp",
+    "logo5": "/logos/partnerLogo5.webp",
+    "logo6": "/logos/partnerLogo6.webp"
+  },
+  "clientLogos": {
+    "logo1": "/logos/clientLogo1.webp",
+    "logo2": "/logos/clientLogo2.webp",
+    "logo3": "/logos/clientLogo3.webp",
+    "logo4": "/logos/clientLogo4.webp",
+    "logo5": "/logos/clientLogo5.webp",
+    "logo6": "/logos/clientLogo6.webp",
+    "logo7": "/logos/clientLogo7.webp",
+    "logo8": "/logos/clientLogo8.webp",
+    "logo9": "/logos/clientLogo9.webp",
+    "logo10": "/logos/clientLogo10.webp",
+    "logo11": "/logos/clientLogo11.webp",
+    "logo12": "/logos/clientLogo12.webp",
+    "logo13": "/logos/clientLogo13.webp"
+  }
+}

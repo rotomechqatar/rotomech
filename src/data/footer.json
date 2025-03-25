@@ -1,0 +1,57 @@
+{
+    "menu": [
+        {
+            "name": "Home",
+            "link": "/"
+        },
+        {
+            "name": "About Us",
+            "link": "/about-us"
+        },
+        {
+            "name": "Products & Partners",
+            "link": "/products-and-partners"
+        },
+        {
+            "name": "Clients",
+            "link": "/clients"
+        },
+        {
+            "name": "Contact Us",
+            "link": "/contact-us"
+        },
+        {
+            "name": "Careers",
+            "link": "/careers"
+        }
+    ],
+    "contacts": [
+        {
+            "name": "LinkedIn",
+            "link": "https://www.linkedin.com/company/rotomech-international",
+            "icon": "/icons/linkedin.svg"
+        },
+        {
+            "name": "Whatsapp",
+            "link": "https://wa.me/+97477645511",
+            "icon": "/icons/whatsapp.svg"
+        },
+        {
+            "name": "Phone",
+            "link": "tel:+97477645511",
+            "icon": "/icons/phone.svg"
+        },
+        {
+            "name": "Fax",
+            "link": "tel:+97444812900",
+            "icon": "/icons/fax.svg"
+        },
+        {
+            "name": "Email",
+            "link": "mailto:info@rotomechts.com",
+            "icon": "/icons/email.svg"
+        }
+    ],
+    "location": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3609.2742745263745!2d51.49119637593057!3d25.22768543046412!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e45d18046ffba0d%3A0x567fec3d3a15b0e5!2sRotomech%20International!5e0!3m2!1sen!2sqa!4v1742578826557!5m2!1sen!2sqa",
+    "address": "Office No 25, Building No 195, Street No 995, Wholesale Market Street, Zone 56, Abu Hamour, Doha, Qatar P.O Box : 30836"
+}
