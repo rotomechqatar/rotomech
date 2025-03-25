@@ -25,6 +25,9 @@ export default function HomeAdminPage() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // editing: null or { section, field, value }
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // Fetch homepage content from the API
   useEffect(() => {
@@ -55,6 +58,92 @@ export default function HomeAdminPage() {
     return <div className="text-4xl">Loading homepage content...</div>;
   if (error) return <div className="text-4xl text-red-600">Error: {error}</div>;
 
+  // Handler to start editing a field
+  const startEditing = (section, field, currentValue) => {
+    setEditing({ section, field, value: currentValue });
+  };
+
+  // Handler to cancel editing
+  const cancelEditing = () => {
+    setEditing(null);
+  };
+
+  // Handler to update the text field locally and via API
+  const saveEditing = async () => {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      // Build a partial update object.
+      // For example, if editing banner tagline, we build:
+      // { banner: { tagline: newValue } }
+      const updatePayload = {
+        [editing.section]: {
+          [editing.field]: editing.value,
+        },
+      };
+      const res = await fetch("/api/updateContent/homepage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updatePayload),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to update content");
+      }
+      const result = await res.json();
+      // Update local content state with merged content from server
+      setContent(result.content);
+      setEditing(null);
+    } catch (err) {
+      alert(`Error saving changes: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // A reusable component to display a text field with inline editing
+  const EditableText = ({ section, field, label, value }) => {
+    const isEditing =
+      editing && editing.section === section && editing.field === field;
+
+    return (
+      <div className="text-2xl my-2">
+        <strong>{label}:</strong>{" "}
+        {isEditing ? (
+          <>
+            <input
+              type="text"
+              className="text-2xl border p-2"
+              value={editing.value}
+              onChange={(e) =>
+                setEditing({ ...editing, value: e.target.value })
+              }
+            />
+            <button
+              onClick={saveEditing}
+              className="ml-4 bg-green-500 text-white px-4 py-2 rounded"
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+            <button
+              onClick={cancelEditing}
+              className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
+              disabled={saving}
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <span>{value}</span>
+            <EditIcon onClick={() => startEditing(section, field, value)} />
+          </>
+        )}
+      </div>
+    );
+  };
+
   // Utility function to transform ourLegacy images into an array
   function transformLegacyImages(legacy) {
     const images = [];
@@ -83,11 +172,7 @@ export default function HomeAdminPage() {
     ? Object.entries(content.clientLogos).map(([key, src]) => ({ key, src }))
     : [];
 
-  // Dummy event handlers for edit, delete, add actions
-  const handleEdit = (section, field) => {
-    alert(`Edit ${section} field: ${field}`);
-  };
-
+  // Dummy event handlers for delete and add actions
   const handleDelete = (section, key) => {
     alert(`Delete ${section} item: ${key}`);
   };
@@ -104,14 +189,18 @@ export default function HomeAdminPage() {
       {content.banner && (
         <section className="border p-4 rounded">
           <h2 className="text-3xl font-semibold mb-2">Banner</h2>
-          <p className="text-2xl">
-            <strong>Tagline:</strong> {content.banner.tagline}
-            <EditIcon onClick={() => handleEdit("banner", "tagline")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Sub:</strong> {content.banner.sub}
-            <EditIcon onClick={() => handleEdit("banner", "sub")} />
-          </p>
+          <EditableText
+            section="banner"
+            field="tagline"
+            label="Tagline"
+            value={content.banner.tagline}
+          />
+          <EditableText
+            section="banner"
+            field="sub"
+            label="Sub"
+            value={content.banner.sub}
+          />
           <div className="mt-2">
             <img
               src={content.banner.image}
@@ -126,14 +215,18 @@ export default function HomeAdminPage() {
       {content.ourLegacy && (
         <section className="border p-4 rounded">
           <h2 className="text-3xl font-semibold mb-2">Our Legacy</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.ourLegacy.head}
-            <EditIcon onClick={() => handleEdit("ourLegacy", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.ourLegacy.text}
-            <EditIcon onClick={() => handleEdit("ourLegacy", "text")} />
-          </p>
+          <EditableText
+            section="ourLegacy"
+            field="head"
+            label="Head"
+            value={content.ourLegacy.head}
+          />
+          <EditableText
+            section="ourLegacy"
+            field="text"
+            label="Text"
+            value={content.ourLegacy.text}
+          />
           <h3 className="text-3xl font-semibold mt-4 mb-2">Legacy Images</h3>
           <table className="min-w-full border text-2xl">
             <thead>
@@ -153,12 +246,6 @@ export default function HomeAdminPage() {
                   <td className="p-4">{img.key}</td>
                   <td className="p-4">{img.alt}</td>
                   <td className="p-4 space-x-4">
-                    <button
-                      onClick={() => handleEdit("ourLegacy", img.key)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                      Edit
-                    </button>
                     <button
                       onClick={() => handleDelete("ourLegacy", img.key)}
                       className="bg-red-500 text-white px-4 py-2 rounded"
@@ -189,22 +276,30 @@ export default function HomeAdminPage() {
           <h2 className="text-3xl font-semibold mb-2">
             Message from Our Director
           </h2>
-          <p className="text-2xl">
-            <strong>Start:</strong> {content.directorMessage.start}
-            <EditIcon onClick={() => handleEdit("directorMessage", "start")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.directorMessage.head}
-            <EditIcon onClick={() => handleEdit("directorMessage", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Quote:</strong> {content.directorMessage.quote}
-            <EditIcon onClick={() => handleEdit("directorMessage", "quote")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Author:</strong> {content.directorMessage.author}
-            <EditIcon onClick={() => handleEdit("directorMessage", "author")} />
-          </p>
+          <EditableText
+            section="directorMessage"
+            field="start"
+            label="Start"
+            value={content.directorMessage.start}
+          />
+          <EditableText
+            section="directorMessage"
+            field="head"
+            label="Head"
+            value={content.directorMessage.head}
+          />
+          <EditableText
+            section="directorMessage"
+            field="quote"
+            label="Quote"
+            value={content.directorMessage.quote}
+          />
+          <EditableText
+            section="directorMessage"
+            field="author"
+            label="Author"
+            value={content.directorMessage.author}
+          />
         </section>
       )}
 
@@ -212,14 +307,18 @@ export default function HomeAdminPage() {
       {content.CTA && (
         <section className="border p-4 rounded">
           <h2 className="text-3xl font-semibold mb-2">Call To Action</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.CTA.head}
-            <EditIcon onClick={() => handleEdit("CTA", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.CTA.text}
-            <EditIcon onClick={() => handleEdit("CTA", "text")} />
-          </p>
+          <EditableText
+            section="CTA"
+            field="head"
+            label="Head"
+            value={content.CTA.head}
+          />
+          <EditableText
+            section="CTA"
+            field="text"
+            label="Text"
+            value={content.CTA.text}
+          />
         </section>
       )}
 
@@ -243,12 +342,6 @@ export default function HomeAdminPage() {
                   </td>
                   <td className="p-4">{logo.key}</td>
                   <td className="p-4 space-x-4">
-                    <button
-                      onClick={() => handleEdit("partnerLogos", logo.key)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                      Edit
-                    </button>
                     <button
                       onClick={() => handleDelete("partnerLogos", logo.key)}
                       className="bg-red-500 text-white px-4 py-2 rounded"
@@ -293,12 +386,6 @@ export default function HomeAdminPage() {
                   </td>
                   <td className="p-4">{logo.key}</td>
                   <td className="p-4 space-x-4">
-                    <button
-                      onClick={() => handleEdit("clientLogos", logo.key)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                      Edit
-                    </button>
                     <button
                       onClick={() => handleDelete("clientLogos", logo.key)}
                       className="bg-red-500 text-white px-4 py-2 rounded"

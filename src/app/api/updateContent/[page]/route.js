@@ -1,19 +1,17 @@
 import { Buffer } from "buffer";
+import path from "path";
 
-// A simple deep merge helper that recursively merges two objects.
+// Deep merge helper that recursively merges two objects.
 function deepMerge(target, source) {
-  // If either target or source is not an object, return source.
   if (typeof target !== "object" || target === null) {
     return source;
   }
   if (typeof source !== "object" || source === null) {
     return source;
   }
-  // Merge each key in source
   const merged = { ...target };
   for (const key in source) {
-    if (source.hasOwnProperty(key)) {
-      // Recursively merge if both have objects at this key
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
       merged[key] = deepMerge(target[key], source[key]);
     }
   }
@@ -22,12 +20,18 @@ function deepMerge(target, source) {
 
 export async function POST(request, { params }) {
   try {
-    // Get the page identifier from the URL
-    const page = params.page;
-    const filePath = `src/data/${page}.json`;
+    console.log("POST updateContent called with params:", params);
+    // Await the dynamic parameter value as requested.
+    const param = await params;
+    const page = param.page;
+    console.log("Page parameter:", page);
 
-    // Get the update payload (could be partial)
-    const updateData = await request.json();
+    const filePath = `src/data/${page}.json`;
+    console.log("Using file path:", filePath);
+
+    // Get update payload (could be partial)
+    const updatePayload = await request.json();
+    console.log("Received update payload:", updatePayload);
 
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
@@ -36,18 +40,21 @@ export async function POST(request, { params }) {
         "/"
       )[1] || process.env.GITHUB_REPO;
     const branch = process.env.GITHUB_STAGING_BRANCH || "master";
+    console.log("Using branch:", branch);
+    console.log("Owner:", owner, "Repo:", repo);
 
-    // Retrieve the current file info from GitHub to get the SHA and current content
-    const getResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
-      {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github+json",
-        },
-      }
-    );
+    const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    console.log("Fetching current file from GitHub using URL:", getUrl);
+
+    const getResponse = await fetch(getUrl, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
     const fileData = await getResponse.json();
+    console.log("Response from GitHub for current file:", fileData);
+
     if (!getResponse.ok) {
       console.error("Error fetching file info:", fileData);
       return new Response(
@@ -58,36 +65,51 @@ export async function POST(request, { params }) {
         { status: 500 }
       );
     }
-    const sha = fileData.sha;
-    // GitHub returns file content in base64 encoding – decode it first.
-    const currentContent = JSON.parse(
-      Buffer.from(fileData.content, "base64").toString("utf8")
-    );
 
-    // Deep merge the incoming updateData into the existing content
-    const mergedContent = deepMerge(currentContent, updateData);
+    const sha = fileData.sha;
+    console.log("Retrieved SHA:", sha);
+
+    // Decode current file content (GitHub returns content in base64)
+    const currentContentString = Buffer.from(
+      fileData.content,
+      "base64"
+    ).toString("utf8");
+    console.log("Current file content string:", currentContentString);
+    const currentContent = JSON.parse(currentContentString);
+    console.log("Parsed current content:", currentContent);
+
+    // Deep merge the incoming updatePayload into the existing content
+    const mergedContent = deepMerge(currentContent, updatePayload);
+    console.log("Merged content:", mergedContent);
+
     const contentString = JSON.stringify(mergedContent, null, 2);
     const contentBase64 = Buffer.from(contentString).toString("base64");
+    console.log("Final content string to be uploaded:", contentString);
 
-    // Update the file on GitHub using a PUT request
-    const putResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: `Update ${page} content via admin panel`,
-          content: contentBase64,
-          sha,
-          branch,
-        }),
-      }
-    );
+    // Prepare PUT request payload
+    const putBody = {
+      message: `Update ${page} content via admin panel`,
+      content: contentBase64,
+      sha,
+      branch,
+    };
+
+    const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+    console.log("Updating file on GitHub with URL:", putUrl);
+    console.log("PUT request payload:", putBody);
+
+    const putResponse = await fetch(putUrl, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(putBody),
+    });
     const updateResponseData = await putResponse.json();
+    console.log("Response from GitHub on update:", updateResponseData);
+
     if (!putResponse.ok) {
       console.error("Error updating file:", updateResponseData);
       return new Response(
