@@ -21,12 +21,81 @@ const EditIcon = ({ onClick }) => (
   </button>
 );
 
+// Reusable component to display a text field with inline editing.
+// It uses a textarea if the value is long (> 100 chars), else an input.
+// It resets its editing state when the value prop changes.
+const EditableText = ({ section, field, label, value, onEdit }) => {
+  const [editing, setEditing] = useState(false);
+  const [tempValue, setTempValue] = useState(value);
+
+  useEffect(() => {
+    // When the parent's value changes, reset local state.
+    setTempValue(value);
+    setEditing(false);
+  }, [value]);
+
+  const startEditing = () => {
+    setTempValue(value);
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditing(false);
+  };
+
+  const handleSave = () => {
+    onEdit(section, field, tempValue);
+    // Optionally, setEditing(false) here; the effect hook will update on value change.
+    setEditing(false);
+  };
+
+  return (
+    <div className="text-2xl my-2">
+      <strong>{label}:</strong>{" "}
+      {editing ? (
+        <>
+          {value.length > 100 ? (
+            <textarea
+              className="w-full text-2xl border p-2"
+              rows={5}
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+            />
+          ) : (
+            <input
+              type="text"
+              className="w-full text-2xl border p-2"
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+            />
+          )}
+          <button
+            onClick={handleSave}
+            className="ml-4 bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Save
+          </button>
+          <button
+            onClick={cancelEditing}
+            className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <span>{value}</span>
+          <EditIcon onClick={startEditing} />
+        </>
+      )}
+    </div>
+  );
+};
+
 export default function HomeAdminPage() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  // editing: null or { section, field, value }
-  const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
 
   // Fetch homepage content from the API
@@ -58,27 +127,14 @@ export default function HomeAdminPage() {
     return <div className="text-4xl">Loading homepage content...</div>;
   if (error) return <div className="text-4xl text-red-600">Error: {error}</div>;
 
-  // Handler to start editing a field
-  const startEditing = (section, field, currentValue) => {
-    setEditing({ section, field, value: currentValue });
-  };
-
-  // Handler to cancel editing
-  const cancelEditing = () => {
-    setEditing(null);
-  };
-
-  // Handler to update the text field locally and via API
-  const saveEditing = async () => {
-    if (!editing) return;
+  // Handler to update content for a specific text field
+  const handleFieldUpdate = async (section, field, newValue) => {
     setSaving(true);
     try {
-      // Build a partial update object.
-      // For example, if editing banner tagline, we build:
-      // { banner: { tagline: newValue } }
+      // Build partial update payload. E.g., { banner: { tagline: newValue } }
       const updatePayload = {
-        [editing.section]: {
-          [editing.field]: editing.value,
+        [section]: {
+          [field]: newValue,
         },
       };
       const res = await fetch("/api/updateContent/homepage", {
@@ -91,57 +147,12 @@ export default function HomeAdminPage() {
         throw new Error("Failed to update content");
       }
       const result = await res.json();
-      // Update local content state with merged content from server
       setContent(result.content);
-      setEditing(null);
     } catch (err) {
       alert(`Error saving changes: ${err.message}`);
     } finally {
       setSaving(false);
     }
-  };
-
-  // A reusable component to display a text field with inline editing
-  const EditableText = ({ section, field, label, value }) => {
-    const isEditing =
-      editing && editing.section === section && editing.field === field;
-
-    return (
-      <div className="text-2xl my-2">
-        <strong>{label}:</strong>{" "}
-        {isEditing ? (
-          <>
-            <input
-              type="text"
-              className="text-2xl border p-2"
-              value={editing.value}
-              onChange={(e) =>
-                setEditing({ ...editing, value: e.target.value })
-              }
-            />
-            <button
-              onClick={saveEditing}
-              className="ml-4 bg-green-500 text-white px-4 py-2 rounded"
-              disabled={saving}
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-            <button
-              onClick={cancelEditing}
-              className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
-              disabled={saving}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <>
-            <span>{value}</span>
-            <EditIcon onClick={() => startEditing(section, field, value)} />
-          </>
-        )}
-      </div>
-    );
   };
 
   // Utility function to transform ourLegacy images into an array
@@ -194,12 +205,14 @@ export default function HomeAdminPage() {
             field="tagline"
             label="Tagline"
             value={content.banner.tagline}
+            onEdit={handleFieldUpdate}
           />
           <EditableText
             section="banner"
             field="sub"
             label="Sub"
             value={content.banner.sub}
+            onEdit={handleFieldUpdate}
           />
           <div className="mt-2">
             <img
@@ -220,12 +233,14 @@ export default function HomeAdminPage() {
             field="head"
             label="Head"
             value={content.ourLegacy.head}
+            onEdit={handleFieldUpdate}
           />
           <EditableText
             section="ourLegacy"
             field="text"
             label="Text"
             value={content.ourLegacy.text}
+            onEdit={handleFieldUpdate}
           />
           <h3 className="text-3xl font-semibold mt-4 mb-2">Legacy Images</h3>
           <table className="min-w-full border text-2xl">
@@ -281,24 +296,28 @@ export default function HomeAdminPage() {
             field="start"
             label="Start"
             value={content.directorMessage.start}
+            onEdit={handleFieldUpdate}
           />
           <EditableText
             section="directorMessage"
             field="head"
             label="Head"
             value={content.directorMessage.head}
+            onEdit={handleFieldUpdate}
           />
           <EditableText
             section="directorMessage"
             field="quote"
             label="Quote"
             value={content.directorMessage.quote}
+            onEdit={handleFieldUpdate}
           />
           <EditableText
             section="directorMessage"
             field="author"
             label="Author"
             value={content.directorMessage.author}
+            onEdit={handleFieldUpdate}
           />
         </section>
       )}
@@ -312,12 +331,14 @@ export default function HomeAdminPage() {
             field="head"
             label="Head"
             value={content.CTA.head}
+            onEdit={handleFieldUpdate}
           />
           <EditableText
             section="CTA"
             field="text"
             label="Text"
             value={content.CTA.text}
+            onEdit={handleFieldUpdate}
           />
         </section>
       )}
