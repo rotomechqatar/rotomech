@@ -1,6 +1,6 @@
 import AnimatedSectionText from "@/components/AnimatedSectionText";
 import LottieAnimation from "@/components/LottieAnimation";
-import animationData from "@/animations/oil-pump.json";
+import animationData from "@/animations/oil-and-gas-plant.json";
 
 export default function WhyChooseUs({ content }) {
   return (
