@@ -6,8 +6,8 @@ import Link from "next/link";
 
 export default function OurValues({ content }) {
   return (
-    <section className="relative mx-[15rem] py-[5rem] max-14xl:mx-[10rem] max-6xl:mx-[5rem] max-6xl:py-[5rem]">
-      <div className="absolute flex flex-col justify-center items-center text-center w-[100%] max-9xl:relative top-[20%]">
+    <section className="relative mx-[15rem] pb-[5rem] max-14xl:mx-[10rem] max-6xl:mx-[5rem] max-6xl:py-[5rem]">
+      <div className="absolute flex flex-col justify-center items-center text-center w-[100%] max-9xl:relative top-[10%]">
         <h2 className="text-[5rem]">{content.head}</h2>
         <p className="text-[2rem] w-[40%] max-9xl:w-[100%]">{content.text}</p>
         <Link href="/contact-us" className="z-[100] mt-[5rem]">
@@ -21,7 +21,7 @@ export default function OurValues({ content }) {
             <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center ">
               01.
             </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center">
+            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 ">
               <Image
                 src={content.icons[0]}
                 alt={content.values[0]}
@@ -37,7 +37,7 @@ export default function OurValues({ content }) {
             <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
               06.
             </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center">
+            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
               <Image
                 src={content.icons[5]}
                 alt={content.values[5]}
@@ -56,7 +56,7 @@ export default function OurValues({ content }) {
             <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
               02.
             </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center">
+            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
               <Image
                 src={content.icons[1]}
                 alt={content.values[1]}
@@ -72,7 +72,7 @@ export default function OurValues({ content }) {
             <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
               05.
             </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center">
+            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
               <Image
                 src={content.icons[4]}
                 alt={content.values[4]}
@@ -91,7 +91,7 @@ export default function OurValues({ content }) {
             <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
               03.
             </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center">
+            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
               <Image
                 src={content.icons[2]}
                 alt={content.values[2]}
@@ -107,7 +107,7 @@ export default function OurValues({ content }) {
             <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
               04.
             </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center">
+            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
               <Image
                 src={content.icons[3]}
                 alt={content.values[3]}

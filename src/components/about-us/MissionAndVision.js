@@ -7,7 +7,7 @@ export default function MissionAndVision({ mission, vision }) {
       <div className="relative w-[90%] group shadow-xl rounded-[25px] max-9xl:w-[100%]">
         {/* Gradient Border Overlay */}
         <div className="absolute -inset-0.5 rounded-[25px] bg-gradient-to-r from-green to-blue opacity-0 group-hover:opacity-100 group-hover:scale-108 transition-all duration-500 " />
-        <div className="relative border h-[300px] hover:scale-105 hover:bg-black hover:text-white px-[3rem] py-[2rem] rounded-[25px] transition-all duration-500 max-9xl:h-[200px] max-6xl:flex max-6xl:flex-col max-6xl:justify-center max-6xl:h-[250px]">
+        <div className="relative border h-[300px] hover:scale-105 hover:bg-black hover:text-white px-[3rem] py-[2rem] rounded-[25px] transition-all duration-500 max-9xl:h-[200px] max-6xl:flex max-6xl:flex-col max-6xl:justify-center max-6xl:h-[280px]">
           <AnimatedSectionText
             heading={mission.head}
             paragraphs={[mission.text]}
@@ -19,7 +19,7 @@ export default function MissionAndVision({ mission, vision }) {
       <div className="relative w-[90%] group shadow-xl rounded-[25px] max-9xl:w-[100%]">
         {/* Gradient Border Overlay */}
         <div className="absolute -inset-0.5 rounded-[25px] bg-gradient-to-r from-green to-blue opacity-0 group-hover:opacity-100 group-hover:scale-108 transition-all duration-500" />
-        <div className="relative border h-[300px] hover:scale-105 hover:bg-black hover:text-white px-[3rem] py-[2rem] rounded-[25px] transition-all duration-500 max-9xl:h-[200px] max-6xl:flex max-6xl:flex-col max-6xl:justify-center max-6xl:h-[250px]">
+        <div className="relative border h-[300px] hover:scale-105 hover:bg-black hover:text-white px-[3rem] py-[2rem] rounded-[25px] transition-all duration-500 max-9xl:h-[200px] max-6xl:flex max-6xl:flex-col max-6xl:justify-center max-6xl:h-[280px]">
           <AnimatedSectionText
             heading={vision.head}
             paragraphs={[vision.text]}
