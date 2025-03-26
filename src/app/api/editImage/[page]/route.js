@@ -10,9 +10,7 @@ async function updateJsonFile(
   branch,
   newContent
 ) {
-  console.log("Updating JSON file at:", filePath);
   const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-  console.log("JSON GET URL:", getUrl);
   const getRes = await fetch(getUrl, {
     headers: {
       Authorization: `token ${token}`,
@@ -20,13 +18,11 @@ async function updateJsonFile(
     },
   });
   const fileData = await getRes.json();
-  console.log("Fetched JSON file data:", fileData);
   const sha = fileData.sha;
   const contentString = JSON.stringify(newContent, null, 2);
   const contentBase64 = Buffer.from(contentString).toString("base64");
 
   const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
-  console.log("JSON PUT URL:", putUrl);
   const putRes = await fetch(putUrl, {
     method: "PUT",
     headers: {
@@ -35,53 +31,32 @@ async function updateJsonFile(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      message: `Update JSON file after editing image alt text`,
+      message: `Update JSON file after image upload`,
       content: contentBase64,
       sha,
       branch,
     }),
   });
-  const putData = await putRes.json();
-  console.log("JSON update response:", putData);
-  return putData;
+  return await putRes.json();
 }
 
-export async function POST(request, context) {
+export async function POST(request, { params }) {
   try {
-    const { params } = await context;
+    // Expecting JSON with { fileData, alt } where fileData is Base64 (without data URI prefix)
+    const { fileData, alt } = await request.json();
     const page = params.page;
-    console.log("Editing image alt text for page:", page);
-
-    // Expecting JSON with { section, key, newAlt }
-    const { section, key, newAlt } = await request.json();
-    console.log("Payload received:", { section, key, newAlt });
-
-    if (!section) {
-      console.error("Section missing in payload");
-      return new NextResponse(
-        JSON.stringify({
-          error: "Section missing in payload",
-          details:
-            "Please provide the section (e.g. 'ourLegacy', 'partnerLogos').",
-        }),
-        { status: 400 }
-      );
-    }
-
     const token = process.env.GITHUB_TOKEN;
-    const ownerEnv = process.env.GITHUB_OWNER;
+    const owner = process.env.GITHUB_OWNER;
     const repo =
       process.env.GITHUB_REPO.replace("https://github.com/", "").split(
         "/"
       )[1] || process.env.GITHUB_REPO;
     const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-    console.log("Using owner:", ownerEnv, "repo:", repo, "branch:", branch);
+    console.log("Upload image for page:", page);
 
-    // Get current JSON file
+    // Determine next index for image keys by reading the JSON file.
     const jsonFilePath = `src/data/${page}.json`;
-    console.log("JSON file path:", jsonFilePath);
-    const jsonUrl = `https://api.github.com/repos/${ownerEnv}/${repo}/contents/${jsonFilePath}?ref=${branch}`;
-    console.log("Fetching JSON file from URL:", jsonUrl);
+    const jsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${jsonFilePath}?ref=${branch}`;
     const jsonRes = await fetch(jsonUrl, {
       headers: {
         Authorization: `token ${token}`,
@@ -89,66 +64,75 @@ export async function POST(request, context) {
       },
     });
     const jsonData = await jsonRes.json();
-    console.log("Raw JSON data:", jsonData);
     const jsonContentStr = Buffer.from(jsonData.content, "base64").toString(
       "utf8"
     );
-    console.log("Decoded JSON content string:", jsonContentStr);
     const jsonContent = JSON.parse(jsonContentStr);
-    console.log("Parsed JSON content:", jsonContent);
+    console.log("Current JSON content:", jsonContent);
 
-    if (!jsonContent[section]) {
-      console.error(`Section "${section}" not found in JSON.`);
+    // Determine next index for images. Look for keys starting with "image"
+    let maxIndex = 0;
+    for (const key in jsonContent) {
+      if (key.startsWith("image")) {
+        const num = parseInt(key.replace("image", ""), 10);
+        if (!isNaN(num) && num > maxIndex) {
+          maxIndex = num;
+        }
+      }
+    }
+    const newIndex = maxIndex + 1;
+    // Generate new filename. Here we assume a prefix like "legacy-image-"
+    const newFilename = `legacy-image-${newIndex}.webp`;
+    const imagePath = `/images/${page}/${newFilename}`;
+    console.log("New image will be:", imagePath);
+
+    // Upload the image file to GitHub at public/images/{page}/{newFilename}
+    const filePathRepo = `public/images/${page}/${newFilename}`;
+    const putResponse = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${filePathRepo}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `Upload image ${newFilename} for ${page} via admin panel`,
+          content: fileData,
+          branch,
+        }),
+      }
+    );
+    const uploadData = await putResponse.json();
+    if (!putResponse.ok) {
+      console.error("Error uploading image file:", uploadData);
       return new NextResponse(
         JSON.stringify({
-          error: "Section not found in JSON",
-          details: `Section "${section}" does not exist.`,
+          error: "Failed to upload image",
+          details: uploadData,
         }),
         { status: 500 }
       );
     }
+    console.log("Image file uploaded successfully:", uploadData);
 
-    // Get the current image URL from the specified section
-    const currentImageUrl = jsonContent[section][key]; // e.g. "/images/legacy-image-1.webp"
-    if (!currentImageUrl) {
-      console.error(`Key "${key}" not found in section "${section}".`);
-      return new NextResponse(
-        JSON.stringify({
-          error: "Image key not found",
-          details: `Key "${key}" not found in section "${section}".`,
-        }),
-        { status: 500 }
-      );
-    }
-    console.log("Current image URL from JSON:", currentImageUrl);
-
-    // Derive index from key (e.g., "image2" -> "2") and corresponding alt key.
-    const index = key.replace(/^\D+/, "");
-    const altKey = `alt${index}`;
-    console.log("Derived index:", index, "and alt key:", altKey);
-
-    // Update JSON file with the same image path and new alt value.
-    jsonContent[section][key] = currentImageUrl; // No change in filename
-    if (newAlt !== undefined) {
-      jsonContent[section][altKey] = newAlt;
-    }
-    console.log("Final updated JSON content:", jsonContent);
-
+    // Update JSON file: add keys "image{newIndex}" and "alt{newIndex}"
+    jsonContent[`image${newIndex}`] = imagePath;
+    jsonContent[`alt${newIndex}`] = alt || "";
+    console.log("Updated JSON content with new image:", jsonContent);
     const updateJsonResult = await updateJsonFile(
       jsonFilePath,
       token,
-      ownerEnv,
+      owner,
       repo,
       branch,
       jsonContent
     );
-    console.log(
-      "Updated JSON file after editing image alt text:",
-      updateJsonResult
-    );
+    console.log("Updated JSON file after image upload:", updateJsonResult);
 
     return new NextResponse(
-      JSON.stringify({ success: true, content: jsonContent }),
+      JSON.stringify({ success: true, data: { uploadData, jsonContent } }),
       { status: 200 }
     );
   } catch (err) {

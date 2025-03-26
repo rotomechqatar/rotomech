@@ -82,7 +82,7 @@ export default function HomeAdminPage() {
       const finalFilename = providedFilename ? providedFilename : oldFilename;
 
       // Call the DELETE API route to remove the old banner image.
-      const deleteRes = await fetch(`/api/replaceBannerImage/homepage`, {
+      const deleteRes = await fetch(`/api/deleteImage/homepage`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -93,10 +93,10 @@ export default function HomeAdminPage() {
       }
 
       // Call the POST API route to upload the new image.
-      // (We assume your backend route at /api/replaceBannerImage/homepage is set up
+      // (We assume your backend route at /api/uploadImage/homepage is set up
       // to handle a payload of { fileData, alt, filename } and update the JSON's banner field.)
       const uploadPayload = { fileData, alt: newAlt, filename: finalFilename };
-      const uploadRes = await fetch(`/api/replaceBannerImage/homepage`, {
+      const uploadRes = await fetch(`/api/uploadImage/homepage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
