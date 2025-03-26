@@ -16,7 +16,6 @@ export default function HomeAdminPage() {
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState(null);
 
-  // Automatically clear notification after 3 seconds.
   useEffect(() => {
     if (notification) {
       const timer = setTimeout(() => setNotification(null), 3000);
@@ -24,7 +23,6 @@ export default function HomeAdminPage() {
     }
   }, [notification]);
 
-  // Fetch homepage content from the API
   useEffect(() => {
     async function fetchContent() {
       try {
@@ -47,7 +45,6 @@ export default function HomeAdminPage() {
     return <div className="text-4xl">Loading homepage content...</div>;
   if (error) return <div className="text-4xl text-red-600">Error: {error}</div>;
 
-  // Handler to update content for a text field
   const handleFieldUpdate = async (section, field, newValue) => {
     setSaving(true);
     try {
@@ -70,7 +67,57 @@ export default function HomeAdminPage() {
     }
   };
 
-  // Handler for editing image details (only updating alt text)
+  // New handler for banner image upload & replacement.
+  const handleBannerImageUpload = async (
+    fileData,
+    providedFilename,
+    newAlt
+  ) => {
+    try {
+      // Extract the old filename from the current banner image URL.
+      const oldImageUrl = content.banner.image;
+      const oldFilename = oldImageUrl.split("/").pop();
+
+      // Use the provided filename if given; otherwise use the old filename.
+      const finalFilename = providedFilename ? providedFilename : oldFilename;
+
+      // Call the DELETE API route to remove the old banner image.
+      const deleteRes = await fetch(`/api/replaceBannerImage/homepage`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ filename: oldFilename }),
+      });
+      if (!deleteRes.ok) {
+        throw new Error("Failed to delete old banner image");
+      }
+
+      // Call the POST API route to upload the new image.
+      // (We assume your backend route at /api/replaceBannerImage/homepage is set up
+      // to handle a payload of { fileData, alt, filename } and update the JSON's banner field.)
+      const uploadPayload = { fileData, alt: newAlt, filename: finalFilename };
+      const uploadRes = await fetch(`/api/replaceBannerImage/homepage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(uploadPayload),
+      });
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload new banner image");
+      }
+      const result = await uploadRes.json();
+      setContent(result.content);
+      setNotification({
+        status: "success",
+        message: "Banner image replaced successfully!",
+      });
+    } catch (err) {
+      setNotification({ status: "error", message: err.message });
+      alert(`Error replacing banner image: ${err.message}`);
+    }
+  };
+
+  // Dummy handlers for legacy images and logos remain the same.
   const handleImageEdit = async (section, imageKey, newFilename, newAlt) => {
     try {
       const payload = { section, key: imageKey, newAlt };
@@ -93,35 +140,6 @@ export default function HomeAdminPage() {
     }
   };
 
-  // Handler for replacing the banner image
-  const handleBannerImageReplace = async (fileData) => {
-    try {
-      const payload = {
-        section: "banner",
-        key: "image",
-        newAlt: content.banner.alt,
-        fileData,
-      };
-      const res = await fetch("/api/replaceImage/homepage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to replace banner image");
-      const result = await res.json();
-      setContent(result.content);
-      setNotification({
-        status: "success",
-        message: "Banner image replaced successfully!",
-      });
-    } catch (err) {
-      setNotification({ status: "error", message: err.message });
-      alert(`Error replacing banner image: ${err.message}`);
-    }
-  };
-
-  // Dummy handlers for delete and add operations
   const handleDelete = (section, key) => {
     alert(`Delete ${section} item: ${key}`);
   };
@@ -130,7 +148,6 @@ export default function HomeAdminPage() {
     alert(`Add new item to ${section}`);
   };
 
-  // Utility function to transform ourLegacy images into an array
   function transformLegacyImages(legacy) {
     const images = [];
     for (const key in legacy) {
@@ -166,8 +183,7 @@ export default function HomeAdminPage() {
       <HomepageBanner
         banner={content.banner}
         onEditField={handleFieldUpdate}
-        onReplaceImage={handleBannerImageReplace}
-        onDeleteImage={handleDelete}
+        onBannerImageUpload={handleBannerImageUpload}
       />
 
       {content.ourLegacy && (

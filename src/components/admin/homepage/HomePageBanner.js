@@ -1,14 +1,9 @@
 "use client";
 import React from "react";
 import EditableText from "@/components/admin/EditableText";
-import BannerImageEditor from "./BannerImageEditor";
+import BannerImageUploader from "./BannerImageUploader";
 
-const HomepageBanner = ({
-  banner,
-  onEditField,
-  onReplaceImage,
-  onDeleteImage,
-}) => {
+const HomepageBanner = ({ banner, onEditField, onBannerImageUpload }) => {
   return (
     <section className="border p-4 rounded">
       <h2 className="text-3xl font-semibold mb-2">Banner</h2>
@@ -26,18 +21,10 @@ const HomepageBanner = ({
         value={banner.sub}
         onEdit={onEditField}
       />
-      <BannerImageEditor
+      <BannerImageUploader
         src={banner.image}
         alt={banner.alt}
-        onReplace={onReplaceImage}
-        onDelete={() => onDeleteImage("banner", "image")}
-        onAltChange={() =>
-          onEditField(
-            "banner",
-            "alt",
-            prompt("Enter new alt text:", banner.alt) || banner.alt
-          )
-        }
+        onUpload={onBannerImageUpload}
       />
     </section>
   );
