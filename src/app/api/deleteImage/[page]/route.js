@@ -1,10 +1,49 @@
 import { NextResponse } from "next/server";
+import { Buffer } from "buffer";
+
+// Helper: update the JSON file on GitHub after modification
+async function updateJsonFile(
+  filePath,
+  token,
+  owner,
+  repo,
+  branch,
+  newContent
+) {
+  const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  const getRes = await fetch(getUrl, {
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: "application/vnd.github+json",
+    },
+  });
+  const fileData = await getRes.json();
+  const sha = fileData.sha;
+  const contentString = JSON.stringify(newContent, null, 2);
+  const contentBase64 = Buffer.from(contentString).toString("base64");
+
+  const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+  const putRes = await fetch(putUrl, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: `Update JSON file after deleting image`,
+      content: contentBase64,
+      sha,
+      branch,
+    }),
+  });
+  return await putRes.json();
+}
 
 export async function DELETE(request, { params }) {
   try {
-    // Expecting JSON with { filename }
     const { filename } = await request.json();
-    const page = params.page; // dynamic parameter determines subfolder
+    const page = params.page; // dynamic parameter from URL
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
     const repo =
@@ -13,23 +52,20 @@ export async function DELETE(request, { params }) {
       )[1] || process.env.GITHUB_REPO;
     const branch = process.env.GITHUB_STAGING_BRANCH || "master";
 
-    // Construct file path dynamically based on the page
-    const filePath = `public/images/${page}/${filename}`;
-    console.log("Deleting file at path:", filePath);
-
-    // Get the current file info to get the SHA
-    const getResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
-      {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github+json",
-        },
-      }
-    );
-    const fileData = await getResponse.json();
-    if (!getResponse.ok) {
-      return new Response(
+    // Delete the image file from repository
+    const imagePath = `public/images/${page}/${filename}`;
+    console.log("Deleting image file at:", imagePath);
+    const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${imagePath}?ref=${branch}`;
+    const getRes = await fetch(getUrl, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+    const fileData = await getRes.json();
+    if (!getRes.ok) {
+      console.error("Error fetching image file info:", fileData);
+      return new NextResponse(
         JSON.stringify({
           error: "Failed to retrieve image info",
           details: fileData,
@@ -38,27 +74,24 @@ export async function DELETE(request, { params }) {
       );
     }
     const sha = fileData.sha;
-
-    // Delete the file from GitHub
-    const deleteResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: `Delete image ${filename} from ${page} via admin panel`,
-          sha,
-          branch,
-        }),
-      }
-    );
-    const deleteData = await deleteResponse.json();
-    if (!deleteResponse.ok) {
-      return new Response(
+    const deleteUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${imagePath}`;
+    const deleteRes = await fetch(deleteUrl, {
+      method: "DELETE",
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: `Delete image ${filename} from ${page} via admin panel`,
+        sha,
+        branch,
+      }),
+    });
+    const deleteData = await deleteRes.json();
+    if (!deleteRes.ok) {
+      console.error("Error deleting image file:", deleteData);
+      return new NextResponse(
         JSON.stringify({
           error: "Failed to delete image",
           details: deleteData,
@@ -66,12 +99,57 @@ export async function DELETE(request, { params }) {
         { status: 500 }
       );
     }
+    console.log("Image file deleted successfully:", deleteData);
 
-    return new Response(JSON.stringify({ success: true, data: deleteData }), {
-      status: 200,
+    // Update the JSON file: remove keys for this image.
+    const jsonFilePath = `src/data/${page}.json`;
+    const jsonUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${jsonFilePath}?ref=${branch}`;
+    const jsonRes = await fetch(jsonUrl, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
     });
+    const jsonData = await jsonRes.json();
+    const jsonContentStr = Buffer.from(jsonData.content, "base64").toString(
+      "utf8"
+    );
+    const jsonContent = JSON.parse(jsonContentStr);
+    console.log("Current JSON content:", jsonContent);
+
+    // Remove keys whose value contains the filename (for example "image2" and "alt2")
+    let removed = false;
+    for (const key in jsonContent) {
+      if (
+        (key.startsWith("image") || key.startsWith("alt")) &&
+        jsonContent[key].includes(filename)
+      ) {
+        console.log(`Removing key ${key} with value ${jsonContent[key]}`);
+        delete jsonContent[key];
+        removed = true;
+      }
+    }
+    if (removed) {
+      const updateJsonResult = await updateJsonFile(
+        jsonFilePath,
+        token,
+        owner,
+        repo,
+        branch,
+        jsonContent
+      );
+      console.log("Updated JSON file after image deletion:", updateJsonResult);
+    } else {
+      console.log("No matching keys found in JSON for filename:", filename);
+    }
+
+    return new NextResponse(
+      JSON.stringify({ success: true, data: deleteData }),
+      { status: 200 }
+    );
   } catch (err) {
-    return new Response(
+    console.error("Server error:", err);
+    return new NextResponse(
       JSON.stringify({ error: "Server error", details: err.message }),
       { status: 500 }
     );
