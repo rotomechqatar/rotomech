@@ -1,306 +1,482 @@
 "use client";
-import { useState, useEffect } from "react";
 
-// A simple inline pencil edit icon component
-const EditIcon = ({ onClick }) => (
-  <button onClick={onClick} className="ml-2 inline-block cursor-pointer">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-6 w-6 text-gray-600"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7 21H3v-4L16.732 3.732z"
-      />
-    </svg>
-  </button>
-);
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
+import AboutUsImageUploadPopup from "@/components/admin/AboutUsImageUploadPopup";
 
-export default function AboutAdminPage() {
-  const [content, setContent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default function AdminAboutUs() {
+  const [data, setData] = useState(null);
 
-  // Fetch About Us content from the API (from about-us.json)
+  // Fetch about-us content data on mount
   useEffect(() => {
-    async function fetchContent() {
-      console.log("Fetching about-us content from /api/getContent/about-us");
-      try {
-        const res = await fetch("/api/getContent/about-us", {
-          credentials: "include",
-        });
-        console.log("Fetch response status:", res.status);
-        if (!res.ok) {
-          throw new Error("Failed to fetch about-us content");
-        }
-        const data = await res.json();
-        console.log("Received about-us data:", data);
-        setContent(data);
-      } catch (err) {
-        console.error("Error fetching about-us content:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchContent();
+    fetch("/api/getContent/about-us")
+      .then((res) => res.json())
+      .then((data) => setData(data))
+      .catch((err) => console.error(err));
   }, []);
 
-  if (loading)
-    return <div className="text-4xl">Loading about-us content...</div>;
-  if (error) return <div className="text-4xl text-red-600">Error: {error}</div>;
-
-  // Dummy event handlers for edit, delete, add actions
-  const handleEdit = (section, field) => {
-    alert(`Edit ${section} field: ${field}`);
+  // Handler to update a specific text field in the state
+  const handleTextUpdate = (section, field, newValue) => {
+    setData((prev) => ({
+      ...prev,
+      [section]: { ...prev[section], [field]: newValue },
+    }));
   };
 
-  const handleDelete = (section, key) => {
-    alert(`Delete ${section} item: ${key}`);
+  // Handler to update an image in the aboutUs.images array
+  const updateAboutUsImage = (index, newImagePath) => {
+    setData((prev) => {
+      const updatedImages = [...prev.aboutUs.images];
+      updatedImages[index] = newImagePath;
+      return {
+        ...prev,
+        aboutUs: { ...prev.aboutUs, images: updatedImages },
+      };
+    });
   };
 
-  const handleAdd = (section) => {
-    alert(`Add new item to ${section}`);
+  if (!data) return <div className="p-6 text-center text-2xl">Loading...</div>;
+
+  return (
+    <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-5xl font-bold mb-8">
+        Admin Dashboard - About Us Editor
+      </h1>
+
+      <BannerSection
+        banner={data.banner}
+        updateText={handleTextUpdate}
+        page="about-us"
+      />
+
+      <AboutUsSection
+        aboutUs={data.aboutUs}
+        updateText={handleTextUpdate}
+        updateImage={updateAboutUsImage}
+      />
+
+      <MissionSection mission={data.ourMission} updateText={handleTextUpdate} />
+
+      <VisionSection vision={data.ourVision} updateText={handleTextUpdate} />
+
+      <CoreValuesSection
+        coreValues={data.coreValues}
+        updateText={handleTextUpdate}
+      />
+
+      <WhyChooseUsSection
+        whyChooseUs={data.whyChooseUs}
+        updateText={handleTextUpdate}
+      />
+
+      <CTASection CTA={data.cta} updateText={handleTextUpdate} />
+    </div>
+  );
+}
+
+// -----------------------
+// Banner Section
+// -----------------------
+function BannerSection({ banner, updateText, page }) {
+  const [showUploadPopup, setShowUploadPopup] = useState(false);
+
+  const openPopup = () => setShowUploadPopup(true);
+  const closePopup = () => setShowUploadPopup(false);
+
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">Banner Section</h2>
+      <div className="mb-4">
+        <Image
+          src={banner.image}
+          alt={banner.alt}
+          width={300}
+          height={150}
+          objectFit="cover"
+          className="rounded"
+        />
+      </div>
+      <button
+        onClick={openPopup}
+        className="px-4 py-2 bg-blue-500 text-white rounded mb-4 text-2xl"
+      >
+        Upload New Image
+      </button>
+      <div className="text-2xl">
+        <p className="font-medium">
+          <EditableText
+            section="banner"
+            field="tagline"
+            text={banner.tagline}
+            onTextUpdated={(val) => updateText("banner", "tagline", val)}
+          />
+        </p>
+        <p className="text-gray-600">
+          <EditableText
+            section="banner"
+            field="sub"
+            text={banner.sub}
+            onTextUpdated={(val) => updateText("banner", "sub", val)}
+          />
+        </p>
+      </div>
+      {showUploadPopup && (
+        <BannerImageUploadPopup
+          page={page}
+          banner={banner}
+          onClose={closePopup}
+          onUpdate={(newBanner) => {
+            updateText("banner", "image", newBanner.image);
+            updateText("banner", "alt", newBanner.alt);
+            closePopup();
+          }}
+        />
+      )}
+    </section>
+  );
+}
+
+// -----------------------
+// About Us Section
+// -----------------------
+function AboutUsSection({ aboutUs, updateText, updateImage }) {
+  const [showUploadPopup, setShowUploadPopup] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const openUpdatePopup = (index) => {
+    setSelectedIndex(index);
+    setShowUploadPopup(true);
+  };
+
+  const handleImageUpdate = (uploadData) => {
+    updateImage(selectedIndex, uploadData.imagePath);
+    setShowUploadPopup(false);
+    setSelectedIndex(null);
   };
 
   return (
-    <div className="w-4/5 mx-auto p-8 space-y-8">
-      <h1 className="text-5xl font-bold mb-8">Edit About Us Content</h1>
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">
+        <EditableText
+          section="aboutUs"
+          field="head"
+          text={aboutUs.head}
+          onTextUpdated={(val) => updateText("aboutUs", "head", val)}
+        />
+      </h2>
 
-      {/* Banner Section */}
-      {content.banner && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">Banner</h2>
-          <p className="text-2xl">
-            <strong>Tagline:</strong> {content.banner.tagline}
-            <EditIcon onClick={() => handleEdit("banner", "tagline")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Sub:</strong> {content.banner.sub}
-            <EditIcon onClick={() => handleEdit("banner", "sub")} />
-          </p>
-          <div className="mt-2">
-            <img
-              src={content.banner.image}
-              alt={content.banner.alt}
-              className="max-w-[30rem] h-[20rem]"
-            />
-          </div>
-        </section>
-      )}
+      <p className="mb-4 text-2xl">
+        <EditableText
+          section="aboutUs"
+          field="text"
+          text={aboutUs.text}
+          onTextUpdated={(val) => updateText("aboutUs", "text", val)}
+        />
+      </p>
 
-      {/* About Us Section */}
-      {content.aboutUs && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">About Us</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.aboutUs.head}
-            <EditIcon onClick={() => handleEdit("aboutUs", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.aboutUs.text}
-            <EditIcon onClick={() => handleEdit("aboutUs", "text")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text2:</strong> {content.aboutUs.text2}
-            <EditIcon onClick={() => handleEdit("aboutUs", "text2")} />
-          </p>
-          <div className="mt-4">
-            <h3 className="text-3xl font-semibold mb-2">Images</h3>
-            <table className="min-w-full border text-2xl">
-              <thead>
-                <tr className="border-b">
-                  <th className="p-4">Preview</th>
-                  <th className="p-4">Index</th>
-                  <th className="p-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {content.aboutUs.images &&
-                  content.aboutUs.images.map((img, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="p-4">
-                        <img
-                          src={img}
-                          alt={`aboutUs image ${idx + 1}`}
-                          className="h-40"
-                        />
-                      </td>
-                      <td className="p-4">Image {idx + 1}</td>
-                      <td className="p-4 space-x-4">
-                        <button
-                          onClick={() =>
-                            handleEdit("aboutUs", `images[${idx}]`)
-                          }
-                          className="bg-blue-500 text-white px-4 py-2 rounded"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleDelete("aboutUs", `images[${idx}]`)
-                          }
-                          className="bg-red-500 text-white px-4 py-2 rounded"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                <tr>
-                  <td colSpan="3" className="p-4 text-center">
-                    <button
-                      onClick={() => handleAdd("aboutUs_images")}
-                      className="bg-green-500 text-white px-4 py-2 rounded"
-                    >
-                      Add Image
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+      <p className="mb-4 text-2xl">
+        <EditableText
+          section="aboutUs"
+          field="text2"
+          text={aboutUs.text2}
+          onTextUpdated={(val) => updateText("aboutUs", "text2", val)}
+        />
+      </p>
 
-      {/* Our Mission Section */}
-      {content.ourMission && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">Our Mission</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.ourMission.head}
-            <EditIcon onClick={() => handleEdit("ourMission", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.ourMission.text}
-            <EditIcon onClick={() => handleEdit("ourMission", "text")} />
-          </p>
-        </section>
-      )}
+      <h3 className="text-2xl font-semibold mb-2">Images</h3>
+      <AboutUsImagesTable
+        images={aboutUs.images}
+        onUpdateClick={openUpdatePopup}
+      />
 
-      {/* Our Vision Section */}
-      {content.ourVision && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">Our Vision</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.ourVision.head}
-            <EditIcon onClick={() => handleEdit("ourVision", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.ourVision.text}
-            <EditIcon onClick={() => handleEdit("ourVision", "text")} />
-          </p>
-        </section>
+      {showUploadPopup && (
+        <AboutUsImageUploadPopup
+          page="about-us"
+          section="aboutUs"
+          index={selectedIndex}
+          initialName=""
+          onClose={() => {
+            setShowUploadPopup(false);
+            setSelectedIndex(null);
+          }}
+          onUpload={handleImageUpdate}
+        />
       )}
+    </section>
+  );
+}
 
-      {/* Core Values Section */}
-      {content.coreValues && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">Core Values</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.coreValues.head}
-            <EditIcon onClick={() => handleEdit("coreValues", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.coreValues.text}
-            <EditIcon onClick={() => handleEdit("coreValues", "text")} />
-          </p>
-          <div className="mt-4">
-            <h3 className="text-3xl font-semibold mb-2">Values & Icons</h3>
-            <table className="min-w-full border text-2xl">
-              <thead>
-                <tr className="border-b">
-                  <th className="p-4">Icon</th>
-                  <th className="p-4">Value</th>
-                  <th className="p-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {content.coreValues.values &&
-                  content.coreValues.values.map((value, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="p-4">
-                        <img
-                          src={content.coreValues.icons[idx]}
-                          alt={value}
-                          className="h-20"
-                        />
-                      </td>
-                      <td className="p-4">{value}</td>
-                      <td className="p-4 space-x-4">
-                        <button
-                          onClick={() =>
-                            handleEdit("coreValues", `value[${idx}]`)
-                          }
-                          className="bg-blue-500 text-white px-4 py-2 rounded"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleDelete("coreValues", `value[${idx}]`)
-                          }
-                          className="bg-red-500 text-white px-4 py-2 rounded"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                <tr>
-                  <td colSpan="3" className="p-4 text-center">
-                    <button
-                      onClick={() => handleAdd("coreValues")}
-                      className="bg-green-500 text-white px-4 py-2 rounded"
-                    >
-                      Add Value/Icon
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+function AboutUsImagesTable({ images, onUpdateClick }) {
+  const imageRows = images.map((src, index) => ({
+    index,
+    src,
+    name: `Image ${index + 1}`,
+  }));
 
-      {/* Why Choose Us Section */}
-      {content.whyChooseUs && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">Why Choose Us</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.whyChooseUs.head}
-            <EditIcon onClick={() => handleEdit("whyChooseUs", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.whyChooseUs.text}
-            <EditIcon onClick={() => handleEdit("whyChooseUs", "text")} />
-          </p>
-        </section>
-      )}
-
-      {/* CTA Section */}
-      {content.cta && (
-        <section className="border p-4 rounded">
-          <h2 className="text-3xl font-semibold mb-2">Call To Action</h2>
-          <p className="text-2xl">
-            <strong>Head:</strong> {content.cta.head}
-            <EditIcon onClick={() => handleEdit("cta", "head")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Tagline:</strong> {content.cta.tagline}
-            <EditIcon onClick={() => handleEdit("cta", "tagline")} />
-          </p>
-          <p className="text-2xl">
-            <strong>Text:</strong> {content.cta.text}
-            <EditIcon onClick={() => handleEdit("cta", "text")} />
-          </p>
-        </section>
-      )}
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto border-collapse">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-2 text-2xl border">Preview</th>
+            <th className="p-2 text-2xl border">Name</th>
+            <th className="p-2 text-2xl border">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {imageRows.map((img) => (
+            <tr key={img.index} className="text-center">
+              <td className="p-2 border">
+                <div className="inline-block relative w-80 h-48">
+                  <Image
+                    src={img.src}
+                    alt={`Image ${img.index + 1}`}
+                    layout="fill"
+                    objectFit="contain"
+                    className="rounded"
+                  />
+                </div>
+              </td>
+              <td className="p-2 border text-2xl">{img.name}</td>
+              <td className="p-2 text-2xl border">
+                <button
+                  onClick={() => onUpdateClick(img.index)}
+                  className="px-2 py-1 bg-blue-500 text-white rounded text-2xl"
+                >
+                  Update Image
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
+  );
+}
+
+// -----------------------
+// Mission Section
+// -----------------------
+function MissionSection({ mission, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">
+        <EditableText
+          section="ourMission"
+          field="head"
+          text={mission.head}
+          onTextUpdated={(val) => updateText("ourMission", "head", val)}
+        />
+      </h2>
+      <p className="text-2xl">
+        <EditableText
+          section="ourMission"
+          field="text"
+          text={mission.text}
+          onTextUpdated={(val) => updateText("ourMission", "text", val)}
+        />
+      </p>
+    </section>
+  );
+}
+
+// -----------------------
+// Vision Section
+// -----------------------
+function VisionSection({ vision, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">
+        <EditableText
+          section="ourVision"
+          field="head"
+          text={vision.head}
+          onTextUpdated={(val) => updateText("ourVision", "head", val)}
+        />
+      </h2>
+      <p className="text-2xl">
+        <EditableText
+          section="ourVision"
+          field="text"
+          text={vision.text}
+          onTextUpdated={(val) => updateText("ourVision", "text", val)}
+        />
+      </p>
+    </section>
+  );
+}
+
+// -----------------------
+// Core Values Section
+// -----------------------
+function CoreValuesSection({ coreValues, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">
+        <EditableText
+          section="coreValues"
+          field="head"
+          text={coreValues.head}
+          onTextUpdated={(val) => updateText("coreValues", "head", val)}
+        />
+      </h2>
+      <p className="mb-4 text-2xl">
+        <EditableText
+          section="coreValues"
+          field="text"
+          text={coreValues.text}
+          onTextUpdated={(val) => updateText("coreValues", "text", val)}
+        />
+      </p>
+      <ul className="list-disc pl-8">
+        {coreValues.values.map((value, idx) => (
+          <li key={idx} className="text-2xl">
+            {value}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+// -----------------------
+// Why Choose Us Section
+// -----------------------
+function WhyChooseUsSection({ whyChooseUs, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">
+        <EditableText
+          section="whyChooseUs"
+          field="head"
+          text={whyChooseUs.head}
+          onTextUpdated={(val) => updateText("whyChooseUs", "head", val)}
+        />
+      </h2>
+      <p className="text-2xl">
+        <EditableText
+          section="whyChooseUs"
+          field="text"
+          text={whyChooseUs.text}
+          onTextUpdated={(val) => updateText("whyChooseUs", "text", val)}
+        />
+      </p>
+    </section>
+  );
+}
+
+// -----------------------
+// CTA Section
+// -----------------------
+function CTASection({ CTA, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-blue-100 rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">
+        <EditableText
+          section="cta"
+          field="head"
+          text={CTA.head}
+          onTextUpdated={(val) => updateText("cta", "head", val)}
+        />
+      </h2>
+      <p className="text-2xl">
+        <EditableText
+          section="cta"
+          field="tagline"
+          text={CTA.tagline}
+          onTextUpdated={(val) => updateText("cta", "tagline", val)}
+        />
+      </p>
+      <p className="text-2xl">
+        <EditableText
+          section="cta"
+          field="text"
+          text={CTA.text}
+          onTextUpdated={(val) => updateText("cta", "text", val)}
+        />
+      </p>
+    </section>
+  );
+}
+
+// -----------------------
+// Editable Text Component
+// -----------------------
+function EditableText({ section, field, text, onTextUpdated }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(text);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setValue(text);
+  }, [text]);
+
+  const saveChanges = async () => {
+    setLoading(true);
+    const payload = { [section]: { [field]: value } };
+
+    try {
+      const res = await fetch(`/api/updateContent/about-us`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onTextUpdated(value);
+        setEditing(false);
+      } else {
+        alert("Error saving changes: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving changes: " + err.message);
+    }
+    setLoading(false);
+  };
+
+  const cancelEditing = () => {
+    setValue(text);
+    setEditing(false);
+  };
+
+  return (
+    <span className="w-full inline-flex items-center">
+      {editing ? (
+        <>
+          <input
+            type="text"
+            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          <button
+            onClick={saveChanges}
+            disabled={loading}
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+          <button
+            onClick={cancelEditing}
+            disabled={loading}
+            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+          >
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <span className="text-2xl">{text}</span>
+          <span
+            onClick={() => setEditing(true)}
+            className="cursor-pointer text-2xl ml-1 inline"
+          >
+            ✏️
+          </span>
+        </>
+      )}
+    </span>
   );
 }
