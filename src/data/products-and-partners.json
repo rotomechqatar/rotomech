@@ -41,6 +41,12 @@
       "logo": "/logos/partnerLogo5.webp",
       "description": "UT Pumps is a leading manufacturer and supplier of innovative pump solutions designed to meet the demands of diverse industrial, water treatment, and oil & gas applications. Renowned for its commitment to quality and efficiency, UT Pumps delivers robust, reliable, and energy-efficient fluid handling systems that help customers optimize their operations. With cutting-edge technology and a focus on sustainability, UT Pumps stands out as a trusted partner in delivering advanced pumping solutions worldwide.",
       "link": "https://www.utpumps.com/"
+    },
+    {
+      "name": "Desmi",
+      "logo": "/logos/partnerLogo7.webp",
+      "description": "Desmi is a global leader in designing, manufacturing, and servicing specialized pump solutions for marine, offshore, and industrial applications. They offer a wide range of energy-efficient pumps—including seawater, slurry, and bilge pumps—that are engineered to perform reliably in demanding environments. Committed to sustainability and continuous innovation, Desmi provides exceptional customer support and tailored solutions, making them a trusted partner in critical industries worldwide.",
+      "link": "https://www.desmi.com/"
     }
   ]
 }
