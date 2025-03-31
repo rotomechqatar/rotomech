@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
 import UniversalImageUploadPopup from "@/components/admin/UniversalImageUploadPopup";
+import AddPartnerPopup from "@/components/admin/AddPartnerPopup";
 
 export default function AdminHomepage() {
   const [data, setData] = useState(null);
@@ -32,6 +33,26 @@ export default function AdminHomepage() {
     }));
   };
 
+  // Handler to update partnerLogos after adding a new partner
+  const updatePartnerLogos = (newPartner) => {
+    setData((prev) => ({
+      ...prev,
+      partnerLogos: {
+        ...prev.partnerLogos,
+        [`logo${newPartner.index}`]: newPartner.imagePath,
+      },
+    }));
+  };
+
+  // New handler to remove a partner from state (after successful deletion)
+  const removePartnerLogo = (partnerKey) => {
+    setData((prev) => {
+      const newPartnerLogos = { ...prev.partnerLogos };
+      delete newPartnerLogos[partnerKey];
+      return { ...prev, partnerLogos: newPartnerLogos };
+    });
+  };
+
   if (!data) return <div className="p-6 text-center text-2xl">Loading...</div>;
 
   return (
@@ -51,90 +72,152 @@ export default function AdminHomepage() {
         updateText={handleTextUpdate}
       />
       <CTASection CTA={data.CTA} updateText={handleTextUpdate} />
-      <PartnerLogosSection partnerLogos={data.partnerLogos} />
+      <PartnerLogosSection
+        partnerLogos={data.partnerLogos}
+        updatePartnerLogos={updatePartnerLogos}
+        removePartnerLogo={removePartnerLogo}
+      />
       <ClientLogosSection clientLogos={data.clientLogos} />
     </div>
   );
 }
 
-// Generic editable text component used for inline text editing.
-function EditableText({ section, field, text, onTextUpdated }) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(text);
-  const [loading, setLoading] = useState(false);
+// -----------------------
+// Partner & Client Logos
+// -----------------------
 
-  useEffect(() => {
-    setValue(text);
-  }, [text]);
+function PartnerLogosSection({
+  partnerLogos,
+  updatePartnerLogos,
+  removePartnerLogo,
+}) {
+  const logos = Object.entries(partnerLogos).map(([key, src]) => ({
+    name: key, // partner key such as "logo1", "logo2", etc.
+    src,
+    alt: `Partner logo ${key}`,
+  }));
 
-  const saveChanges = async () => {
-    setLoading(true);
-    const payload = { [section]: { [field]: value } };
+  const [showAddPartnerPopup, setShowAddPartnerPopup] = useState(false);
 
+  // Delete handler for a partner logo
+  const handleDeletePartner = async (partnerKey) => {
+    if (!confirm("Are you sure you want to delete this partner?")) return;
     try {
-      const res = await fetch(`/api/updateContent/homepage`, {
-        method: "POST",
+      const res = await fetch("/api/partner/deletePartner", {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ key: partnerKey }),
       });
       const data = await res.json();
       if (res.ok) {
-        onTextUpdated(value);
-        setEditing(false);
+        removePartnerLogo(partnerKey);
       } else {
-        alert("Error saving changes: " + (data.error || "Unknown error"));
+        alert("Error deleting partner: " + (data.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
-      alert("Error saving changes: " + err.message);
+      alert("Error deleting partner: " + err.message);
     }
-    setLoading(false);
-  };
-
-  const cancelEditing = () => {
-    setValue(text);
-    setEditing(false);
   };
 
   return (
-    <span className="w-full inline-flex items-center">
-      {editing ? (
-        <>
-          <input
-            type="text"
-            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-          <button
-            onClick={saveChanges}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-          <button
-            onClick={cancelEditing}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <>
-          <span className="text-2xl">{text}</span>
-          <span
-            onClick={() => setEditing(true)}
-            className="cursor-pointer text-2xl ml-1 inline"
-          >
-            ✏️
-          </span>
-        </>
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-3xl font-semibold">Our Partners</h2>
+        <button
+          onClick={() => setShowAddPartnerPopup(true)}
+          className="px-4 py-2 bg-blue-500 text-white rounded text-2xl"
+        >
+          Add Partner
+        </button>
+      </div>
+      <ImageTable images={logos} onDelete={handleDeletePartner} />
+      {showAddPartnerPopup && (
+        <AddPartnerPopup
+          onClose={() => setShowAddPartnerPopup(false)}
+          onUpdate={(res) => {
+            updatePartnerLogos(res);
+            setShowAddPartnerPopup(false);
+          }}
+        />
       )}
-    </span>
+    </section>
   );
 }
+
+function ClientLogosSection({ clientLogos }) {
+  const logos = Object.entries(clientLogos).map(([key, src]) => ({
+    name: key,
+    src,
+    alt: `Client logo ${key}`,
+  }));
+
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-3xl font-semibold">Our Clients</h2>
+        <button className="px-4 py-2 bg-blue-500 text-white rounded text-2xl">
+          Add Client
+        </button>
+      </div>
+      <ImageTable images={logos} />
+    </section>
+  );
+}
+
+// Updated ImageTable component accepts an optional onDelete prop.
+// If onDelete is provided, the Delete button will call onDelete with the image name (partner key).
+function ImageTable({ images, onDelete }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto border-collapse">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-2 text-2xl border">Preview</th>
+            <th className="p-2 text-2xl border">Name</th>
+            <th className="p-2 text-2xl border">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {images.map((img, idx) => (
+            <tr key={idx} className="text-center">
+              <td className="p-2 border">
+                <div className="inline-block relative w-80 h-48">
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    layout="fill"
+                    objectFit="contain"
+                    className="rounded"
+                  />
+                </div>
+              </td>
+              <td className="p-2 border text-2xl">{img.name}</td>
+              <td className="p-2 text-2xl border">
+                {onDelete ? (
+                  <button
+                    onClick={() => onDelete(img.name)}
+                    className="px-2 py-1 bg-red-500 text-white rounded text-2xl"
+                  >
+                    Delete
+                  </button>
+                ) : (
+                  <button className="px-2 py-1 bg-red-500 text-white rounded text-2xl">
+                    Delete
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// -----------------------
+// Other Sections (unchanged)
+// -----------------------
 
 function BannerSection({ banner, updateText }) {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
@@ -181,6 +264,7 @@ function BannerSection({ banner, updateText }) {
       </div>
       {showUploadPopup && (
         <BannerImageUploadPopup
+          page="homepage"
           banner={banner}
           onClose={closePopup}
           onUpdate={(newBanner) => {
@@ -195,8 +279,6 @@ function BannerSection({ banner, updateText }) {
 }
 
 function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
-  // For legacy images, we only allow updating existing ones.
-  // We'll open the update popup when the user clicks "Update Image" on a row.
   const [showUploadPopup, setShowUploadPopup] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
@@ -270,7 +352,6 @@ function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
 function LegacyImageTable({ images, section, onUpdateClick }) {
   const updateLegacyAlt = (index, newAlt) => {
     // This function can be used to update alt text inline.
-    // For brevity, you can call an update endpoint if needed.
   };
 
   return (
@@ -378,76 +459,80 @@ function CTASection({ CTA, updateText }) {
   );
 }
 
-function PartnerLogosSection({ partnerLogos }) {
-  const logos = Object.entries(partnerLogos).map(([key, src]) => ({
-    name: key,
-    src,
-    alt: `Partner logo ${key}`,
-  }));
+function EditableText({ section, field, text, onTextUpdated }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(text);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setValue(text);
+  }, [text]);
+
+  const saveChanges = async () => {
+    setLoading(true);
+    const payload = { [section]: { [field]: value } };
+
+    try {
+      const res = await fetch(`/api/updateContent/homepage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onTextUpdated(value);
+        setEditing(false);
+      } else {
+        alert("Error saving changes: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving changes: " + err.message);
+    }
+    setLoading(false);
+  };
+
+  const cancelEditing = () => {
+    setValue(text);
+    setEditing(false);
+  };
 
   return (
-    <section className="mb-8 p-6 bg-white rounded shadow">
-      <h2 className="text-3xl font-semibold mb-4">Our Partners</h2>
-      <ImageTable images={logos} />
-    </section>
-  );
-}
-
-function ClientLogosSection({ clientLogos }) {
-  const logos = Object.entries(clientLogos).map(([key, src]) => ({
-    name: key,
-    src,
-    alt: `Client logo ${key}`,
-  }));
-
-  return (
-    <section className="mb-8 p-6 bg-white rounded shadow">
-      <h2 className="text-3xl font-semibold mb-4">Our Clients</h2>
-      <ImageTable images={logos} />
-    </section>
-  );
-}
-
-function ImageTable({ images }) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full table-auto border-collapse">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2 text-2xl border">Preview</th>
-            <th className="p-2 text-2xl border">Name</th>
-            <th className="p-2 text-2xl border">Alt Text</th>
-            <th className="p-2 text-2xl border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {images.map((img, idx) => (
-            <tr key={idx} className="text-center">
-              <td className="p-2 border">
-                <div className="inline-block relative w-80 h-48">
-                  <Image
-                    src={img.src}
-                    alt={img.alt}
-                    layout="fill"
-                    objectFit="contain"
-                    className="rounded"
-                  />
-                </div>
-              </td>
-              <td className="p-2 border text-2xl">{img.name}</td>
-              <td className="p-2 text-2xl">{img.alt}</td>
-              <td className="p-2 text-2xl border">
-                <button className="mr-2 px-2 py-1 bg-green-500 text-white rounded text-2xl">
-                  Edit
-                </button>
-                <button className="px-2 py-1 bg-red-500 text-white rounded text-2xl">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <span className="w-full inline-flex items-center">
+      {editing ? (
+        <>
+          <input
+            type="text"
+            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          <button
+            onClick={saveChanges}
+            disabled={loading}
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+          <button
+            onClick={cancelEditing}
+            disabled={loading}
+            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+          >
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <span className="text-2xl">{text}</span>
+          <span
+            onClick={() => setEditing(true)}
+            className="cursor-pointer text-2xl ml-1 inline"
+          >
+            ✏️
+          </span>
+        </>
+      )}
+    </span>
   );
 }
