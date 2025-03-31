@@ -1,55 +1,55 @@
 {
-    "banner": {
-        "tagline": "About Us",
-        "sub": "Energy that drives the future",
-        "image": "/images/qatar-image-1.webp",
-        "alt": "about-us-banner"
-    },
-    "aboutUs": {
-        "head": "About Us",
-        "text": "Rotomech International Trading and Contracting is a leading provider of Maintenance, Repair, and Operations (MRO) spare parts serving heavy industrial plants across Qatar. Our proven track record is built upon creating successful business groups recognized locally, regionally, and internationally. Today, through our diversified divisions, we deliver comprehensive solutions tailored specifically for industries including Oil & Gas, Petrochemical, Utilities, and nfrastructure.",
-        "text2": "At Rotomech, customer success is the cornerstone of our business. We are dedicated to ensuring our customers' and clients' success through integrity, flexibility, and personalized attention to their unique needs.",
-        "images": [
-            "/images/qatar-image-5.webp",
-            "/images/qatar-image-6.webp",
-            "/images/qatar-image-4.webp"
-        ]
-    },
-    "ourMission": {
-        "head": "Our Mission",
-        "text": "Our mission is to enable our clients to concentrate on their core businesses by consistently providing world-class general services. We are committed to excellence, ensuring that every service we offer meets or surpasses the expectations of our clients and partners."
-    },
-    "ourVision": {
-        "head": "Our Vision",
-        "text": "Our vision is to become the premier global provider of innovative mechanical sealing solutions and comprehensive industrial support services. By continually pushing technological boundaries, we aim to improve efficiency, reliability, and sustainability across diverse industrial processes, solidifying our reputation for excellence worldwide."
-    },
-    "coreValues": {
-        "head": "Core Values",
-        "text": "Core Values are at the heart of Rotomech's progress. What sets us apart is not just what we do, but how we do it. We believe that our continued success is built upon our core values",
-        "values": [
-            "Ethics",
-            "Integrity",
-            "Equality",
-            "Diversity",
-            "Quality",
-            "Commitment"
-        ],
-        "icons": [
-            "/icons/ethics.svg",
-            "/icons/integrity.svg",
-            "/icons/equality.svg",
-            "/icons/diversity.svg",
-            "/icons/quality.svg",
-            "/icons/commitment.svg"
-        ]
-    },
-    "whyChooseUs": {
-        "head": "Why Choose Us",
-        "text": "Our extensive industry expertise spans critical sectors like Oil & Gas, Petrochemicals, Utilities, and Infrastructure, making us uniquely equipped to serve your needs. We offer tailored solutions designed specifically for your business, backed by unmatched reliability and a commitment to timely delivery, high-quality standards, and responsive support. Additionally, we leverage innovative technologies and best practices to provide superior solutions, all while ensuring dedicated customer support and personalized attention for your ongoing success."
-    },
-    "cta": {
-        "head": "Ready to Experience Excellence?",
-        "tagline": "Partner with Rotomech and Transform Your Industrial Operations Today!",
-        "text": "Unlock unparalleled efficiency and reliability with Rotomech's industry-leading solutions. Contact us now to elevate your business success."
-    }
+  "banner": {
+    "tagline": "About Us",
+    "sub": "Energy that drives the future-test",
+    "image": "/images/qatar-image-1.webp",
+    "alt": "about-us-banner"
+  },
+  "aboutUs": {
+    "head": "About Us",
+    "text": "Rotomech International Trading and Contracting is a leading provider of Maintenance, Repair, and Operations (MRO) spare parts serving heavy industrial plants across Qatar. Our proven track record is built upon creating successful business groups recognized locally, regionally, and internationally. Today, through our diversified divisions, we deliver comprehensive solutions tailored specifically for industries including Oil & Gas, Petrochemical, Utilities, and nfrastructure.",
+    "text2": "At Rotomech, customer success is the cornerstone of our business. We are dedicated to ensuring our customers' and clients' success through integrity, flexibility, and personalized attention to their unique needs.",
+    "images": [
+      "/images/qatar-image-5.webp",
+      "/images/qatar-image-6.webp",
+      "/images/about-us-image_2.webp"
+    ]
+  },
+  "ourMission": {
+    "head": "Our Mission",
+    "text": "Our mission is to enable our clients to concentrate on their core businesses by consistently providing world-class general services. We are committed to excellence, ensuring that every service we offer meets or surpasses the expectations of our clients and partners."
+  },
+  "ourVision": {
+    "head": "Our Vision",
+    "text": "Our vision is to become the premier global provider of innovative mechanical sealing solutions and comprehensive industrial support services. By continually pushing technological boundaries, we aim to improve efficiency, reliability, and sustainability across diverse industrial processes, solidifying our reputation for excellence worldwide."
+  },
+  "coreValues": {
+    "head": "Core Values",
+    "text": "Core Values are at the heart of Rotomech's progress. What sets us apart is not just what we do, but how we do it. We believe that our continued success is built upon our core values",
+    "values": [
+      "Ethics",
+      "Integrity",
+      "Equality",
+      "Diversity",
+      "Quality",
+      "Commitment"
+    ],
+    "icons": [
+      "/icons/ethics.svg",
+      "/icons/integrity.svg",
+      "/icons/equality.svg",
+      "/icons/diversity.svg",
+      "/icons/quality.svg",
+      "/icons/commitment.svg"
+    ]
+  },
+  "whyChooseUs": {
+    "head": "Why Choose Us",
+    "text": "Our extensive industry expertise spans critical sectors like Oil & Gas, Petrochemicals, Utilities, and Infrastructure, making us uniquely equipped to serve your needs. We offer tailored solutions designed specifically for your business, backed by unmatched reliability and a commitment to timely delivery, high-quality standards, and responsive support. Additionally, we leverage innovative technologies and best practices to provide superior solutions, all while ensuring dedicated customer support and personalized attention for your ongoing success."
+  },
+  "cta": {
+    "head": "Ready to Experience Excellence?",
+    "tagline": "Partner with Rotomech and Transform Your Industrial Operations Today!",
+    "text": "Unlock unparalleled efficiency and reliability with Rotomech's industry-leading solutions. Contact us now to elevate your business success."
+  }
 }
