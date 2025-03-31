@@ -1,250 +1,339 @@
 "use client";
-import { useState, useEffect } from "react";
 
-export default function AdminPage() {
-  // Content editing states
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [message, setMessage] = useState("");
-  const [updatedContent, setUpdatedContent] = useState(null);
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
+// We'll create a popup for adding/editing a career entry
+import CareerPopup from "@/components/admin/CareerPopup";
 
-  // Image upload states
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadMessage, setUploadMessage] = useState("");
-  const [uploadImageName, setUploadImageName] = useState(""); // custom name input
+export default function AdminCareers() {
+  const [data, setData] = useState(null);
+  const [showCareerPopup, setShowCareerPopup] = useState(false);
+  const [editingCareerIndex, setEditingCareerIndex] = useState(null);
 
-  // For demo, we'll use a static image list.
-  // In a full app, you'd fetch the list from GitHub via an API.
-  const [images, setImages] = useState(["example.jpg"]);
-
-  // Fetch current content on mount
+  // Fetch careers content data on mount
   useEffect(() => {
-    fetch("/api/getContent")
+    fetch("/api/getContent/careers")
       .then((res) => res.json())
-      .then((data) => {
-        setTitle(data.title || "");
-        setDescription(data.description || "");
-        setImageUrl(data.image || "");
-      })
-      .catch((err) => console.error("Error fetching content:", err));
+      .then((data) => setData(data))
+      .catch((err) => console.error(err));
   }, []);
 
-  // Handler for updating content (text & image URL)
-  const handleContentSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setUpdatedContent(null);
-    try {
-      // Always ensure the image URL is prefixed with "/images/"
-      const finalImageUrl = imageUrl.startsWith("/images/")
-        ? imageUrl
-        : `/images/${imageUrl}`;
-      const res = await fetch("/api/updateContent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, image: finalImageUrl }),
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setMessage("Content updated successfully.");
-        setUpdatedContent(result.content);
-      } else {
-        setMessage(`Error updating content: ${result.error}`);
-      }
-    } catch (error) {
-      setMessage("Error updating content: " + error.message);
-    }
+  // Handler to update a specific text field in nested objects (like banner)
+  const handleTextUpdate = (section, field, newValue) => {
+    setData((prev) => ({
+      ...prev,
+      [section]: { ...prev[section], [field]: newValue },
+    }));
   };
 
-  // Handler for file selection
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+  // Handler for top-level fields (like noJobs)
+  const handleFieldUpdate = (field, newValue) => {
+    setData((prev) => ({
+      ...prev,
+      [field]: newValue,
+    }));
   };
 
-  // Handler for image upload
-  const handleUpload = async () => {
-    setUploadMessage("");
-    if (!selectedFile) {
-      setUploadMessage("No file selected.");
-      return;
-    }
-    // Check file type (must be webp)
-    if (selectedFile.type !== "image/webp") {
-      setUploadMessage("Only WEBP images are allowed.");
-      return;
-    }
-    // Check file size (< 5 MB)
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      setUploadMessage("Image must be less than 5 MB.");
-      return;
-    }
-    // Check if the image name is provided and not already taken
-    if (!uploadImageName.trim()) {
-      setUploadMessage("Please provide an image name (without extension).");
-      return;
-    }
-    // Append the .webp extension (if not already provided)
-    let finalImageName = uploadImageName.trim();
-    if (!finalImageName.toLowerCase().endsWith(".webp")) {
-      finalImageName += ".webp";
-    }
-    // Verify if the image name already exists in our images list
-    if (images.includes(finalImageName)) {
-      setUploadMessage("An image with that name already exists.");
-      return;
-    }
-    // Read file as Base64 string
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = reader.result.split(",")[1]; // remove data URI prefix
-      const res = await fetch("/api/uploadImage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          filename: finalImageName,
-          fileData: base64Data,
-        }),
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setUploadMessage("Image uploaded successfully!");
-        // Update image list
-        setImages((prev) => [...prev, finalImageName]);
-        // Update imageUrl field with the new image path
-        setImageUrl(`/images/${finalImageName}`);
-      } else {
-        setUploadMessage(`Error: ${result.error}`);
-      }
-    };
-    reader.readAsDataURL(selectedFile);
-  };
-
-  // Handler for image deletion
-  const handleDelete = async (filename) => {
-    const res = await fetch("/api/deleteImage", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename }),
+  // Update a career entry at index
+  const updateCareer = (index, updatedCareer) => {
+    setData((prev) => {
+      const updatedCareers = [...prev.careers];
+      updatedCareers[index] = updatedCareer;
+      return { ...prev, careers: updatedCareers };
     });
-    const result = await res.json();
-    if (res.ok) {
-      alert("Image deleted successfully!");
-      setImages((prev) => prev.filter((img) => img !== filename));
-      // If deleted image is currently set in the content, clear it
-      if (imageUrl === `/images/${filename}`) {
-        setImageUrl("");
+  };
+
+  // Add a new career entry
+  const addCareer = (newCareer) => {
+    setData((prev) => ({
+      ...prev,
+      careers: prev.careers ? [...prev.careers, newCareer] : [newCareer],
+    }));
+  };
+
+  if (!data) return <div className="p-6 text-center text-2xl">Loading...</div>;
+
+  return (
+    <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-5xl font-bold mb-8">
+        Admin Dashboard - Careers Editor
+      </h1>
+
+      <BannerSection
+        banner={data.banner}
+        updateText={handleTextUpdate}
+        page="careers"
+      />
+
+      <NoJobsSection noJobs={data.noJobs} updateField={handleFieldUpdate} />
+
+      <CareersSection
+        careers={data.careers}
+        updateCareer={updateCareer}
+        openCareerPopup={(index) => {
+          setEditingCareerIndex(index);
+          setShowCareerPopup(true);
+        }}
+      />
+
+      {/* If no careers exist, show a button to add a new career */}
+      {(!data.careers || data.careers.length === 0) && (
+        <div className="mt-8">
+          <button
+            onClick={() => {
+              setEditingCareerIndex(null);
+              setShowCareerPopup(true);
+            }}
+            className="px-6 py-3 bg-green-500 text-white rounded text-2xl"
+          >
+            Add New Career
+          </button>
+        </div>
+      )}
+
+      {showCareerPopup && (
+        <CareerPopup
+          career={
+            editingCareerIndex !== null
+              ? data.careers[editingCareerIndex]
+              : null
+          }
+          onClose={() => {
+            setShowCareerPopup(false);
+            setEditingCareerIndex(null);
+          }}
+          onSave={(careerData) => {
+            if (editingCareerIndex !== null) {
+              updateCareer(editingCareerIndex, careerData);
+            } else {
+              addCareer(careerData);
+            }
+            setShowCareerPopup(false);
+            setEditingCareerIndex(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// -----------------------
+// Banner Section
+// -----------------------
+function BannerSection({ banner, updateText, page }) {
+  const [showUploadPopup, setShowUploadPopup] = useState(false);
+
+  const openPopup = () => setShowUploadPopup(true);
+  const closePopup = () => setShowUploadPopup(false);
+
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">Banner Section</h2>
+      <div className="mb-4">
+        <Image
+          src={banner.image}
+          alt={banner.alt}
+          width={300}
+          height={150}
+          objectFit="cover"
+          className="rounded"
+        />
+      </div>
+      <button
+        onClick={openPopup}
+        className="px-4 py-2 bg-blue-500 text-white rounded mb-4 text-2xl"
+      >
+        Upload New Banner Image
+      </button>
+      <div className="text-2xl">
+        <p className="font-medium">
+          <EditableText
+            section="banner"
+            field="tagline"
+            text={banner.tagline}
+            onTextUpdated={(val) => updateText("banner", "tagline", val)}
+          />
+        </p>
+        <p className="text-gray-600">
+          <EditableText
+            section="banner"
+            field="sub"
+            text={banner.sub}
+            onTextUpdated={(val) => updateText("banner", "sub", val)}
+          />
+        </p>
+      </div>
+      {showUploadPopup && (
+        <BannerImageUploadPopup
+          page={page}
+          banner={banner}
+          onClose={closePopup}
+          onUpdate={(newBanner) => {
+            updateText("banner", "image", newBanner.image);
+            updateText("banner", "alt", newBanner.alt);
+            closePopup();
+          }}
+        />
+      )}
+    </section>
+  );
+}
+
+// -----------------------
+// No Jobs Section
+// -----------------------
+function NoJobsSection({ noJobs, updateField }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">No Jobs Message</h2>
+      <p className="text-2xl">
+        <EditableText
+          section="noJobs"
+          field="message"
+          text={noJobs}
+          onTextUpdated={(val) => updateField("noJobs", val)}
+        />
+      </p>
+    </section>
+  );
+}
+
+// -----------------------
+// Careers Section
+// -----------------------
+function CareersSection({ careers, updateCareer, openCareerPopup }) {
+  if (!careers || careers.length === 0) {
+    return (
+      <section className="mb-8 p-6 bg-white rounded shadow text-2xl">
+        No careers available.
+      </section>
+    );
+  }
+
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">Careers</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="p-2 text-2xl border">Position</th>
+              <th className="p-2 text-2xl border">Description</th>
+              <th className="p-2 text-2xl border">Requirements</th>
+              <th className="p-2 text-2xl border">Created At</th>
+              <th className="p-2 text-2xl border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {careers.map((career, index) => (
+              <tr key={index} className="text-center">
+                <td className="p-2 border text-2xl">{career.position}</td>
+                <td className="p-2 border text-2xl">{career.description}</td>
+                <td className="p-2 border text-2xl">{career.requirements}</td>
+                <td className="p-2 border text-2xl">{career.created_at}</td>
+                <td className="p-2 border text-2xl">
+                  <button
+                    onClick={() => openCareerPopup(index)}
+                    className="px-2 py-1 bg-blue-500 text-white rounded text-2xl"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4">
+        <button
+          onClick={() => openCareerPopup(null)}
+          className="px-6 py-3 bg-green-500 text-white rounded text-2xl"
+        >
+          Add New Career
+        </button>
+      </div>
+    </section>
+  );
+}
+
+// -----------------------
+// Editable Text Component
+// -----------------------
+function EditableText({ section, field, text, onTextUpdated }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(text);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setValue(text);
+  }, [text]);
+
+  const saveChanges = async () => {
+    setLoading(true);
+    const payload = { [section]: { [field]: value } };
+
+    try {
+      const res = await fetch(`/api/updateContent/careers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onTextUpdated(value);
+        setEditing(false);
+      } else {
+        alert("Error saving changes: " + (data.error || "Unknown error"));
       }
-    } else {
-      alert(`Error deleting image: ${result.error}`);
+    } catch (err) {
+      console.error(err);
+      alert("Error saving changes: " + err.message);
     }
+    setLoading(false);
+  };
+
+  const cancelEditing = () => {
+    setValue(text);
+    setEditing(false);
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
-
-      {/* Content Update Section */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Update Content</h2>
-        <form onSubmit={handleContentSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1">Title:</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Description:</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded h-24"
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Image URL:</label>
-            <input
-              type="text"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-          </div>
-          {imageUrl && (
-            <div className="mt-4">
-              <p className="font-medium">Current Image Preview:</p>
-              <img src={imageUrl} alt="Current" className="mt-2 max-h-60" />
-            </div>
-          )}
+    <span className="w-full inline-flex items-center">
+      {editing ? (
+        <>
+          <input
+            type="text"
+            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
           <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={saveChanges}
+            disabled={loading}
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
           >
-            Update Content
+            {loading ? "Saving..." : "Save Changes"}
           </button>
-        </form>
-        {message && <p className="mt-4 text-lg">{message}</p>}
-        {updatedContent && (
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold">Updated Content:</h3>
-            <pre className="bg-gray-100 p-4 rounded">
-              {JSON.stringify(updatedContent, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
-
-      {/* Image Upload Section */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Image Upload</h2>
-        <div className="flex flex-col space-y-4">
-          <input type="file" onChange={handleFileChange} className="block" />
-          <div>
-            <label className="block font-medium mb-1">
-              Image Name (without extension):
-            </label>
-            <input
-              type="text"
-              value={uploadImageName}
-              onChange={(e) => setUploadImageName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              placeholder="Enter image name"
-            />
-          </div>
           <button
-            onClick={handleUpload}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            onClick={cancelEditing}
+            disabled={loading}
+            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
           >
-            Upload Image
+            Cancel
           </button>
-        </div>
-        {uploadMessage && <p className="mt-2">{uploadMessage}</p>}
-      </div>
-
-      {/* Image List Section */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Images</h2>
-        <ul className="space-y-2">
-          {images.map((img) => (
-            <li
-              key={img}
-              className="flex items-center justify-between bg-gray-50 p-4 rounded"
-            >
-              <span>{img}</span>
-              <button
-                onClick={() => handleDelete(img)}
-                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+        </>
+      ) : (
+        <>
+          <span className="text-2xl">{text}</span>
+          <span
+            onClick={() => setEditing(true)}
+            className="cursor-pointer text-2xl ml-1 inline"
+          >
+            ✏️
+          </span>
+        </>
+      )}
+    </span>
   );
 }
