@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
-// We'll create a popup for adding/editing a career entry
 import CareerPopup from "@/components/admin/CareerPopup";
 
 export default function AdminCareers() {
@@ -35,7 +34,7 @@ export default function AdminCareers() {
     }));
   };
 
-  // Update a career entry at index
+  // Update an existing career entry at index
   const updateCareer = (index, updatedCareer) => {
     setData((prev) => {
       const updatedCareers = [...prev.careers];
@@ -77,7 +76,6 @@ export default function AdminCareers() {
         }}
       />
 
-      {/* If no careers exist, show a button to add a new career */}
       {(!data.careers || data.careers.length === 0) && (
         <div className="mt-8">
           <button
@@ -228,7 +226,7 @@ function CareersSection({ careers, updateCareer, openCareerPopup }) {
           </thead>
           <tbody>
             {careers.map((career, index) => (
-              <tr key={index} className="text-center">
+              <tr key={career.key || index} className="text-center">
                 <td className="p-2 border text-2xl">{career.position}</td>
                 <td className="p-2 border text-2xl">{career.description}</td>
                 <td className="p-2 border text-2xl">{career.requirements}</td>

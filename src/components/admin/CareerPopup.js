@@ -12,6 +12,7 @@ export default function CareerPopup({ career, onClose, onSave }) {
     career ? career.requirements : ""
   );
   const [createdAt, setCreatedAt] = useState(career ? career.created_at : "");
+  // careerKey is only relevant when editing.
   const [careerKey, setCareerKey] = useState(career ? career.key : null);
   const [loading, setLoading] = useState(false);
 
@@ -39,25 +40,31 @@ export default function CareerPopup({ career, onClose, onSave }) {
       return;
     }
 
-    // Build the careerData payload. The key is included if editing an existing entry.
+    // Build the careerData payload.
     const careerData = {
-      key: careerKey,
       position,
       description,
       requirements,
       created_at: createdAt || new Date().toLocaleDateString(),
     };
 
+    // Include the key if editing.
+    if (careerKey !== null) {
+      careerData.key = careerKey;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch("/api/career/update", {
+      // Determine which endpoint to use.
+      const endpoint = career ? "/api/career/update" : "/api/career/create";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ career: careerData }),
       });
       const data = await res.json();
       if (res.ok) {
-        // onSave receives the updated career entry.
+        // onSave receives the returned career entry (including the key if created).
         onSave(data.career);
         onClose();
       } else {
