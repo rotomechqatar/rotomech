@@ -76,16 +76,16 @@ export default function UniversalImageUploadPopup({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded shadow-xl w-full max-w-2xl mx-4">
+        <h2 className="text-3xl font-semibold mb-6">
           {index !== undefined ? "Update Image" : "Upload Image"}
         </h2>
-        <p className="mb-2">
+        <p className="mb-4 text-2xl">
           Page: <strong>{page}</strong>, Section: <strong>{section}</strong>
         </p>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="block text-2xl mb-1">
               Name <span className="text-sm">(optional)</span>
             </label>
@@ -94,10 +94,10 @@ export default function UniversalImageUploadPopup({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Leave blank to keep current name"
-              className="w-full p-2 border border-gray-300 rounded text-2xl"
+              className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <label className="block text-2xl mb-1">
               Alt Text <span className="text-sm">(optional)</span>
             </label>
@@ -106,30 +106,44 @@ export default function UniversalImageUploadPopup({
               value={alt}
               onChange={(e) => setAlt(e.target.value)}
               placeholder="Leave blank to keep current alt text"
-              className="w-full p-2 border border-gray-300 rounded text-2xl"
+              className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-2xl mb-1">Image (WebP only)</label>
+          <div className="mb-8">
+            <label className="block text-2xl mb-3">
+              Select Image (.webp only)
+            </label>
             <input
+              id="fileInput"
               type="file"
               accept="image/webp"
               onChange={handleFileChange}
-              className="w-full text-2xl"
+              className="hidden"
             />
+            <label
+              htmlFor="fileInput"
+              className="flex items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-green-500 transition duration-300"
+            >
+              {file ? (
+                <span className="text-2xl">{file.name}</span>
+              ) : (
+                <span className="text-2xl">Click to upload a .webp image</span>
+              )}
+            </label>
           </div>
           <div className="flex justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="mr-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+              disabled={loading}
+              className="mr-4 px-6 py-3 bg-gray-500 text-white rounded text-2xl transition transform hover:scale-105 hover:bg-gray-600 duration-300"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-green-500 text-white rounded text-2xl"
+              className="px-6 py-3 bg-green-500 text-white rounded text-2xl transition transform hover:scale-105 hover:bg-green-600 duration-300"
             >
               {loading
                 ? index !== undefined

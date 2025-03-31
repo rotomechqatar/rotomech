@@ -1,24 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export default function BannerImageUploadPopup({
-  page,
-  banner,
-  onClose,
-  onUpdate,
-}) {
+export default function AddPartnerPopup({ onClose, onUpdate }) {
   const [name, setName] = useState("");
-  const [alt, setAlt] = useState(banner.alt || "");
+  const [description, setDescription] = useState("");
+  const [link, setLink] = useState("");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Prefill the name field by extracting the current filename (without extension)
-  useEffect(() => {
-    const currentFileName = banner.image ? banner.image.split("/").pop() : "";
-    const currentName = currentFileName.replace(".webp", "");
-    setName(currentName);
-  }, [banner.image]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -28,37 +17,43 @@ export default function BannerImageUploadPopup({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      alert("Please select a file");
+
+    // Validate that all fields are provided
+    if (!name || !description || !link || !file) {
+      alert("Please fill all fields and select a file.");
       return;
     }
+
+    // Validate file type – only .webp files are allowed
+    if (file.type !== "image/webp") {
+      alert("Only .webp images are allowed.");
+      return;
+    }
+
     setLoading(true);
 
-    // Build a FormData object
+    // Create FormData and append all fields
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("alt", alt);
-    formData.append("section", "banner");
+    formData.append("description", description);
+    formData.append("link", link);
     formData.append("file", file);
-    formData.append("fileType", file.type);
 
     try {
-      const res = await fetch(`/api/bannerImage/${page}`, {
+      const res = await fetch("/api/partner/addPartner", {
         method: "POST",
-        // Let the browser set the Content-Type for FormData automatically.
         body: formData,
       });
       const data = await res.json();
       if (res.ok) {
-        onUpdate(data.banner);
+        // onUpdate callback to update state with the new partner details.
+        onUpdate(data);
       } else {
-        alert(
-          "Error updating banner image: " + (data.error || "Unknown error")
-        );
+        alert("Error adding partner: " + (data.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
-      alert("Error updating banner image: " + err.message);
+      alert("Error adding partner: " + err.message);
     }
     setLoading(false);
   };
@@ -66,42 +61,45 @@ export default function BannerImageUploadPopup({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50">
       <div className="bg-white p-8 rounded shadow-xl w-full max-w-2xl mx-4">
-        <h2 className="text-3xl font-semibold mb-6">Upload New Banner Image</h2>
+        <h2 className="text-3xl font-semibold mb-6">Add New Partner</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label className="block text-2xl mb-1">
-              Name{" "}
-              <span className="text-sm font-light text-gray-500">
-                (optional)
-              </span>
-            </label>
+            <label className="block text-2xl mb-1">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
-              placeholder="Enter image name"
+              placeholder="Enter partner name"
+              required
             />
           </div>
           <div className="mb-6">
-            <label className="block text-2xl mb-1">
-              Alt Text{" "}
-              <span className="text-sm font-light text-gray-500">
-                (optional)
-              </span>
-            </label>
-            <input
-              type="text"
-              value={alt}
-              onChange={(e) => setAlt(e.target.value)}
+            <label className="block text-2xl mb-1">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
-              placeholder="Enter alt text for accessibility"
+              placeholder="Enter a short description"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-2xl mb-1">Website Link</label>
+            <input
+              type="url"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
+              placeholder="Enter partner website URL"
+              required
             />
           </div>
           <div className="mb-8">
             <label className="block text-2xl mb-3">
-              Select Image (.webp only)
+              Select Partner Logo (.webp only)
             </label>
+            {/* Hidden file input */}
             <input
               id="fileInput"
               type="file"
@@ -109,6 +107,7 @@ export default function BannerImageUploadPopup({
               onChange={handleFileChange}
               className="hidden"
             />
+            {/* Custom file upload button */}
             <label
               htmlFor="fileInput"
               className="flex items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-green-500 transition duration-300"
@@ -147,7 +146,7 @@ export default function BannerImageUploadPopup({
               disabled={loading}
               className="px-6 py-3 bg-green-500 text-white rounded text-2xl transition transform hover:scale-105 hover:bg-green-600 duration-300"
             >
-              {loading ? "Uploading..." : "Submit"}
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>
