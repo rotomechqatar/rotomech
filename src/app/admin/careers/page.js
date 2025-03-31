@@ -184,6 +184,7 @@ function BannerSection({ banner, updateText, page }) {
 // No Jobs Section
 // -----------------------
 function NoJobsSection({ noJobs, updateField }) {
+  const displayText = typeof noJobs === "object" ? noJobs.message : noJobs;
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">No Jobs Message</h2>
@@ -191,7 +192,7 @@ function NoJobsSection({ noJobs, updateField }) {
         <EditableText
           section="noJobs"
           field="message"
-          text={noJobs}
+          text={displayText}
           onTextUpdated={(val) => updateField("noJobs", val)}
         />
       </p>
