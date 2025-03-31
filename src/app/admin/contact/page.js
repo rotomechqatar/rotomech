@@ -216,6 +216,11 @@ function CTASection({ cta, updateText }) {
 // Location Section (Updated)
 // -----------------------
 function LocationSection({ location, updateField }) {
+  // Extract URL string if location is an object.
+  const locationUrl =
+    typeof location === "object" && location !== null
+      ? location.url || ""
+      : location;
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">Location</h2>
@@ -224,12 +229,12 @@ function LocationSection({ location, updateField }) {
           section="location"
           field="url"
           text={location}
-          onTextUpdated={(val) => updateField("location", val)}
+          onTextUpdated={(val) => updateField("location", { url: val })}
         />
       </p>
       <div className="mt-4">
         <iframe
-          src={location}
+          src={locationUrl}
           width="100%"
           height="400"
           loading="lazy"
@@ -412,15 +417,19 @@ function EditableText({ section, field, text, onTextUpdated }) {
 // Editable Location Text Component
 // -----------------------
 function EditableLocationText({ section, field, text, onTextUpdated }) {
+  // If text is an object (e.g. { url: "..." }), use its url; otherwise, use text.
+  const initialValue =
+    typeof text === "object" && text !== null ? text.url || "" : text;
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(text);
+  const [value, setValue] = useState(initialValue);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setValue(text);
+    const newValue =
+      typeof text === "object" && text !== null ? text.url || "" : text;
+    setValue(newValue);
   }, [text]);
 
-  // Validation: only allow embed links from Google Maps.
   const isValidGoogleMapsEmbed = (url) =>
     url.startsWith("https://www.google.com/maps/embed?");
 
@@ -453,7 +462,9 @@ function EditableLocationText({ section, field, text, onTextUpdated }) {
   };
 
   const cancelEditing = () => {
-    setValue(text);
+    const newValue =
+      typeof text === "object" && text !== null ? text.url || "" : text;
+    setValue(newValue);
     setEditing(false);
   };
 
@@ -470,14 +481,14 @@ function EditableLocationText({ section, field, text, onTextUpdated }) {
           <button
             onClick={saveChanges}
             disabled={loading}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl transition-all duration-300"
           >
             {loading ? "Saving..." : "Save Changes"}
           </button>
           <button
             onClick={cancelEditing}
             disabled={loading}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl transition-all duration-300"
           >
             Cancel
           </button>

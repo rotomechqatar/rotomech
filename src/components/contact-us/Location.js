@@ -10,7 +10,7 @@ export default function Location({ content }) {
       <div className="col-span-2 rounded-[25px] overflow-hidden max-9xl:h-[30vh] shadow-2xl hover:scale-103 transition-all duration-500">
         <iframe
           title="Our Location"
-          src={content.location}
+          src={content.location.url}
           loading="lazy"
           allowFullScreen
           width="100%"
