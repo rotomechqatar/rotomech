@@ -92,15 +92,12 @@ export async function POST(req, { params }) {
     });
   }
 
-  // Determine the repository path for the banner image.
-  // If an existing banner image is present, use its location.
-  // Otherwise, compute a new location from the provided name.
+  // Determine repository path for the banner image.
   let repoNewImagePath;
   let newImagePath;
   if (currentContent[section].image) {
     // Use the existing banner image path.
     newImagePath = currentContent[section].image;
-    // Assume the repo path is "public" + image path.
     repoNewImagePath = newImagePath.startsWith("/images")
       ? "public" + newImagePath
       : newImagePath;
@@ -124,7 +121,7 @@ export async function POST(req, { params }) {
   const posixNewImagePath = newImagePath.replace(/\\/g, "/");
   console.log("[UPLOAD] Repo new image path for upload:", repoNewImagePath);
 
-  // Define the URL for the image file in the repository.
+  // Define URL for the image file in the repository.
   const fileUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${repoNewImagePath}`;
   console.log("[UPLOAD] File URL:", fileUrl);
 
@@ -199,10 +196,9 @@ export async function POST(req, { params }) {
   console.log("[UPLOAD] New banner image uploaded successfully.");
 
   // --- Update the JSON file ---
-  // Update the banner section with the new image path, alt text, and name.
+  // For banner, update only the image path and alt text.
   currentContent[section].image = posixNewImagePath;
   currentContent[section].alt = altField;
-  currentContent[section].name = nameField;
   console.log("[UPLOAD] Updated JSON content for banner.");
 
   const updatedContentString = JSON.stringify(currentContent, null, 2);
@@ -238,10 +234,14 @@ export async function POST(req, { params }) {
   }
   console.log("[UPLOAD] JSON file updated successfully.");
 
+  // Return the response in a banner object to match frontend expectations.
   return new Response(
     JSON.stringify({
+      banner: {
+        image: posixNewImagePath,
+        alt: altField,
+      },
       message: "Banner image uploaded successfully",
-      imagePath: posixNewImagePath,
     }),
     { status: 200 }
   );

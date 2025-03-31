@@ -133,6 +133,7 @@ export default function BannerImageUploadPopup({
               )}
             </label>
           </div>
+
           <div className="flex justify-end">
             <button
               type="button"
