@@ -3,7 +3,10 @@
     "tagline": "Supplying the Energy That Moves You",
     "sub": "Together from Source to Success",
     "image": "/images/home-banner-image.webp",
-    "alt": "Rotomech-pumps-and-mechs-suppliers"
+    "alt": "Rotomech-pumps-and-mechs-suppliers",
+    "image1": "/images/home-banner-image.webp",
+    "alt1": "Rotomech-pumps-and-mechs-suppliers-test",
+    "name1": "home-banner-image"
   },
   "ourLegacy": {
     "head": "Our Legacy",
