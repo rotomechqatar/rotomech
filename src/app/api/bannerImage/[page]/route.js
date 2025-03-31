@@ -3,7 +3,7 @@
 import { Buffer } from "buffer";
 
 export async function POST(req, { params }) {
-  // Get page parameter from the URL.
+  // Get the page parameter.
   const { page } = await params;
   console.log("[UPLOAD] Received upload request for page:", page);
 
@@ -92,7 +92,7 @@ export async function POST(req, { params }) {
     });
   }
 
-  // Determine repository path for the banner image.
+  // Determine the repository path for the banner image.
   let repoNewImagePath;
   let newImagePath;
   if (currentContent[section].image) {
@@ -153,6 +153,15 @@ export async function POST(req, { params }) {
     if (!deleteResponse.ok) {
       const deleteResult = await deleteResponse.json();
       console.error("[UPLOAD] Error deleting existing image:", deleteResult);
+      if (deleteResponse.status === 409) {
+        return new Response(
+          JSON.stringify({
+            error: "Please publish changes first and then update banner image",
+            details: deleteResult,
+          }),
+          { status: 409 }
+        );
+      }
       return new Response(
         JSON.stringify({
           error: "Failed to delete existing image",
@@ -185,6 +194,15 @@ export async function POST(req, { params }) {
   const putResult = await putResponse.json();
   if (!putResponse.ok) {
     console.error("[UPLOAD] Error uploading new image:", putResult);
+    if (putResponse.status === 409) {
+      return new Response(
+        JSON.stringify({
+          error: "Please publish changes first and then update banner image",
+          details: putResult,
+        }),
+        { status: 409 }
+      );
+    }
     return new Response(
       JSON.stringify({
         error: "Failed to upload new image",
@@ -234,7 +252,7 @@ export async function POST(req, { params }) {
   }
   console.log("[UPLOAD] JSON file updated successfully.");
 
-  // Return the response in a banner object to match frontend expectations.
+  // Return the updated banner details.
   return new Response(
     JSON.stringify({
       banner: {
