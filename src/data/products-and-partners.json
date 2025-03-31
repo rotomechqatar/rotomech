@@ -1,46 +1,46 @@
 {
-    "banner": {
-        "tagline": "Products & Partners",
-        "sub": "The Energy that Fuels Us",
-        "image": "/images/partners-banner.webp",
-        "alt": "products-and-partners-banner"
+  "banner": {
+    "tagline": "Products & Partners",
+    "sub": "The Energy that Fuels Us",
+    "image": "/images/partners-banner.webp",
+    "alt": "products-and-partners-banner"
+  },
+  "partners": [
+    {
+      "name": "WILLIAMS - An Ingersoll rand Business",
+      "logo": "/logos/partnerLogo4.webp",
+      "description": "Williams is currently the leading supplier of  eumatically-driven metering pumps for the global oil & gas industry. Our metering pumps and related products have become a standard with most of the world’s oil & gas companies. Williams revolutionized the natural gas distribution industry by developing a method for the positive injection of mercaptans, chemicals for introducing odor into natural gas. Prior to the use of positive injection, the gas industry used the inaccurate bypass method of odorizing natural gas. The  williams’ design approach, which introduced precision, increased safety in an industry that requires a very high level of safety because the public is a customer",
+      "link": "https://www.williamspumps.com/en"
     },
-    "partners": [
-        {
-            "name": "WILLIAMS - An Ingersoll rand Business",
-            "logo": "/logos/partnerLogo4.webp",
-            "description": "Williams is currently the leading supplier of  eumatically-driven metering pumps for the global oil & gas industry. Our metering pumps and related products have become a standard with most of the world’s oil & gas companies. Williams revolutionized the natural gas distribution industry by developing a method for the positive injection of mercaptans, chemicals for introducing odor into natural gas. Prior to the use of positive injection, the gas industry used the inaccurate bypass method of odorizing natural gas. The  williams’ design approach, which introduced precision, increased safety in an industry that requires a very high level of safety because the public is a customer",
-            "link": "https://www.williamspumps.com/en"
-        },
-        {
-            "name": "HETA - Filtration and Separation",
-            "logo": "/logos/partnerLogo6.webp",
-            "description": "HETA is a globally operating engineering specialist company and anufacturer of filters and separators. Since 2010, HETA has been a member of the PACO group. PACO is a leader in the world market for high-quality metal wire  loths, filters, and sieves. HETA and PACO provide their commitment to the  usiness location in Germany based on conviction and experience.",
-            "link": "https://heta.de/home"
-        },
-        {
-            "name": "KEI Industries Limited",
-            "logo": "/logos/partnerLogo5.webp",
-            "description": "KEI Industries Limited, established in 1968, is a global manufacturer and supplier of a wide range of cables and wires, including Extra-High Voltage (EHV), Medium Voltage (MV), and Low Voltage (LV) power cables. Serving both retail and institutional segments, KEI has emerged as a one-stop shop for products and services with its growing presence in the Engineering, Procurement, and Construction (EPC) services domain. The company operates across various sectors such as building and construction, defense, telecommunications, and more, with a vast network of over 30,000 channel partners, catering to clients in over 55 countries. :contentReference[oaicite:0]{index=0}",
-            "link": "https://www.kei-ind.com/"
-        },
-        {
-            "name": "Nasr Seals Pvt. Ltd.",
-            "logo": "/logos/partnerLogo3.webp",
-            "description": "Nasr Seals Pvt. Ltd., incorporated on December 11, 2018, is a Mumbai-based manufacturer of mechanical shaft seals, catering to the diversified requirements of process industries. The company offers a wide range of mechanical seals, including Cartridge Seals, Agitator Seals, High Pressure Agitator Seals, Teflon Bellow Seals, Conical Spring Seals, Double Agitator Seals, Rubber Bellow Seals, Metal Bellow Seals, Wave Spring Seals, Reverse Balanced Seals, test rigs for mechanical seals, and more. :contentReference[oaicite:1]{index=1}",
-            "link": "https://nasrseals.com/"
-        },
-        {
-            "name": "BAI Brescia Antincendi International Srl",
-            "logo": "/logos/partnerLogo2.webp",
-            "description": "BAI Brescia Antincendi International Srl is an Italian company specializing in the design, production, and sale of firefighting and rescue vehicles. Their product range includes civil, airport, industrial firefighting vehicles, water platforms, multi-rescue, and forest firefighting vehicles. BAI also offers customized special vehicles tailored to specific customer requirements, ensuring maximum technology and quality. Additionally, they provide technical assistance, spare parts supply, and training programs for the use and maintenance of their vehicles.",
-            "link": "https://www.bai.it/it/"
-        },
-        {
-            "name": "WTS Energy",
-            "logo": "/logos/partnerLogo1.webp",
-            "description": "WTS Energy, founded in 2000 and headquartered in The Hague, South Holland, is a leading globally operating staffing and recruitment company focused on the international oil, gas, and renewable energy industries. The company provides professional personnel and outsourcing services, including recruitment campaigns, manpower supply, and workforce management services for projects and operations worldwide. With a presence in over 20 countries across four continents, WTS Energy supports energy companies in their transition to a carbon-neutral society by developing and delivering local talent worldwide. :contentReference[oaicite:2]{index=2}",
-            "link": "https://www.wtsenergy.com/"
-        }
-    ]
+    {
+      "name": "HETA - Filtration and Separation",
+      "logo": "/logos/partnerLogo6.webp",
+      "description": "HETA is a globally operating engineering specialist company and anufacturer of filters and separators. Since 2010, HETA has been a member of the PACO group. PACO is a leader in the world market for high-quality metal wire  loths, filters, and sieves. HETA and PACO provide their commitment to the  usiness location in Germany based on conviction and experience.",
+      "link": "https://heta.de/home"
+    },
+    {
+      "name": "KEI Industries Limited",
+      "logo": "/logos/partnerLogo5.webp",
+      "description": "KEI Industries Limited, established in 1968, is a global manufacturer and supplier of a wide range of cables and wires, including Extra-High Voltage (EHV), Medium Voltage (MV), and Low Voltage (LV) power cables. Serving both retail and institutional segments, KEI has emerged as a one-stop shop for products and services with its growing presence in the Engineering, Procurement, and Construction (EPC) services domain. The company operates across various sectors such as building and construction, defense, telecommunications, and more, with a vast network of over 30,000 channel partners, catering to clients in over 55 countries. :contentReference[oaicite:0]{index=0}",
+      "link": "https://www.kei-ind.com/"
+    },
+    {
+      "name": "Nasr Seals Pvt. Ltd.",
+      "logo": "/logos/partnerLogo3.webp",
+      "description": "Nasr Seals Pvt. Ltd., incorporated on December 11, 2018, is a Mumbai-based manufacturer of mechanical shaft seals, catering to the diversified requirements of process industries. The company offers a wide range of mechanical seals, including Cartridge Seals, Agitator Seals, High Pressure Agitator Seals, Teflon Bellow Seals, Conical Spring Seals, Double Agitator Seals, Rubber Bellow Seals, Metal Bellow Seals, Wave Spring Seals, Reverse Balanced Seals, test rigs for mechanical seals, and more. :contentReference[oaicite:1]{index=1}",
+      "link": "https://nasrseals.com/"
+    },
+    {
+      "name": "BAI Brescia Antincendi International Srl",
+      "logo": "/logos/partnerLogo2.webp",
+      "description": "BAI Brescia Antincendi International Srl is an Italian company specializing in the design, production, and sale of firefighting and rescue vehicles. Their product range includes civil, airport, industrial firefighting vehicles, water platforms, multi-rescue, and forest firefighting vehicles. BAI also offers customized special vehicles tailored to specific customer requirements, ensuring maximum technology and quality. Additionally, they provide technical assistance, spare parts supply, and training programs for the use and maintenance of their vehicles.",
+      "link": "https://www.bai.it/it/"
+    },
+    {
+      "name": "WTS Energy",
+      "logo": "/logos/partnerLogo1.webp",
+      "description": "WTS Energy, founded in 2000 and headquartered in The Hague, South Holland, is a leading globally operating staffing and recruitment company focused on the international oil, gas, and renewable energy industries. The company provides professional personnel and outsourcing services, including recruitment campaigns, manpower supply, and workforce management services for projects and operations worldwide. With a presence in over 20 countries across four continents, WTS Energy supports energy companies in their transition to a carbon-neutral society by developing and delivering local talent worldwide. :contentReference[oaicite:2]{index=2}",
+      "link": "https://www.wtsenergy.com/"
+    }
+  ]
 }
