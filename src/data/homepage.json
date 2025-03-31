@@ -10,7 +10,7 @@
     "text": "Rotomech International & Co stands at the forefront of supplying MRO spare parts to heavy industrial plants in Qatar. With a robust presence that spans local, regional, and international markets, we deliver a wide array of industrial solutions tailored to sectors such as oil & gas, petrochemicals, and utilities. Our success is driven by an unwavering commitment to our customers—founded on integrity and flexibility. We prioritize our clients' achievements, ensuring that our innovative products and services empower them to focus on their core operations with complete confidence.",
     "image1": "/images/legacy-image-1.webp",
     "alt1": "Rotomech-pumps-and-mechs-suppliers",
-    "image2": "/images/legacy-image-2.webp",
+    "image2": "/images/TEST.webp",
     "alt2": "Rotomech-pumps-and-mechs-suppliers",
     "image3": "/images/legacy-image-3.webp",
     "alt3": "Rotomech-pumps-and-mechs-suppliers",
@@ -18,7 +18,8 @@
     "alt4": "Rotomech-pumps-and-mechs-suppliers",
     "image5": "/images/legacy-image-5.webp",
     "alt5": "Rotomech-pumps-and-mechs-suppliers",
-    "name1": "legacy-image-1"
+    "name1": "legacy-image-1",
+    "name2": "TEST"
   },
   "directorMessage": {
     "start": "Message from Our Director",
