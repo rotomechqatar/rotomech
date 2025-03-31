@@ -35,6 +35,12 @@
       "logo": "/logos/partnerLogo1.webp",
       "description": "WTS Energy, founded in 2000 and headquartered in The Hague, South Holland, is a leading globally operating staffing and recruitment company focused on the international oil, gas, and renewable energy industries. The company provides professional personnel and outsourcing services, including recruitment campaigns, manpower supply, and workforce management services for projects and operations worldwide. With a presence in over 20 countries across four continents, WTS Energy supports energy companies in their transition to a carbon-neutral society by developing and delivering local talent worldwide. :contentReference[oaicite:2]{index=2}",
       "link": "https://www.wtsenergy.com/"
+    },
+    {
+      "name": "UT Pumps & Systems",
+      "logo": "/logos/partnerLogo5.webp",
+      "description": "UT Pumps is a leading manufacturer and supplier of innovative pump solutions designed to meet the demands of diverse industrial, water treatment, and oil & gas applications. Renowned for its commitment to quality and efficiency, UT Pumps delivers robust, reliable, and energy-efficient fluid handling systems that help customers optimize their operations. With cutting-edge technology and a focus on sustainability, UT Pumps stands out as a trusted partner in delivering advanced pumping solutions worldwide.",
+      "link": "https://www.utpumps.com/"
     }
   ]
 }
