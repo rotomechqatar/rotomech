@@ -2,8 +2,8 @@
   "banner": {
     "tagline": "Supplying the Energy That Moves You",
     "sub": "Together from Source to Success",
-    "image": "/images/home-banner-image.webp",
-    "alt": "Rotomech-pumps-and-mechs-suppliers"
+    "image": "/images/testing new image.webp",
+    "alt": "Rotomech-pumps-s"
   },
   "ourLegacy": {
     "head": "Our Legacy",
@@ -51,5 +51,7 @@
     "logo11": "/logos/clientLogo11.webp",
     "logo12": "/logos/clientLogo12.webp",
     "logo13": "/logos/clientLogo13.webp"
-  }
+  },
+  "image1": "/images/homepage/legacy-image-1.webp",
+  "alt1": "Rotomech-pumps-and-mechs-suppliers"
 }
