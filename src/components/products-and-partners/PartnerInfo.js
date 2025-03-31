@@ -24,7 +24,7 @@ export default function PartnerInfiniteCarousel({ content }) {
 
   return (
     <>
-      <section className="flex px-[15rem] py-[5rem] h-[60vh] overflow-hidden gap-[2rem]">
+      <section className="flex px-[15rem] py-[5rem] h-[80vh] overflow-hidden gap-[2rem]">
         {/* Left Logos Carousel */}
         <div className="w-[30%] relative h-full overflow-hidden border py-auto rounded-[25px]">
           <AnimatePresence>

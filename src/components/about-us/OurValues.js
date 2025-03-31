@@ -10,9 +10,9 @@ export default function OurValues({ content }) {
       <div className="absolute flex flex-col justify-center items-center text-center w-[100%] max-9xl:relative top-[10%]">
         <h2 className="text-[5rem]">{content.head}</h2>
         <p className="text-[2rem] w-[40%] max-9xl:w-[100%]">{content.text}</p>
-        <Link href="/contact-us" className="z-[100] mt-[5rem]">
+        {/* <Link href="/contact-us" className="z-[100] mt-[5rem]">
           <Button text="Contact Us" textSize="2rem" />
-        </Link>
+        </Link> */}
       </div>
       <div className="max-9xl:flex max-9xl:flex-col max-9xl:gap-[5rem] mt-[10rem]">
         {/* each value set - 1 */}
