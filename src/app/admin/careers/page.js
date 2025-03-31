@@ -51,6 +51,33 @@ export default function AdminCareers() {
     }));
   };
 
+  // Delete a career entry given its index and key
+  const deleteCareer = async (index, key) => {
+    if (!confirm("Are you sure you want to delete this career posting?")) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/career/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // Remove career from state
+        setData((prev) => {
+          const updatedCareers = prev.careers.filter((_, i) => i !== index);
+          return { ...prev, careers: updatedCareers };
+        });
+      } else {
+        alert("Error deleting career: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting career: " + err.message);
+    }
+  };
+
   if (!data) return <div className="p-6 text-center text-2xl">Loading...</div>;
 
   return (
@@ -74,6 +101,7 @@ export default function AdminCareers() {
           setEditingCareerIndex(index);
           setShowCareerPopup(true);
         }}
+        deleteCareer={deleteCareer}
       />
 
       {(!data.careers || data.careers.length === 0) && (
@@ -201,7 +229,12 @@ function NoJobsSection({ noJobs, updateField }) {
 // -----------------------
 // Careers Section
 // -----------------------
-function CareersSection({ careers, updateCareer, openCareerPopup }) {
+function CareersSection({
+  careers,
+  updateCareer,
+  openCareerPopup,
+  deleteCareer,
+}) {
   if (!careers || careers.length === 0) {
     return (
       <section className="mb-8 p-6 bg-white rounded shadow text-2xl">
@@ -231,12 +264,18 @@ function CareersSection({ careers, updateCareer, openCareerPopup }) {
                 <td className="p-2 border text-2xl">{career.description}</td>
                 <td className="p-2 border text-2xl">{career.requirements}</td>
                 <td className="p-2 border text-2xl">{career.created_at}</td>
-                <td className="p-2 border text-2xl">
+                <td className="p-2 border text-2xl space-x-2">
                   <button
                     onClick={() => openCareerPopup(index)}
                     className="px-2 py-1 bg-blue-500 text-white rounded text-2xl"
                   >
                     Edit
+                  </button>
+                  <button
+                    onClick={() => deleteCareer(index, career.key)}
+                    className="px-2 py-1 bg-red-500 text-white rounded text-2xl"
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
