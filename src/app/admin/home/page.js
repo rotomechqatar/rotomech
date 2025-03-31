@@ -57,9 +57,7 @@ export default function AdminHomepage() {
 
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-5xl font-bold mb-8">
-        Admin Dashboard - Homepage Editor
-      </h1>
+      <h1 className="text-5xl font-bold mb-8">Homepage Editor</h1>
 
       <BannerSection banner={data.banner} updateText={handleTextUpdate} />
       <OurLegacySection
