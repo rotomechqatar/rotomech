@@ -35,8 +35,7 @@
     "logo3": "/logos/partnerLogo3.webp",
     "logo4": "/logos/partnerLogo4.webp",
     "logo5": "/logos/partnerLogo5.webp",
-    "logo6": "/logos/partnerLogo6.webp",
-    "logo7": "/logos/partnerLogo7.webp"
+    "logo6": "/logos/partnerLogo6.webp"
   },
   "clientLogos": {
     "logo1": "/logos/clientLogo1.webp",
@@ -52,7 +51,5 @@
     "logo11": "/logos/clientLogo11.webp",
     "logo12": "/logos/clientLogo12.webp",
     "logo13": "/logos/clientLogo13.webp"
-  },
-  "image1": "/images/homepage/legacy-image-1.webp",
-  "alt1": "Rotomech-pumps-and-mechs-suppliers"
+  }
 }
