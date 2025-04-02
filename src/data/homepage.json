@@ -1,4 +1,12 @@
 {
+  "meta": {
+    "title": "Products & Partners | AIC",
+    "description": "Discover our partners and products that drive innovation and excellence in the industry.",
+    "keywords": "products, partners, AIC, innovation, excellence",
+    "creator": "Melvin Prince",
+    "CURL": "https://www.melvinprince.io",
+    "sign": "Melvin Prince - Full Stack Developer"
+  },
   "banner": {
     "tagline": "Supplying the Energy That Moves You",
     "sub": "Together from Source to Success",

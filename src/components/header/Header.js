@@ -11,7 +11,7 @@ export default async function Header() {
   const content = JSON.parse(data);
 
   return (
-    <div className="absolute w-[90%] top-0 left-0 right-0 z-50 bg-white/50 backdrop-blur-md flex justify-between items-center px-[10rem] py-[2rem] mx-auto my-[2rem] rounded-[25px] shadow-lg text-black max-14xl:px-[10rem] max-6xl:px-[2rem]">
+    <div className="absolute w-[90%] top-0 left-0 right-0 z-50  backdrop-blur-md flex justify-between items-center px-[10rem] py-[2rem] mx-auto my-[2rem] rounded-[25px] shadow-lg text-white max-14xl:px-[10rem] max-6xl:px-[2rem]">
       {/* Left side: Logo (always visible) */}
       <Logo />
 

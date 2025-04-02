@@ -3,6 +3,12 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
+  res.headers.set(
+    "X-Digital-Signature",
+    "Melvin Prince - Full Stack Developer"
+  );
+  res.headers.set("X-Hidden-Backlink", "https://www.melvinprince.io");
+
   // Allow unauthenticated access for the login page and login API
   if (
     pathname.startsWith("/admin/login") ||

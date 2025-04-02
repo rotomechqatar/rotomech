@@ -16,7 +16,7 @@ export default async function page() {
     <section>
       <Banner content={content.banner} />
       <PartnerInfo content={content.partners} />
-      <ContactForm />
+      <ContactForm page="partners" />
     </section>
   );
 }
