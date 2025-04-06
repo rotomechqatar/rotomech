@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
+  // Create a NextResponse instance to modify headers
+  const res = NextResponse.next();
+
   res.headers.set(
     "X-Digital-Signature",
     "Melvin Prince - Full Stack Developer"
@@ -14,7 +17,7 @@ export function middleware(req) {
     pathname.startsWith("/admin/login") ||
     pathname.startsWith("/api/login")
   ) {
-    return NextResponse.next();
+    return res;
   }
 
   // Check for the auth cookie on admin pages and API routes
@@ -27,7 +30,7 @@ export function middleware(req) {
   }
 
   // User is authenticated – allow the request to proceed
-  return NextResponse.next();
+  return res;
 }
 
 export const config = {

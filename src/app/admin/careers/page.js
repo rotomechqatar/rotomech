@@ -18,7 +18,7 @@ export default function AdminCareers() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Handler to update a specific text field in nested objects (like banner)
+  // Handler to update a specific text field in nested objects (like banner or meta)
   const handleTextUpdate = (section, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -104,6 +104,7 @@ export default function AdminCareers() {
         deleteCareer={deleteCareer}
       />
 
+      {/* Add a new career if no careers exist */}
       {(!data.careers || data.careers.length === 0) && (
         <div className="mt-8">
           <button
@@ -140,6 +141,9 @@ export default function AdminCareers() {
           }}
         />
       )}
+
+      {/* SEO Settings Section */}
+      <SEOSection meta={data.meta} updateText={handleTextUpdate} />
     </div>
   );
 }
@@ -290,6 +294,46 @@ function CareersSection({
         >
           Add New Career
         </button>
+      </div>
+    </section>
+  );
+}
+
+// -----------------------
+// SEO Section
+// -----------------------
+function SEOSection({ meta, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">SEO Settings</h2>
+      <div className="mb-4 text-2xl">
+        <p>
+          <span className="font-medium">Title: </span>
+          <EditableText
+            section="meta"
+            field="title"
+            text={meta.title}
+            onTextUpdated={(val) => updateText("meta", "title", val)}
+          />
+        </p>
+        <p>
+          <span className="font-medium">Description: </span>
+          <EditableText
+            section="meta"
+            field="description"
+            text={meta.description}
+            onTextUpdated={(val) => updateText("meta", "description", val)}
+          />
+        </p>
+        <p>
+          <span className="font-medium">Keywords: </span>
+          <EditableText
+            section="meta"
+            field="keywords"
+            text={meta.keywords}
+            onTextUpdated={(val) => updateText("meta", "keywords", val)}
+          />
+        </p>
       </div>
     </section>
   );

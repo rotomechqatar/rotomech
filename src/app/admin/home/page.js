@@ -44,7 +44,7 @@ export default function AdminHomepage() {
     }));
   };
 
-  // New handler to remove a partner from state (after successful deletion)
+  // Handler to remove a partner from state (after successful deletion)
   const removePartnerLogo = (partnerKey) => {
     setData((prev) => {
       const newPartnerLogos = { ...prev.partnerLogos };
@@ -76,6 +76,9 @@ export default function AdminHomepage() {
         removePartnerLogo={removePartnerLogo}
       />
       <ClientLogosSection clientLogos={data.clientLogos} />
+
+      {/* SEO SECTION ADDED BELOW */}
+      <SEOSection meta={data.meta} updateText={handleTextUpdate} />
     </div>
   );
 }
@@ -214,7 +217,7 @@ function ImageTable({ images, onDelete }) {
 }
 
 // -----------------------
-// Other Sections (unchanged)
+// Other Sections
 // -----------------------
 
 function BannerSection({ banner, updateText }) {
@@ -349,7 +352,8 @@ function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
 
 function LegacyImageTable({ images, section, onUpdateClick }) {
   const updateLegacyAlt = (index, newAlt) => {
-    // This function can be used to update alt text inline.
+    // If inline alt editing is needed, implement a POST to /api/updateContent/homepage
+    // in a similar manner to how EditableText does it. For brevity, left as a placeholder.
   };
 
   return (
@@ -456,6 +460,51 @@ function CTASection({ CTA, updateText }) {
     </section>
   );
 }
+
+// -----------------------
+// SEO Section
+// -----------------------
+
+function SEOSection({ meta, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">SEO Settings</h2>
+      <div className="mb-4 text-2xl">
+        <p>
+          <span className="font-medium">Title: </span>
+          <EditableText
+            section="meta"
+            field="title"
+            text={meta.title}
+            onTextUpdated={(val) => updateText("meta", "title", val)}
+          />
+        </p>
+        <p>
+          <span className="font-medium">Description: </span>
+          <EditableText
+            section="meta"
+            field="description"
+            text={meta.description}
+            onTextUpdated={(val) => updateText("meta", "description", val)}
+          />
+        </p>
+        <p>
+          <span className="font-medium">Keywords: </span>
+          <EditableText
+            section="meta"
+            field="keywords"
+            text={meta.keywords}
+            onTextUpdated={(val) => updateText("meta", "keywords", val)}
+          />
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// -----------------------
+// Editable Text Component
+// -----------------------
 
 function EditableText({ section, field, text, onTextUpdated }) {
   const [editing, setEditing] = useState(false);

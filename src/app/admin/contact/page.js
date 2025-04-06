@@ -72,6 +72,9 @@ export default function AdminContactUs() {
         images={data.images}
         updateImage={updateContactImage}
       />
+
+      {/* SEO Section */}
+      <SEOSection meta={data.meta} updateText={handleTextUpdate} />
     </div>
   );
 }
@@ -213,7 +216,7 @@ function CTASection({ cta, updateText }) {
 }
 
 // -----------------------
-// Location Section (Updated)
+// Location Section
 // -----------------------
 function LocationSection({ location, updateField }) {
   // Extract URL string if location is an object.
@@ -221,6 +224,7 @@ function LocationSection({ location, updateField }) {
     typeof location === "object" && location !== null
       ? location.url || ""
       : location;
+
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">Location</h2>
@@ -329,6 +333,46 @@ function ContactImagesTable({ images, onUpdateClick }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+// -----------------------
+// SEO Section
+// -----------------------
+function SEOSection({ meta, updateText }) {
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">SEO Settings</h2>
+      <div className="mb-4 text-2xl">
+        <p>
+          <span className="font-medium">Title: </span>
+          <EditableText
+            section="meta"
+            field="title"
+            text={meta.title}
+            onTextUpdated={(val) => updateText("meta", "title", val)}
+          />
+        </p>
+        <p>
+          <span className="font-medium">Description: </span>
+          <EditableText
+            section="meta"
+            field="description"
+            text={meta.description}
+            onTextUpdated={(val) => updateText("meta", "description", val)}
+          />
+        </p>
+        <p>
+          <span className="font-medium">Keywords: </span>
+          <EditableText
+            section="meta"
+            field="keywords"
+            text={meta.keywords}
+            onTextUpdated={(val) => updateText("meta", "keywords", val)}
+          />
+        </p>
+      </div>
+    </section>
   );
 }
 
