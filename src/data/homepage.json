@@ -1,11 +1,7 @@
 {
   "meta": {
-    "title": "Products & Partners | AIC",
-    "description": "Discover our partners and products that drive innovation and excellence in the industry.",
-    "keywords": "products, partners, AIC, innovation, excellence",
-    "creator": "Melvin Prince",
-    "CURL": "https://www.melvinprince.io",
-    "sign": "Melvin Prince - Full Stack Developer"
+    "title": "Rotomech International | MRO Solutions for Industrial Excellence",
+    "description": "test"
   },
   "banner": {
     "tagline": "Supplying the Energy That Moves You",
@@ -60,8 +56,5 @@
     "logo11": "/logos/clientLogo11.webp",
     "logo12": "/logos/clientLogo12.webp",
     "logo13": "/logos/clientLogo13.webp"
-  },
-  "meta": {
-    "title": "Rotomech International | MRO Solutions for Industrial Excellence"
   }
 }
