@@ -39,8 +39,8 @@ jobs:
         run: |
           if [ "${{ steps.decide.outputs.operation }}" -eq "0" ]; then
               echo "Performing upload operation..."
-              node scripts/upload.js
+              node script/upload.js
           else
               echo "Performing delete operation..."
-              node scripts/delete.js
+              node script/delete.js
           fi
