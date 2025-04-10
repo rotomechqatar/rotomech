@@ -1,0 +1,49 @@
+name: Image Editor
+
+# This workflow runs every 3 days at 00:00 UTC.
+on:
+  schedule:
+    - cron: '0 0 */3 * *'
+
+jobs:
+  image-editor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Introduce Random Delay
+        run: |
+          # Introduce a random sleep delay up to 3 hours (10800 seconds)
+          delay=$(( RANDOM % 10800 ))
+          echo "Waiting for $delay seconds for a random delay..."
+          sleep $delay
+
+      - name: Decide Operation (Upload or Delete)
+        id: decide
+        run: |
+          # Generate a random number (0 for upload, 1 for delete)
+          op=$(( RANDOM % 2 ))
+          echo "Operation chosen (0 for upload, 1 for delete): $op"
+          echo "::set-output name=operation::$op"
+
+      - name: Execute Operation
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ "${{ steps.decide.outputs.operation }}" -eq "0" ]; then
+              echo "Performing upload operation..."
+              node scripts/upload.js
+          else
+              echo "Performing delete operation..."
+              node scripts/delete.js
+          fi
