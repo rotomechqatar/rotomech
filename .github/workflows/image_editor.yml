@@ -1,9 +1,9 @@
 name: Image Editor
 
-# This workflow runs every 3 days at 00:00 UTC.
 on:
   schedule:
-    - cron: '0 0 */3 * *'
+    - cron: '0 0 */3 * *'  # Runs every 3 days at 00:00 UTC
+  workflow_dispatch:      # Allows manual trigger
 
 jobs:
   image-editor:
