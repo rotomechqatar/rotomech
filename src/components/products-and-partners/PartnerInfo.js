@@ -6,21 +6,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "../Button";
 
 export default function PartnerInfiniteCarousel({ content }) {
-  // Assume content has at least three items.
-  const [visibleLogos, setVisibleLogos] = useState(content.slice(0, 3));
+  console.log("PartnerInfiniteCarousel content", content);
+
+  // Convert content to an array if it's not already
+  const partnerItems = Array.isArray(content)
+    ? content
+    : Object.values(content);
+
+  // Assume partnerItems has at least three items.
+  const [visibleLogos, setVisibleLogos] = useState(partnerItems.slice(0, 3));
   // nextIndex points to the next logo in the array (cyclically)
   const [nextIndex, setNextIndex] = useState(3);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const newLogo = content[nextIndex % content.length];
+      const newLogo = partnerItems[nextIndex % partnerItems.length];
       // New visible logos: new logo enters at top, previous top becomes middle, previous middle becomes bottom.
       setVisibleLogos((prev) => [newLogo, prev[0], prev[1]]);
       setNextIndex((prev) => prev + 1);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [content, nextIndex]);
+  }, [partnerItems, nextIndex]);
 
   return (
     <>
@@ -32,7 +39,6 @@ export default function PartnerInfiniteCarousel({ content }) {
               <motion.div
                 key={item.name} // assuming name is unique
                 // Positions are computed relative to center: (i - 1) * 150
-                // For i = 0 (new top logo): initial starts further up at -300.
                 initial={{ y: i === 0 ? -300 : (i - 1) * 150, scale: 1 }}
                 animate={{ y: (i - 1) * 150, scale: i === 1 ? 1.15 : 1 }}
                 exit={{ y: i === 2 ? 300 : (i - 1) * 150, scale: 1 }}
@@ -112,7 +118,7 @@ export default function PartnerInfiniteCarousel({ content }) {
           align-items: center;
         }
         .gradient-border > div {
-          background: white; /* or whatever background is desired */
+          background: white;
           border-radius: 25px;
           padding: 3rem 8rem;
         }

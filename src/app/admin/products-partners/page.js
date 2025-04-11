@@ -17,7 +17,7 @@ export default function AdminProductsPartnersPage() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Handler to update one-level (non-nested) fields (e.g. banner, meta)
+  // Handler for general (non-nested) updates
   const handleTextUpdate = (section, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -25,8 +25,8 @@ export default function AdminProductsPartnersPage() {
     }));
   };
 
-  // For partners, we'll store them in an object keyed by a unique id.
-  // Update the partner object at a given key & property.
+  // Handler to update a field in a partner object.
+  // Use the key from your partners object (which is "0", "1", ...).
   const handlePartnerFieldUpdate = (partnerKey, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -40,18 +40,17 @@ export default function AdminProductsPartnersPage() {
     }));
   };
 
-  // When adding a new partner, determine the next key and update state.
+  // When adding a new partner, determine the next key.
   const updatePartners = (newPartner) => {
     setData((prev) => {
       const newPartners = { ...prev.partners };
-      // Use the current length as next key (as string)
       const nextKey = Object.keys(newPartners).length.toString();
       newPartners[nextKey] = newPartner;
       return { ...prev, partners: newPartners };
     });
   };
 
-  // Remove a partner by comparing partner names.
+  // Remove partner by matching partner name.
   const removePartner = (partnerName) => {
     setData((prev) => {
       const newPartners = { ...prev.partners };
@@ -214,7 +213,7 @@ function PartnersSection({
   );
 }
 
-// A card for each partner, using the custom PartnerEditableText for nested updates.
+// A card for each partner with editable fields using PartnerEditableText.
 function PartnerCard({ index, partner, handlePartnerFieldUpdate, onDelete }) {
   return (
     <div className="p-6 bg-gray-100 rounded shadow flex flex-col md:flex-row md:items-center gap-4">
@@ -329,7 +328,6 @@ function EditableText({ section, field, text, onTextUpdated }) {
   const [value, setValue] = useState(text);
   const [loading, setLoading] = useState(false);
 
-  // Sync with external text updates.
   useEffect(() => {
     setValue(text);
   }, [text]);
@@ -411,14 +409,13 @@ function PartnerEditableText({ index, field, text, onTextUpdated }) {
   const [value, setValue] = useState(text);
   const [loading, setLoading] = useState(false);
 
-  // Sync with external text updates.
   useEffect(() => {
     setValue(text);
   }, [text]);
 
   const saveChanges = async () => {
     setLoading(true);
-    // Build a nested payload: { partners: { [index]: { [field]: value } } }
+    // Build a nested payload using the partner's key (index) and a fixed field name.
     const payload = {
       partners: { [index]: { [field]: value } },
     };
