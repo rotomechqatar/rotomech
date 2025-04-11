@@ -72,10 +72,11 @@ export default function BannerImageUploadPopup({
             <label className="block text-2xl mb-1">
               Name{" "}
               <span className="text-sm font-light text-gray-500">
-                (optional)
+                (Not Changable)
               </span>
             </label>
             <input
+              disabled
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
