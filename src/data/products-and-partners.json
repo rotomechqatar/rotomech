@@ -58,6 +58,12 @@
       "logo": "/logos/partnerLogo8.webp",
       "description": "test",
       "link": "https://test.com"
+    },
+    "8": {
+      "name": "test",
+      "logo": "/logos/partnerLogo9.webp",
+      "description": "test",
+      "link": "https://test.com"
     }
   }
 }
