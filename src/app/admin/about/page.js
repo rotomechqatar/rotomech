@@ -181,15 +181,6 @@ function AboutUsSection({ aboutUs, updateText, updateImage }) {
         />
       </p>
 
-      <p className="mb-4 text-2xl">
-        <EditableText
-          section="aboutUs"
-          field="text2"
-          text={aboutUs.text2}
-          onTextUpdated={(val) => updateText("aboutUs", "text2", val)}
-        />
-      </p>
-
       <h3 className="text-2xl font-semibold mb-2">Images</h3>
       <AboutUsImagesTable
         images={aboutUs.images}
