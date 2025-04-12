@@ -21,7 +21,9 @@ function AdminLayoutContent({ children }) {
       });
       const result = await res.json();
       if (res.ok) {
-        setPublishMessage("Publish successful!");
+        setPublishMessage(
+          "Publish successful! Changes will be live in a few minutes."
+        );
         setPublishStatus("success");
         router.refresh();
       } else {

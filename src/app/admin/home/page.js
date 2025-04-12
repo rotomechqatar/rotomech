@@ -6,10 +6,35 @@ import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
 import UniversalImageUploadPopup from "@/components/admin/UniversalImageUploadPopup";
 import AddPartnerPopup from "@/components/admin/AddPartnerPopup";
 
+// Global overlay component
+function GlobalMessage({ message, type }) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+      <div
+        className={`p-6 rounded shadow-lg text-2xl text-white ${
+          type === "success" ? "bg-green-500" : "bg-red-500"
+        }`}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminHomepage() {
   const [data, setData] = useState(null);
+  const [globalMessage, setGlobalMessage] = useState("");
+  const [globalMessageType, setGlobalMessageType] = useState("");
 
-  // Fetch homepage content data on mount
+  const showGlobalMessage = (message, type) => {
+    setGlobalMessage(message);
+    setGlobalMessageType(type);
+    setTimeout(() => {
+      setGlobalMessage("");
+      setGlobalMessageType("");
+    }, 3000);
+  };
+
   useEffect(() => {
     fetch("/api/getContent/homepage")
       .then((res) => res.json())
@@ -17,7 +42,6 @@ export default function AdminHomepage() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Handler to update a specific text field in the state
   const handleTextUpdate = (section, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -25,7 +49,6 @@ export default function AdminHomepage() {
     }));
   };
 
-  // Handler to update the entire ourLegacy section
   const updateLegacySection = (update) => {
     setData((prev) => ({
       ...prev,
@@ -33,7 +56,6 @@ export default function AdminHomepage() {
     }));
   };
 
-  // Handler to update partnerLogos after adding a new partner
   const updatePartnerLogos = (newPartner) => {
     setData((prev) => ({
       ...prev,
@@ -44,7 +66,6 @@ export default function AdminHomepage() {
     }));
   };
 
-  // Handler to remove a partner from state (after successful deletion)
   const removePartnerLogo = (partnerKey) => {
     setData((prev) => {
       const newPartnerLogos = { ...prev.partnerLogos };
@@ -62,28 +83,44 @@ export default function AdminHomepage() {
 
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
+      {globalMessage && (
+        <GlobalMessage message={globalMessage} type={globalMessageType} />
+      )}
       <h1 className="text-5xl font-bold mb-8">Homepage Editor</h1>
 
-      <BannerSection banner={data.banner} updateText={handleTextUpdate} />
+      <BannerSection
+        banner={data.banner}
+        updateText={handleTextUpdate}
+        showGlobalMessage={showGlobalMessage}
+      />
       <OurLegacySection
         ourLegacy={data.ourLegacy}
         updateText={handleTextUpdate}
         updateLegacySection={updateLegacySection}
+        showGlobalMessage={showGlobalMessage}
       />
       <DirectorMessageSection
         directorMessage={data.directorMessage}
         updateText={handleTextUpdate}
+        showGlobalMessage={showGlobalMessage}
       />
-      <CTASection CTA={data.CTA} updateText={handleTextUpdate} />
+      <CTASection
+        CTA={data.CTA}
+        updateText={handleTextUpdate}
+        showGlobalMessage={showGlobalMessage}
+      />
       <PartnerLogosSection
         partnerLogos={data.partnerLogos}
         updatePartnerLogos={updatePartnerLogos}
         removePartnerLogo={removePartnerLogo}
+        showGlobalMessage={showGlobalMessage}
       />
       <ClientLogosSection clientLogos={data.clientLogos} />
-
-      {/* SEO SECTION ADDED BELOW */}
-      <SEOSection meta={data.meta} updateText={handleTextUpdate} />
+      <SEOSection
+        meta={data.meta}
+        updateText={handleTextUpdate}
+        showGlobalMessage={showGlobalMessage}
+      />
     </div>
   );
 }
@@ -96,16 +133,16 @@ function PartnerLogosSection({
   partnerLogos,
   updatePartnerLogos,
   removePartnerLogo,
+  showGlobalMessage,
 }) {
   const logos = Object.entries(partnerLogos).map(([key, src]) => ({
-    name: key, // partner key such as "logo1", "logo2", etc.
+    name: key,
     src,
     alt: `Partner logo ${key}`,
   }));
 
   const [showAddPartnerPopup, setShowAddPartnerPopup] = useState(false);
 
-  // Delete handler for a partner logo
   const handleDeletePartner = async (partnerKey) => {
     if (!confirm("Are you sure you want to delete this partner?")) return;
     try {
@@ -117,12 +154,16 @@ function PartnerLogosSection({
       const data = await res.json();
       if (res.ok) {
         removePartnerLogo(partnerKey);
+        showGlobalMessage("Partner deleted successfully!", "success");
       } else {
-        alert("Error deleting partner: " + (data.error || "Unknown error"));
+        showGlobalMessage(
+          "Error deleting partner: " + (data.error || "Unknown error"),
+          "error"
+        );
       }
     } catch (err) {
       console.error(err);
-      alert("Error deleting partner: " + err.message);
+      showGlobalMessage("Error deleting partner: " + err.message, "error");
     }
   };
 
@@ -144,6 +185,7 @@ function PartnerLogosSection({
           onUpdate={(res) => {
             updatePartnerLogos(res);
             setShowAddPartnerPopup(false);
+            showGlobalMessage("Partner added successfully!", "success");
           }}
         />
       )}
@@ -171,8 +213,6 @@ function ClientLogosSection({ clientLogos }) {
   );
 }
 
-// Updated ImageTable component accepts an optional onDelete prop.
-// If onDelete is provided, the Delete button will call onDelete with the image name (partner key).
 function ImageTable({ images, onDelete }) {
   return (
     <div className="overflow-x-auto">
@@ -225,7 +265,7 @@ function ImageTable({ images, onDelete }) {
 // Other Sections
 // -----------------------
 
-function BannerSection({ banner, updateText }) {
+function BannerSection({ banner, updateText, showGlobalMessage }) {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
 
   const openPopup = () => setShowUploadPopup(true);
@@ -256,7 +296,10 @@ function BannerSection({ banner, updateText }) {
             section="banner"
             field="tagline"
             text={banner.tagline}
-            onTextUpdated={(val) => updateText("banner", "tagline", val)}
+            onTextUpdated={(val) => {
+              updateText("banner", "tagline", val);
+            }}
+            showGlobalMessage={showGlobalMessage}
           />
         </p>
         <p className="text-gray-600">
@@ -264,7 +307,10 @@ function BannerSection({ banner, updateText }) {
             section="banner"
             field="sub"
             text={banner.sub}
-            onTextUpdated={(val) => updateText("banner", "sub", val)}
+            onTextUpdated={(val) => {
+              updateText("banner", "sub", val);
+            }}
+            showGlobalMessage={showGlobalMessage}
           />
         </p>
       </div>
@@ -277,6 +323,7 @@ function BannerSection({ banner, updateText }) {
             updateText("banner", "image", newBanner.image);
             updateText("banner", "alt", newBanner.alt);
             closePopup();
+            showGlobalMessage("Banner image updated!", "success");
           }}
         />
       )}
@@ -284,11 +331,15 @@ function BannerSection({ banner, updateText }) {
   );
 }
 
-function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
+function OurLegacySection({
+  ourLegacy,
+  updateText,
+  updateLegacySection,
+  showGlobalMessage,
+}) {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  // Build an array of legacy images (keys: image1, alt1, name1, etc.)
   const legacyImages = [];
   for (let i = 1; i <= 10; i++) {
     if (ourLegacy[`image${i}`]) {
@@ -316,7 +367,10 @@ function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
           section="ourLegacy"
           field="text"
           text={ourLegacy.text}
-          onTextUpdated={(val) => updateText("ourLegacy", "text", val)}
+          onTextUpdated={(val) => {
+            updateText("ourLegacy", "text", val);
+          }}
+          showGlobalMessage={showGlobalMessage}
         />
       </p>
       {legacyImages.length > 0 ? (
@@ -325,6 +379,7 @@ function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
           section="ourLegacy"
           onUpdateClick={openUpdatePopup}
           updateLegacySection={updateLegacySection}
+          showGlobalMessage={showGlobalMessage}
         />
       ) : (
         <p className="text-2xl">No legacy images found.</p>
@@ -348,6 +403,7 @@ function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
               [`name${selectedIndex}`]:
                 uploadData.name || prev[`name${selectedIndex}`],
             }));
+            showGlobalMessage("Legacy image updated!", "success");
           }}
         />
       )}
@@ -355,10 +411,19 @@ function OurLegacySection({ ourLegacy, updateText, updateLegacySection }) {
   );
 }
 
-function LegacyImageTable({ images, section, onUpdateClick }) {
+function LegacyImageTable({
+  images,
+  section,
+  onUpdateClick,
+  updateLegacySection,
+  showGlobalMessage,
+}) {
   const updateLegacyAlt = (index, newAlt) => {
-    // If inline alt editing is needed, implement a POST to /api/updateContent/homepage
-    // in a similar manner to how EditableText does it. For brevity, left as a placeholder.
+    updateLegacySection((prev) => ({
+      ...prev,
+      [`alt${index}`]: newAlt,
+    }));
+    showGlobalMessage("Alt text updated successfully!", "success");
   };
 
   return (
@@ -393,6 +458,7 @@ function LegacyImageTable({ images, section, onUpdateClick }) {
                   field={`alt${img.index}`}
                   text={img.alt}
                   onTextUpdated={(val) => updateLegacyAlt(img.index, val)}
+                  showGlobalMessage={showGlobalMessage}
                 />
               </td>
               <td className="p-2 text-2xl border">
@@ -411,7 +477,11 @@ function LegacyImageTable({ images, section, onUpdateClick }) {
   );
 }
 
-function DirectorMessageSection({ directorMessage, updateText }) {
+function DirectorMessageSection({
+  directorMessage,
+  updateText,
+  showGlobalMessage,
+}) {
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-2">Director Message</h2>
@@ -421,6 +491,7 @@ function DirectorMessageSection({ directorMessage, updateText }) {
           field="head"
           text={directorMessage.head}
           onTextUpdated={(val) => updateText("directorMessage", "head", val)}
+          showGlobalMessage={showGlobalMessage}
         />
       </h3>
       <blockquote className="italic border-l-4 border-blue-500 pl-4 mb-2 text-2xl">
@@ -429,6 +500,7 @@ function DirectorMessageSection({ directorMessage, updateText }) {
           field="quote"
           text={directorMessage.quote}
           onTextUpdated={(val) => updateText("directorMessage", "quote", val)}
+          showGlobalMessage={showGlobalMessage}
         />
       </blockquote>
       <p className="font-bold text-2xl">
@@ -437,13 +509,14 @@ function DirectorMessageSection({ directorMessage, updateText }) {
           field="author"
           text={directorMessage.author}
           onTextUpdated={(val) => updateText("directorMessage", "author", val)}
+          showGlobalMessage={showGlobalMessage}
         />
       </p>
     </section>
   );
 }
 
-function CTASection({ CTA, updateText }) {
+function CTASection({ CTA, updateText, showGlobalMessage }) {
   return (
     <section className="mb-8 p-6 bg-blue-100 rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">
@@ -452,6 +525,7 @@ function CTASection({ CTA, updateText }) {
           field="head"
           text={CTA.head}
           onTextUpdated={(val) => updateText("CTA", "head", val)}
+          showGlobalMessage={showGlobalMessage}
         />
       </h2>
       <p className="text-2xl">
@@ -460,17 +534,14 @@ function CTASection({ CTA, updateText }) {
           field="text"
           text={CTA.text}
           onTextUpdated={(val) => updateText("CTA", "text", val)}
+          showGlobalMessage={showGlobalMessage}
         />
       </p>
     </section>
   );
 }
 
-// -----------------------
-// SEO Section
-// -----------------------
-
-function SEOSection({ meta, updateText }) {
+function SEOSection({ meta, updateText, showGlobalMessage }) {
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">SEO Settings</h2>
@@ -482,6 +553,7 @@ function SEOSection({ meta, updateText }) {
             field="title"
             text={meta.title}
             onTextUpdated={(val) => updateText("meta", "title", val)}
+            showGlobalMessage={showGlobalMessage}
           />
         </p>
         <p>
@@ -491,6 +563,7 @@ function SEOSection({ meta, updateText }) {
             field="description"
             text={meta.description}
             onTextUpdated={(val) => updateText("meta", "description", val)}
+            showGlobalMessage={showGlobalMessage}
           />
         </p>
         <p>
@@ -500,6 +573,7 @@ function SEOSection({ meta, updateText }) {
             field="keywords"
             text={meta.keywords}
             onTextUpdated={(val) => updateText("meta", "keywords", val)}
+            showGlobalMessage={showGlobalMessage}
           />
         </p>
       </div>
@@ -507,18 +581,20 @@ function SEOSection({ meta, updateText }) {
   );
 }
 
-// -----------------------
-// Editable Text Component
-// -----------------------
-
-function EditableText({ section, field, text, onTextUpdated }) {
+function EditableText({
+  section,
+  field,
+  text,
+  onTextUpdated,
+  showGlobalMessage,
+}) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(text);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setValue(text);
-  }, [text]);
+  }, [text, section, field]);
 
   const saveChanges = async () => {
     setLoading(true);
@@ -534,12 +610,15 @@ function EditableText({ section, field, text, onTextUpdated }) {
       if (res.ok) {
         onTextUpdated(value);
         setEditing(false);
+        showGlobalMessage("Update successful!", "success");
       } else {
-        alert("Error saving changes: " + (data.error || "Unknown error"));
+        showGlobalMessage(
+          "Error saving changes: " + (data.error || "Unknown error"),
+          "error"
+        );
       }
     } catch (err) {
-      console.error(err);
-      alert("Error saving changes: " + err.message);
+      showGlobalMessage("Error saving changes: " + err.message, "error");
     }
     setLoading(false);
   };
@@ -550,41 +629,43 @@ function EditableText({ section, field, text, onTextUpdated }) {
   };
 
   return (
-    <span className="w-full inline-flex items-center">
-      {editing ? (
-        <>
-          <input
-            type="text"
-            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-          <button
-            onClick={saveChanges}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-          <button
-            onClick={cancelEditing}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <>
-          <span className="text-2xl">{text}</span>
-          <span
-            onClick={() => setEditing(true)}
-            className="cursor-pointer text-2xl ml-1 inline"
-          >
-            ✏️
-          </span>
-        </>
-      )}
+    <span className="w-full inline-flex flex-col">
+      <span className="inline-flex items-center">
+        {editing ? (
+          <>
+            <input
+              type="text"
+              className="flex-grow text-2xl p-2 border border-gray-300 rounded"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+            <button
+              onClick={saveChanges}
+              disabled={loading}
+              className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+            <button
+              onClick={cancelEditing}
+              disabled={loading}
+              className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="text-2xl">{text}</span>
+            <span
+              onClick={() => setEditing(true)}
+              className="cursor-pointer text-2xl ml-1 inline"
+            >
+              ✏️
+            </span>
+          </>
+        )}
+      </span>
     </span>
   );
 }

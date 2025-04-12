@@ -77,14 +77,6 @@ export async function POST(req) {
   const linkField = formData.get("link");
   const file = formData.get("file");
 
-  console.log("[ADD PARTNER] Incoming form data:", {
-    name: nameField,
-    description: descriptionField,
-    link: linkField,
-    fileType: file?.type,
-  });
-
-  // Validate that all compulsory fields are provided
   if (!nameField || !descriptionField || !linkField || !file) {
     console.error("[ADD PARTNER] Missing required fields in form data");
     return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -101,24 +93,20 @@ export async function POST(req) {
     );
   }
 
-  // Convert the file to a Base64‑encoded string.
+  // Convert the file to a Base64‑encoded string and remove any newline characters.
   const fileBuffer = Buffer.from(await file.arrayBuffer());
-  const imageBase64 = fileBuffer.toString("base64");
+  const imageBase64 = fileBuffer.toString("base64").replace(/\n/g, "");
 
   // Determine the next available index for partner logos in homepageContent.partnerLogos.
-  // For example, if you currently have logo1 through logo6, then the new one will be logo7.
   const partnerLogos = homepageContent.partnerLogos || {};
   let index = 1;
   while (partnerLogos[`logo${index}`]) {
     index++;
   }
-  console.log("[ADD PARTNER] Next available index:", index);
 
   // Construct new file name and image path for the partner logo.
-  // For instance, new file will be "partnerLogo7.webp" stored at "/logos/partnerLogo7.webp".
   const newFileName = `partnerLogo${index}.webp`;
   const newImagePath = `/logos/${newFileName}`;
-  console.log("[ADD PARTNER] New image path:", newImagePath);
 
   // Compute the repository path for the new image (assuming logos are stored in public/logos).
   const posixNewImagePath = newImagePath.replace(/\\/g, "/");
@@ -130,10 +118,6 @@ export async function POST(req) {
       ? posixNewImagePath.slice(1)
       : posixNewImagePath;
   }
-  console.log(
-    "[ADD PARTNER] Repo new image path for upload:",
-    repoNewImagePath
-  );
 
   // --- Upload the new image to GitHub ---
   const putPayload = {
@@ -142,7 +126,6 @@ export async function POST(req) {
     branch: branch,
   };
   const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${repoNewImagePath}`;
-  console.log("[ADD PARTNER] Uploading new image to URL:", putUrl);
   const putResponse = await fetch(putUrl, {
     method: "PUT",
     headers: {
@@ -163,7 +146,6 @@ export async function POST(req) {
       { status: 500 }
     );
   }
-  console.log("[ADD PARTNER] New image uploaded successfully.");
 
   // Update homepage.json: add the new logo path to the partnerLogos section.
   homepageContent.partnerLogos[`logo${index}`] = newImagePath;
@@ -178,10 +160,6 @@ export async function POST(req) {
     branch: branch,
   };
   const homepageUpdateUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}`;
-  console.log(
-    "[ADD PARTNER] Updating homepage.json at URL:",
-    homepageUpdateUrl
-  );
   const homepageUpdateResponse = await fetch(homepageUpdateUrl, {
     method: "PUT",
     headers: {
@@ -205,11 +183,19 @@ export async function POST(req) {
       { status: 500 }
     );
   }
-  console.log("[ADD PARTNER] homepage.json updated successfully.");
 
   // Update products-and-partners.json: add a new partner entry.
-  if (!Array.isArray(partnersContent.partners)) {
-    partnersContent.partners = [];
+  if (
+    !partnersContent.partners ||
+    typeof partnersContent.partners !== "object"
+  ) {
+    partnersContent.partners = {};
+  }
+  const partnersObj = partnersContent.partners;
+  let nextIndex = 0;
+  const existingKeys = Object.keys(partnersObj);
+  if (existingKeys.length > 0) {
+    nextIndex = Math.max(...existingKeys.map(Number)) + 1;
   }
   const newPartnerEntry = {
     name: nameField,
@@ -217,7 +203,7 @@ export async function POST(req) {
     description: descriptionField,
     link: linkField,
   };
-  partnersContent.partners.push(newPartnerEntry);
+  partnersObj[nextIndex.toString()] = newPartnerEntry;
   const updatedPartnersContentString = JSON.stringify(partnersContent, null, 2);
   const updatedPartnersContentBase64 = Buffer.from(
     updatedPartnersContentString
@@ -229,10 +215,6 @@ export async function POST(req) {
     branch: branch,
   };
   const partnersUpdateUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}`;
-  console.log(
-    "[ADD PARTNER] Updating products-and-partners.json at URL:",
-    partnersUpdateUrl
-  );
   const partnersUpdateResponse = await fetch(partnersUpdateUrl, {
     method: "PUT",
     headers: {
@@ -256,8 +238,8 @@ export async function POST(req) {
       { status: 500 }
     );
   }
-  console.log("[ADD PARTNER] products-and-partners.json updated successfully.");
 
+  console.log("[ADD PARTNER] Partner added successfully");
   return new Response(
     JSON.stringify({
       message: "Partner added successfully",

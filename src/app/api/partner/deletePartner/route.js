@@ -235,32 +235,33 @@ export async function DELETE(req) {
   delete homepageContent.partnerLogos[partnerKey];
   console.log("[DELETE PARTNER] Removed partner key from homepage data.");
 
-  // Remove the partner from products-and-partners.json (match by logo path)
-  if (Array.isArray(partnersContent.partners)) {
-    const initialLength = partnersContent.partners.length;
-    partnersContent.partners = partnersContent.partners.filter(
-      (partner) => partner.logo !== logoPath
-    );
-    console.log(
-      "[DELETE PARTNER] Partners array length before deletion:",
-      initialLength,
-      "after deletion:",
-      partnersContent.partners.length
-    );
-    if (partnersContent.partners.length === initialLength) {
-      console.warn(
-        "[DELETE PARTNER] Partner not found in products-and-partners data"
-      );
-    } else {
-      console.log(
-        "[DELETE PARTNER] Removed partner from products-and-partners data"
-      );
-    }
-  } else {
-    console.error("[DELETE PARTNER] partnersContent.partners is not an array");
+  // Remove the partner from products-and-partners.json
+  // The updated structure stores partners as an object keyed by numeric strings.
+  if (
+    !partnersContent.partners ||
+    typeof partnersContent.partners !== "object"
+  ) {
+    console.error("[DELETE PARTNER] Invalid partners data structure");
     return new Response(
       JSON.stringify({ error: "Invalid partners data structure" }),
       { status: 500 }
+    );
+  }
+  let partnerFound = false;
+  for (const key in partnersContent.partners) {
+    if (partnersContent.partners[key].logo === logoPath) {
+      delete partnersContent.partners[key];
+      partnerFound = true;
+      console.log(
+        "[DELETE PARTNER] Removed partner entry from products-and-partners data with key:",
+        key
+      );
+      break;
+    }
+  }
+  if (!partnerFound) {
+    console.warn(
+      "[DELETE PARTNER] Partner not found in products-and-partners data"
     );
   }
 

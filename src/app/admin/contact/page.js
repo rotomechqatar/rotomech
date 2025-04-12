@@ -5,8 +5,35 @@ import Image from "next/image";
 import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
 import ContactImageUploadPopup from "@/components/admin/ContactImageUploadPopup";
 
+// Global overlay component for messages
+function GlobalMessage({ message, type }) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+      <div
+        className={`p-6 rounded shadow-lg text-2xl text-white ${
+          type === "success" ? "bg-green-500" : "bg-red-500"
+        }`}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminContactUs() {
   const [data, setData] = useState(null);
+  const [globalMessage, setGlobalMessage] = useState("");
+  const [globalMessageType, setGlobalMessageType] = useState("");
+
+  // Global message helper: displays a message in the center overlay for 3 seconds.
+  const showGlobalMessage = (message, type) => {
+    setGlobalMessage(message);
+    setGlobalMessageType(type);
+    setTimeout(() => {
+      setGlobalMessage("");
+      setGlobalMessageType("");
+    }, 3000);
+  };
 
   // Fetch contact us content data on mount
   useEffect(() => {
@@ -50,6 +77,9 @@ export default function AdminContactUs() {
 
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
+      {globalMessage && (
+        <GlobalMessage message={globalMessage} type={globalMessageType} />
+      )}
       <h1 className="text-5xl font-bold mb-8">
         Admin Dashboard - Contact Us Editor
       </h1>
@@ -224,7 +254,6 @@ function CTASection({ cta, updateText }) {
 // Location Section
 // -----------------------
 function LocationSection({ location, updateField }) {
-  // Extract URL string if location is an object.
   const locationUrl =
     typeof location === "object" && location !== null
       ? location.url || ""
@@ -396,7 +425,6 @@ function EditableText({ section, field, text, onTextUpdated }) {
   const saveChanges = async () => {
     setLoading(true);
     const payload = { [section]: { [field]: value } };
-
     try {
       const res = await fetch(`/api/updateContent/contact-us`, {
         method: "POST",
@@ -407,6 +435,7 @@ function EditableText({ section, field, text, onTextUpdated }) {
       if (res.ok) {
         onTextUpdated(value);
         setEditing(false);
+        // Global message can be triggered externally if needed.
       } else {
         alert("Error saving changes: " + (data.error || "Unknown error"));
       }
@@ -466,7 +495,6 @@ function EditableText({ section, field, text, onTextUpdated }) {
 // Editable Location Text Component
 // -----------------------
 function EditableLocationText({ section, field, text, onTextUpdated }) {
-  // If text is an object (e.g. { url: "..." }), use its url; otherwise, use text.
   const initialValue =
     typeof text === "object" && text !== null ? text.url || "" : text;
   const [editing, setEditing] = useState(false);
@@ -489,7 +517,6 @@ function EditableLocationText({ section, field, text, onTextUpdated }) {
     }
     setLoading(true);
     const payload = { [section]: { [field]: value } };
-
     try {
       const res = await fetch(`/api/updateContent/contact-us`, {
         method: "POST",
