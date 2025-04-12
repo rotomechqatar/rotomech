@@ -87,9 +87,7 @@ export default function AdminCareers() {
 
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-5xl font-bold mb-8">
-        Admin Dashboard - Careers Editor
-      </h1>
+      <h1 className="text-5xl font-bold mb-8">Careers Editor</h1>
 
       <BannerSection
         banner={data.banner}

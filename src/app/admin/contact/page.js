@@ -80,9 +80,7 @@ export default function AdminContactUs() {
       {globalMessage && (
         <GlobalMessage message={globalMessage} type={globalMessageType} />
       )}
-      <h1 className="text-5xl font-bold mb-8">
-        Admin Dashboard - Contact Us Editor
-      </h1>
+      <h1 className="text-5xl font-bold mb-8">Contact Us Editor</h1>
 
       <BannerSection
         banner={data.banner}
