@@ -63,7 +63,12 @@ export default function AdminProductsPartnersPage() {
     });
   };
 
-  if (!data) return <div className="p-6 text-center text-2xl">Loading...</div>;
+  if (!data)
+    return (
+      <div className="p-6 text-center text-white text-2xl">
+        Loading all data. Please wait...
+      </div>
+    );
 
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
