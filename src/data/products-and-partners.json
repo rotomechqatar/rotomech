@@ -10,48 +10,12 @@
     "image": "/images/partners-banner.webp",
     "alt": "products-and-partners-banner"
   },
-  "partners": {
-    "0": {
-      "name": "WILLIAMS - An Ingersoll rand Business",
-      "logo": "/logos/partnerLogo4.webp",
-      "description": "Williams is currently the leading supplier of  eumatically-driven metering pumps for the global oil & gas industry. Our metering pumps and related products have become a standard with most of the world’s oil & gas companies. Williams revolutionized the natural gas distribution industry by developing a method for the positive injection of mercaptans, chemicals for introducing odor into natural gas. Prior to the use of positive injection, the gas industry used the inaccurate bypass method of odorizing natural gas. The  williams’ design approach, which introduced precision, increased safety in an industry that requires a very high level of safety because the public is a customer",
-      "link": "https://www.williamspumps.com/en"
-    },
-    "1": {
-      "name": "HETA - Filtration and Separation",
-      "logo": "/logos/partnerLogo6.webp",
-      "description": "HETA is a globally operating engineering specialist company and anufacturer of filters and separators. Since 2010, HETA has been a member of the PACO group. PACO is a leader in the world market for high-quality metal wire  loths, filters, and sieves. HETA and PACO provide their commitment to the  usiness location in Germany based on conviction and experience.",
-      "link": "https://heta.de/home"
-    },
-    "2": {
-      "name": "Nasr Seals Pvt. Ltd.",
-      "logo": "/logos/partnerLogo3.webp",
-      "description": "Nasr Seals Pvt. Ltd., incorporated on December 11, 2018, is a Mumbai-based manufacturer of mechanical shaft seals, catering to the diversified requirements of process industries. The company offers a wide range of mechanical seals, including Cartridge Seals, Agitator Seals, High Pressure Agitator Seals, Teflon Bellow Seals, Conical Spring Seals, Double Agitator Seals, Rubber Bellow Seals, Metal Bellow Seals, Wave Spring Seals, Reverse Balanced Seals, test rigs for mechanical seals, and more. ",
-      "link": "https://nasrseals.com/"
-    },
-    "3": {
-      "name": "BAI Brescia Antincendi International Srl",
-      "logo": "/logos/partnerLogo2.webp",
-      "description": "BAI Brescia Antincendi International Srl is an Italian company specializing in the design, production, and sale of firefighting and rescue vehicles. Their product range includes civil, airport, industrial firefighting vehicles, water platforms, multi-rescue, and forest firefighting vehicles. BAI also offers customized special vehicles tailored to specific customer requirements, ensuring maximum technology and quality. Additionally, they provide technical assistance, spare parts supply, and training programs for the use and maintenance of their vehicles.",
-      "link": "https://www.bai.it/it/"
-    },
-    "4": {
-      "name": "WTS Energy",
-      "logo": "/logos/partnerLogo1.webp",
-      "description": "WTS Energy, founded in 2000 and headquartered in The Hague, South Holland, is a leading globally operating staffing and recruitment company focused on the international oil, gas, and renewable energy industries. The company provides professional personnel and outsourcing services, including recruitment campaigns, manpower supply, and workforce management services for projects and operations worldwide. With a presence in over 20 countries across four continents, WTS Energy supports energy companies in their transition to a carbon-neutral society by developing and delivering local talent worldwide.",
-      "link": "https://www.wtsenergy.com/"
-    },
-    "5": {
-      "name": "UT Pumps & Systems",
-      "logo": "/logos/partnerLogo5.webp",
-      "description": "UT Pumps is a leading manufacturer and supplier of innovative pump solutions designed to meet the demands of diverse industrial, water treatment, and oil & gas applications. Renowned for its commitment to quality and efficiency, UT Pumps delivers robust, reliable, and energy-efficient fluid handling systems that help customers optimize their operations. With cutting-edge technology and a focus on sustainability, UT Pumps stands out as a trusted partner in delivering advanced pumping solutions worldwide.",
-      "link": "https://www.utpumps.com/"
-    },
-    "6": {
-      "name": "Desmi",
-      "logo": "/logos/partnerLogo7.webp",
-      "description": "Desmi is a global leader in designing, manufacturing, and servicing specialized pump solutions for marine, offshore, and industrial applications. They offer a wide range of energy-efficient pumps—including seawater, slurry, and bilge pumps—that are engineered to perform reliably in demanding environments. Committed to sustainability and continuous innovation, Desmi provides exceptional customer support and tailored solutions, making them a trusted partner in critical industries worldwide.",
-      "link": "https://www.desmi.com/"
+  "partners": [
+    {
+      "name": "test",
+      "logo": "/logos/partnerLogo8.webp",
+      "description": "test",
+      "link": "https://test.com"
     }
-  }
+  ]
 }
