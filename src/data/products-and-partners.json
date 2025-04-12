@@ -10,12 +10,5 @@
     "image": "/images/partners-banner.webp",
     "alt": "products-and-partners-banner"
   },
-  "partners": [
-    {
-      "name": "tet",
-      "logo": "/logos/partnerLogo8.webp",
-      "description": "test",
-      "link": "https://test.com"
-    }
-  ]
+  "partners": []
 }
