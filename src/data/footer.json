@@ -38,13 +38,8 @@
         },
         {
             "name": "Phone",
-            "link": "tel:+97477645511",
+            "link": "tel:+9744812900",
             "icon": "/icons/phone.svg"
-        },
-        {
-            "name": "Fax",
-            "link": "tel:+97444812900",
-            "icon": "/icons/fax.svg"
         },
         {
             "name": "Email",
