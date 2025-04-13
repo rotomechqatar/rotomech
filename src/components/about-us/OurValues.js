@@ -1,133 +1,233 @@
 "use client";
 
 import Image from "next/image";
-import Button from "../Button";
-import Link from "next/link";
+// Optional imports if needed later:
+// import Button from "../Button";
+// import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function OurValues({ content }) {
+  // --- Client-Side Screen Width Detection ---
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => setIsLargeScreen(window.innerWidth >= 900);
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  // --- Safety Check ---
+  if (
+    !content ||
+    !content.icons ||
+    !content.values ||
+    content.icons.length < 6 ||
+    content.values.length < 6
+  ) {
+    console.error(
+      "OurValues component requires content with head, text, and arrays of at least 6 icons and values."
+    );
+    return null;
+  }
+
+  // --- Configuration for Circular Layout (Large Screens) ---
+  const numberOfItems = 6;
+  const angleStep = (2 * Math.PI) / numberOfItems;
+  const radius = 350; // Orbit radius in px
+
+  const getStyleForCircleItem = (index) => {
+    const angle = angleStep * index - Math.PI / 2; // Start from top (−90°)
+    const xPos = Math.cos(angle) * radius;
+    const yPos = Math.sin(angle) * radius;
+    return {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`,
+    };
+  };
+
+  // Flat array for circular mapping (6 items)
+  // (Numbers are no longer used, so we only need the index.)
+  const flatValueData = [
+    { index: 0 },
+    { index: 1 },
+    { index: 2 },
+    { index: 3 },
+    { index: 4 },
+    { index: 5 },
+  ];
+
+  // Common classes for the icon container and image
+  const iconContainerBaseClass =
+    "gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300";
+  const imageBaseClass = "object-contain p-[3rem]";
+
   return (
-    <section className="relative mx-[15rem] pb-[5rem] max-14xl:mx-[10rem] max-6xl:mx-[5rem] max-6xl:py-[5rem]">
-      <div className="absolute flex flex-col justify-center items-center text-center w-[100%] max-9xl:relative top-[10%]">
-        <h2 className="text-[5rem]">{content.head}</h2>
-        <p className="text-[2rem] w-[40%] max-9xl:w-[100%]">{content.text}</p>
-        {/* <Link href="/contact-us" className="z-[100] mt-[5rem]">
-          <Button text="Contact Us" textSize="2rem" />
-        </Link> */}
-      </div>
-      <div className="max-9xl:flex max-9xl:flex-col max-9xl:gap-[5rem] mt-[10rem]">
-        {/* each value set - 1 */}
-        <div className="relative flex justify-between mx-[15rem] max-18xl:mx-[15rem] max-15xl:mx-[10rem] max-9xl:mx-0 max-9xl:justify-center max-9xl:gap-[15rem] max-5xl:gap-[5rem] ">
-          <div className="flex flex-col items-center max-9xl:border max-9xl:px-[5rem] max-9xl:py-[1rem] rounded-[20px]">
-            <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center ">
-              01.
-            </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 ">
-              <Image
-                src={content.icons[0]}
-                alt={content.values[0]}
-                className="object-contain p-[3rem]"
-                fill
-              />
-            </div>
-            <span className="text-center mt-[2rem] text-[2rem] font-bold">
-              {content.values[0]}
-            </span>
+    <section
+      className={`relative mx-auto px-4 sm:px-[5rem] lg:px-[10rem] xl:px-[15rem] pb-[5rem] ${
+        isLargeScreen
+          ? "py-[5rem] min-h-[100vh] flex items-center justify-center"
+          : "pt-[5rem]"
+      }`}
+    >
+      {isLargeScreen ? (
+        // --- Desktop Circular Layout ---
+        <div className="relative w-full min-h-[60rem]">
+          {/* Central "Sun": Heading and Text (always visible on large screens) */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 w-[45%] mx-auto">
+            <h2 className="text-[5rem] font-bold">{content.head}</h2>
+            <p className="text-[2rem] mt-4">{content.text}</p>
           </div>
-          <div className="flex flex-col items-center max-9xl:border max-9xl:px-[5rem] max-9xl:py-[1rem] rounded-[20px]">
-            <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
-              06.
-            </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
-              <Image
-                src={content.icons[5]}
-                alt={content.values[5]}
-                className="object-contain p-[3rem]"
-                fill
-              />
-            </div>
-            <span className="text-center mt-[2rem] text-[2rem] font-bold">
-              {content.values[5]}
-            </span>
+          {/* Outer Circle Container */}
+          <div
+            className="values-circle relative mx-auto mt-20"
+            style={{ width: "800px", height: "800px" }}
+          >
+            {flatValueData.map((item) => (
+              <div
+                key={item.index}
+                className="flex flex-col items-center text-center"
+                style={getStyleForCircleItem(item.index)}
+              >
+                <div className={iconContainerBaseClass}>
+                  <Image
+                    src={content.icons[item.index]}
+                    alt={content.values[item.index]}
+                    className={imageBaseClass}
+                    fill
+                  />
+                </div>
+                <span className="mt-4 text-[2rem] font-bold">
+                  {content.values[item.index]}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
-        {/* each value set - 2 */}
-        <div className="relative flex justify-between mx-[35rem] max-18xl:mx-[30rem] max-15xl:mx-[20rem] max-9xl:mx-0 max-9xl:justify-center max-9xl:gap-[15rem] max-5xl:gap-[5rem] max-9xl:gap-[2rem]">
-          <div className="flex flex-col items-center max-9xl:border max-9xl:px-[5rem] max-9xl:py-[1rem] rounded-[20px]">
-            <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
-              02.
-            </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
-              <Image
-                src={content.icons[1]}
-                alt={content.values[1]}
-                className="object-contain p-[3rem]"
-                fill
-              />
-            </div>
-            <span className="text-center mt-[2rem] text-[2rem] font-bold">
-              {content.values[1]}
-            </span>
+      ) : (
+        // --- Mobile Layout (Below 900px) ---
+        <div className="mobile-layout flex flex-col gap-[5rem]">
+          <div className="mt-12 flex flex-col items-center text-center">
+            <h2 className="text-[4rem] sm:text-[4rem] font-bold">
+              {content.head}
+            </h2>
+            <p className="text-[1.5rem] sm:text-[1.75rem] lg:text-[2rem] w-[90%] sm:w-[70%] mx-auto mt-4">
+              {content.text}
+            </p>
           </div>
-          <div className="flex flex-col items-center max-9xl:border max-9xl:px-[5rem] max-9xl:py-[1rem] rounded-[20px]">
-            <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
-              05.
-            </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
-              <Image
-                src={content.icons[4]}
-                alt={content.values[4]}
-                className="object-contain p-[3rem]"
-                fill
-              />
+          {/* First Row: Items 01 & 06 */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-[3rem] sm:gap-[5rem] lg:gap-[15rem]">
+            {/* Item 01 */}
+            <div className="flex flex-col items-center px-[3rem] py-[1rem] rounded-[20px] w-[90%] sm:w-auto">
+              <div className={iconContainerBaseClass}>
+                <Image
+                  src={content.icons[0]}
+                  alt={content.values[0]}
+                  className={imageBaseClass}
+                  fill
+                  sizes="12rem"
+                />
+              </div>
+              <span className="mt-[2rem] text-[1.5rem] font-bold text-center">
+                {content.values[0]}
+              </span>
             </div>
-            <span className="text-center mt-[2rem] text-[2rem] font-bold">
-              {content.values[4]}
-            </span>
+            {/* Item 06 */}
+            <div className="flex flex-col items-center px-[3rem] py-[1rem] rounded-[20px] w-[90%] sm:w-auto">
+              <div className={iconContainerBaseClass}>
+                <Image
+                  src={content.icons[5]}
+                  alt={content.values[5]}
+                  className={imageBaseClass}
+                  fill
+                  sizes="12rem"
+                />
+              </div>
+              <span className="mt-[2rem] text-[1.5rem] font-bold text-center">
+                {content.values[5]}
+              </span>
+            </div>
           </div>
+          {/* Second Row: Items 02 & 05 */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-[3rem] sm:gap-[5rem] lg:gap-[15rem]">
+            {/* Item 02 */}
+            <div className="flex flex-col items-center px-[3rem] py-[1rem] rounded-[20px] w-[90%] sm:w-auto">
+              <div className={iconContainerBaseClass}>
+                <Image
+                  src={content.icons[1]}
+                  alt={content.values[1]}
+                  className={imageBaseClass}
+                  fill
+                  sizes="12rem"
+                />
+              </div>
+              <span className="mt-[2rem] text-[1.5rem] font-bold text-center">
+                {content.values[1]}
+              </span>
+            </div>
+            {/* Item 05 */}
+            <div className="flex flex-col items-center px-[3rem] py-[1rem] rounded-[20px] w-[90%] sm:w-auto">
+              <div className={iconContainerBaseClass}>
+                <Image
+                  src={content.icons[4]}
+                  alt={content.values[4]}
+                  className={imageBaseClass}
+                  fill
+                  sizes="12rem"
+                />
+              </div>
+              <span className="mt-[2rem] text-[1.5rem] font-bold text-center">
+                {content.values[4]}
+              </span>
+            </div>
+          </div>
+          {/* Third Row: Items 03 & 04 */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-[3rem] sm:gap-[5rem] lg:gap-[15rem]">
+            {/* Item 03 */}
+            <div className="flex flex-col items-center px-[3rem] py-[1rem] rounded-[20px] w-[90%] sm:w-auto">
+              <div className={iconContainerBaseClass}>
+                <Image
+                  src={content.icons[2]}
+                  alt={content.values[2]}
+                  className={imageBaseClass}
+                  fill
+                  sizes="12rem"
+                />
+              </div>
+              <span className="mt-[2rem] text-[1.5rem] font-bold text-center">
+                {content.values[2]}
+              </span>
+            </div>
+            {/* Item 04 */}
+            <div className="flex flex-col items-center px-[3rem] py-[1rem] rounded-[20px] w-[90%] sm:w-auto">
+              <div className={iconContainerBaseClass}>
+                <Image
+                  src={content.icons[3]}
+                  alt={content.values[3]}
+                  className={imageBaseClass}
+                  fill
+                  sizes="12rem"
+                />
+              </div>
+              <span className="mt-[2rem] text-[1.5rem] font-bold text-center">
+                {content.values[3]}
+              </span>
+            </div>
+          </div>
+          {/* Centered Heading & Text for Mobile (always visible) */}
         </div>
-        {/* each value set - 3 */}
-        <div className="relative flex justify-between mx-[60rem] max-18xl:mx-[45rem] max-15xl:mx-[30rem] max-9xl:mx-0 max-9xl:justify-center max-9xl:gap-[15rem] max-5xl:gap-[5rem] max-9xl:gap-[2rem]">
-          <div className="flex flex-col items-center max-9xl:border max-9xl:px-[5rem] max-9xl:py-[1rem] rounded-[20px]">
-            <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
-              03.
-            </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
-              <Image
-                src={content.icons[2]}
-                alt={content.values[2]}
-                className="object-contain p-[3rem]"
-                fill
-              />
-            </div>
-            <span className="text-center mt-[2rem] text-[2rem] font-bold">
-              {content.values[2]}
-            </span>
-          </div>
-          <div className="flex flex-col items-center max-9xl:border max-9xl:px-[5rem] max-9xl:py-[1rem] rounded-[20px]">
-            <span className="text-[6rem] text-gray-500 self-start max-9xl:text-[4rem] max-9xl:self-center">
-              04.
-            </span>
-            <div className="gradient-border relative h-[12rem] w-[12rem] rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300">
-              <Image
-                src={content.icons[3]}
-                alt={content.values[3]}
-                className="object-contain p-[3rem]"
-                fill
-              />
-            </div>
-            <span className="text-center mt-[2rem] text-[2rem] font-bold">
-              {content.values[3]}
-            </span>
-          </div>
-        </div>
-      </div>
+      )}
+      {/* Gradient Border Animation */}
       <style jsx>{`
         .gradient-border {
-          padding: 3px; /* Creates space for the animated border */
-          border-radius: 9999px; /* Ensures a fully rounded border */
+          padding: 3px;
+          border-radius: 9999px;
           background: linear-gradient(90deg, #35fd1e, #22b5f3, #35fd1e);
           background-size: 200%;
           animation: gradient-animation 5s linear infinite;
+          background-clip: padding-box;
         }
         @keyframes gradient-animation {
           0% {
