@@ -14,7 +14,12 @@ export default function ClientSection({ content }) {
       <h2 className="text-[5rem] font-bold text-left mb-[3rem]">Our Clients</h2>
       <div className="gradient-border p-[.5rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
         <div className="bg-white rounded-xl p-[3rem]">
-          <Carousel items={clientLogos} autoPlaySpeed={3000} direction="left" />
+          <Carousel
+            items={clientLogos}
+            autoPlaySpeed={3000}
+            direction="left"
+            type="client"
+          />
         </div>
       </div>
       <style jsx>{`

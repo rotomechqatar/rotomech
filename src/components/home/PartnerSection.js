@@ -1,6 +1,7 @@
 "use client";
 
 import Carousel from "@/components/Carousel";
+import Link from "next/link";
 
 export default function PartnerSection({ content }) {
   const partnerLogos = Object.entries(content).map(([key, src], index) => ({
@@ -14,15 +15,18 @@ export default function PartnerSection({ content }) {
       <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
         Our Partners
       </h2>
-      <div className="gradient-border p-[.5rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
-        <div className="bg-white rounded-xl p-[3rem]">
-          <Carousel
-            items={partnerLogos}
-            autoPlaySpeed={3000}
-            direction="right"
-          />
+      <Link href="/products-and-partners">
+        <div className="gradient-border p-[.5rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
+          <div className="bg-white rounded-xl p-[3rem]">
+            <Carousel
+              type="partner"
+              items={partnerLogos}
+              autoPlaySpeed={3000}
+              direction="right"
+            />
+          </div>
         </div>
-      </div>
+      </Link>
       <style jsx>{`
         .gradient-border {
           position: relative;

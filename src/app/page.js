@@ -15,11 +15,11 @@ export default async function HomePage() {
   return (
     <div>
       <Banner content={content.banner} btn={true} />
-      <OurLegacy content={content.ourLegacy} />
-      <DirectorMessage content={content.directorMessage} />
       <PartnerSection content={content.partnerLogos} />
-      <CtaSection content={content.CTA} />
+      <OurLegacy content={content.ourLegacy} />
       <ClientSection content={content.clientLogos} />
+      <DirectorMessage content={content.directorMessage} />
+      <CtaSection content={content.CTA} />
     </div>
   );
 }

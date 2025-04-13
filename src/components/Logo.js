@@ -11,7 +11,7 @@ export default function Logo({ type }) {
       <Link href="/">
         <Image
           src="/images/rotomech-logo.png"
-          className="object-contain"
+          className="object-contain scale-300"
           alt="rotomech drop logo"
           fill
         />
