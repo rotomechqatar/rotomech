@@ -72,7 +72,7 @@ export default function ClientPopUp({ onClose, content }) {
           {/* Logos Display Area */}
           <div className="flex-1 overflow-auto">
             <motion.div
-              className="grid grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4"
+              className="grid grid-cols-3 max-10xl:grid-cols-2 max-6xl:grid-cols-1 gap-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
