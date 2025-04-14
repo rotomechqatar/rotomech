@@ -1,9 +1,7 @@
 "use client";
 
 import Image from "next/image";
-// Optional imports if needed later:
-// import Button from "../Button";
-// import Link from "next/link";
+
 import { useState, useEffect } from "react";
 
 export default function OurValues({ content }) {

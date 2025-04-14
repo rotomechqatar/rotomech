@@ -1,4 +1,3 @@
-import Image from "next/image";
 import ImageCarouselDirection from "../ImageCarouselDirection";
 import AnimatedSectionText from "../AnimatedSectionText";
 

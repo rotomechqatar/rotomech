@@ -6,9 +6,17 @@
   },
   "banner": {
     "tagline": "About Us",
-    "sub": "Energy that drives the future",
+    "sub": "5 Years and Counting ..",
     "image": "/images/qatar-image-1.webp",
     "alt": "about-us-banner"
+  },
+  "teamInfo": {
+    "director": {
+      "name": "Lorem Ipsum",
+      "title": "Managing Director",
+      "image": "/images/director-image.jpg"
+    },
+    "teamImage": "/images/team-image.jpg"
   },
   "aboutUs": {
     "head": "About Us",

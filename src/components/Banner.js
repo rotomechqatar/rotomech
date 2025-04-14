@@ -20,6 +20,7 @@ export default function Banner({ content, btn }) {
         <h2 className="text-white text-5xl mt-10">
           <AnimatedText text={content.sub} />
         </h2>
+
         {btn && (
           <div className="mt-8">
             <Link href="/products-and-partners">
