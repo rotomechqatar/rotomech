@@ -29,6 +29,8 @@
       "images": [
         "/images/products/sample.jpg",
         "/images/products/sample.jpg",
+        "/images/products/sample.jpg",
+        "/images/products/sample.jpg",
         "/images/products/sample.jpg"
       ]
     },
@@ -47,7 +49,6 @@
       "logo": "/logos/partnerLogo2.webp",
       "description": "BAI Brescia Antincendi International Srl is an Italian company specializing in the design, production, and sale of firefighting and rescue vehicles. Their product range includes civil, airport, industrial firefighting vehicles, water platforms, multi-rescue, and forest firefighting vehicles. BAI also offers customized special vehicles tailored to specific customer requirements, ensuring maximum technology and quality. Additionally, they provide technical assistance, spare parts supply, and training programs for the use and maintenance of their vehicles.",
       "images": [
-        "/images/products/sample.jpg",
         "/images/products/sample.jpg",
         "/images/products/sample.jpg"
       ]
