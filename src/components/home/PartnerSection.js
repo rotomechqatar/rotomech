@@ -3,30 +3,42 @@
 import Carousel from "@/components/Carousel";
 import Link from "next/link";
 
-export default function PartnerSection({ content }) {
+export default function PartnerSection({ content, type }) {
   const partnerLogos = Object.entries(content).map(([key, src], index) => ({
     id: index + 1,
     src,
     alt: `Partner ${index + 1}`,
   }));
 
+  const carouselContent = (
+    <div className="gradient-border p-[.5rem] rounded-xl shadow-xl transition-all duration-1000">
+      <div className="bg-white rounded-xl p-[3rem]">
+        <Carousel
+          type="partner"
+          items={partnerLogos}
+          autoPlaySpeed={3000}
+          direction="right"
+        />
+      </div>
+    </div>
+  );
+
   return (
     <section className="mt-[10rem] overflow-x-hidden pb-[5rem] px-[15rem] max-11xl:px-[10rem] max-6xl:px-[5rem]">
-      <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
-        Our Partners
-      </h2>
-      <Link href="/products-and-partners">
-        <div className="gradient-border p-[.5rem] rounded-xl shadow-xl hover:scale-105 transition-all duration-1000">
-          <div className="bg-white rounded-xl p-[3rem]">
-            <Carousel
-              type="partner"
-              items={partnerLogos}
-              autoPlaySpeed={3000}
-              direction="right"
-            />
-          </div>
-        </div>
-      </Link>
+      {type && (
+        <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
+          Our Partners
+        </h2>
+      )}
+      {type ? (
+        // When type exists, no link and no hover effect will be applied.
+        carouselContent
+      ) : (
+        // Otherwise, wrap the carousel in a Link with the hover effect.
+        <Link href="/products-and-partners">
+          <div className="hover:scale-105">{carouselContent}</div>
+        </Link>
+      )}
       <style jsx>{`
         .gradient-border {
           position: relative;
