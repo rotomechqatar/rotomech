@@ -1,6 +1,6 @@
 import Banner from "@/components/Banner";
-import ContactForm from "@/components/ContactForm";
 import PartnerInfo from "@/components/products-and-partners/PartnerInfo";
+import ProductData from "@/components/products-and-partners/ProductData";
 import fs from "fs/promises";
 import path from "path";
 
@@ -16,7 +16,7 @@ export default async function page() {
     <section>
       <Banner content={content.banner} />
       <PartnerInfo content={content.partners} />
-      <ContactForm page="partners" />
+      <ProductData content={content.partners} />
     </section>
   );
 }
