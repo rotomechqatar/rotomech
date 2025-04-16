@@ -5,39 +5,45 @@ import { useState } from "react";
 export default function AddPartnerPopup({ onClose, onUpdate }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [link, setLink] = useState("");
-  const [file, setFile] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [productFiles, setProductFiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+  const handleLogoChange = (e) => {
+    if (e.target.files?.[0]) setLogoFile(e.target.files[0]);
+  };
+
+  const handleProductsChange = (e) => {
+    if (e.target.files) {
+      setProductFiles(Array.from(e.target.files));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate that all fields are provided
-    if (!name || !description || !link || !file) {
-      alert("Please fill all fields and select a file.");
+    // Validate
+    if (!name || !description || !logoFile || productFiles.length === 0) {
+      alert(
+        "Please fill all fields, select a logo, and at least one product image."
+      );
       return;
     }
-
-    // Validate file type – only .webp files are allowed
-    if (file.type !== "image/webp") {
-      alert("Only .webp images are allowed.");
+    if (logoFile.type !== "image/webp") {
+      alert("Only .webp logos are allowed.");
+      return;
+    }
+    if (productFiles.some((f) => f.type !== "image/webp")) {
+      alert("Only .webp product images are allowed.");
       return;
     }
 
     setLoading(true);
-
-    // Create FormData and append all fields
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("link", link);
-    formData.append("file", file);
+    formData.append("file", logoFile);
+    productFiles.forEach((f) => formData.append("productImages", f));
 
     try {
       const res = await fetch("/api/partner/addPartner", {
@@ -46,7 +52,6 @@ export default function AddPartnerPopup({ onClose, onUpdate }) {
       });
       const data = await res.json();
       if (res.ok) {
-        // onUpdate callback to update state with the new partner details.
         onUpdate(data);
       } else {
         alert("Error adding partner: " + (data.error || "Unknown error"));
@@ -69,7 +74,7 @@ export default function AddPartnerPopup({ onClose, onUpdate }) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
+              className="w-full text-2xl p-3 border rounded focus:ring-2 focus:ring-green-300"
               placeholder="Enter partner name"
               required
             />
@@ -79,56 +84,55 @@ export default function AddPartnerPopup({ onClose, onUpdate }) {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
+              className="w-full text-2xl p-3 border rounded focus:ring-2 focus:ring-green-300"
               placeholder="Enter description"
               required
             />
           </div>
           <div className="mb-6">
-            <label className="block text-2xl mb-1">Website Link</label>
-            <input
-              type="url"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
-              placeholder="Start with https://"
-              required
-            />
-          </div>
-          <div className="mb-8">
-            <label className="block text-2xl mb-3">
-              Select Partner Logo (.webp only)
+            <label className="block text-2xl mb-1">
+              Partner Logo (.webp only)
             </label>
-            {/* Hidden file input */}
             <input
-              id="fileInput"
+              id="logoInput"
               type="file"
               accept=".webp"
-              onChange={handleFileChange}
+              onChange={handleLogoChange}
               className="hidden"
             />
-            {/* Custom file upload button */}
             <label
-              htmlFor="fileInput"
-              className="flex items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-green-500 transition duration-300"
+              htmlFor="logoInput"
+              className="flex items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:border-green-500 transition"
             >
-              <svg
-                className="w-10 h-10 mr-3 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M7 16V4m0 0l-3 3m3-3l3 3M17 8v12m0 0l-3-3m3 3l3-3"
-                />
-              </svg>
-              {file ? (
-                <span className="text-2xl">{file.name}</span>
+              {logoFile ? (
+                <span className="text-2xl">{logoFile.name}</span>
               ) : (
-                <span className="text-2xl">Click to upload a .webp image</span>
+                <span className="text-2xl">Click to upload logo</span>
+              )}
+            </label>
+          </div>
+          <div className="mb-8">
+            <label className="block text-2xl mb-1">
+              Product Images (.webp only, min 1)
+            </label>
+            <input
+              id="productsInput"
+              type="file"
+              accept=".webp"
+              multiple
+              onChange={handleProductsChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="productsInput"
+              className="flex items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:border-green-500 transition"
+            >
+              {productFiles.length ? (
+                <span className="text-2xl">
+                  {productFiles.length} file(s) selected
+                </span>
+              ) : (
+                <span className="text-2xl">Click to select product images</span>
               )}
             </label>
           </div>
@@ -137,14 +141,14 @@ export default function AddPartnerPopup({ onClose, onUpdate }) {
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="mr-4 px-6 py-3 bg-gray-500 text-white rounded text-2xl transition transform hover:scale-105 hover:bg-gray-600 duration-300"
+              className="mr-4 px-6 py-3 bg-gray-500 text-white rounded text-2xl hover:bg-gray-600 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-green-500 text-white rounded text-2xl transition transform hover:scale-105 hover:bg-green-600 duration-300"
+              className="px-6 py-3 bg-green-500 text-white rounded text-2xl hover:bg-green-600 transition"
             >
               {loading ? "Submitting..." : "Submit"}
             </button>

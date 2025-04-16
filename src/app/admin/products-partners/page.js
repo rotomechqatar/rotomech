@@ -4,12 +4,34 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
 import AddPartnerPopup from "@/components/admin/AddPartnerPopup";
+import AddProductImagePopup from "@/components/admin/AddProductImagePopup";
 
-// Main Page Component
+// Global message overlay
+function GlobalMessage({ message, type }) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+      <div
+        className={`p-6 rounded shadow-lg text-2xl text-white ${
+          type === "success" ? "bg-green-500" : "bg-red-500"
+        }`}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminProductsPartnersPage() {
   const [data, setData] = useState(null);
+  const [globalMessage, setGlobalMessage] = useState("");
+  const [globalType, setGlobalType] = useState("success");
 
-  // Fetch products & partners content on mount
+  const showGlobalMessage = (msg, type = "success") => {
+    setGlobalMessage(msg);
+    setGlobalType(type);
+    setTimeout(() => setGlobalMessage(""), 3000);
+  };
+
   useEffect(() => {
     fetch("/api/getContent/products-and-partners")
       .then((res) => res.json())
@@ -17,7 +39,6 @@ export default function AdminProductsPartnersPage() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Handler for general (non-nested) updates
   const handleTextUpdate = (section, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -25,43 +46,59 @@ export default function AdminProductsPartnersPage() {
     }));
   };
 
-  // Handler to update a field in a partner object.
-  // Use the key from your partners object (which is "0", "1", ...).
-  const handlePartnerFieldUpdate = (partnerKey, field, newValue) => {
+  const handlePartnerFieldUpdate = (key, field, newValue) => {
     setData((prev) => ({
       ...prev,
       partners: {
         ...prev.partners,
-        [partnerKey]: {
-          ...prev.partners[partnerKey],
-          [field]: newValue,
-        },
+        [key]: { ...prev.partners[key], [field]: newValue },
       },
     }));
   };
 
-  // When adding a new partner, determine the next key.
-  const updatePartners = (newPartner) => {
+  const updatePartners = (newPartner) =>
     setData((prev) => {
-      const newPartners = { ...prev.partners };
-      const nextKey = Object.keys(newPartners).length.toString();
-      newPartners[nextKey] = newPartner;
-      return { ...prev, partners: newPartners };
+      const nextKey = Object.keys(prev.partners).length.toString();
+      return {
+        ...prev,
+        partners: { ...prev.partners, [nextKey]: newPartner },
+      };
     });
-  };
 
-  // Remove partner by matching partner name.
-  const removePartner = (partnerName) => {
+  const removePartner = (name) =>
     setData((prev) => {
-      const newPartners = { ...prev.partners };
-      for (const key in newPartners) {
-        if (newPartners[key].name === partnerName) {
-          delete newPartners[key];
-        }
-      }
-      return { ...prev, partners: newPartners };
+      const updated = { ...prev.partners };
+      Object.keys(updated).forEach((k) => {
+        if (updated[k].name === name) delete updated[k];
+      });
+      return { ...prev, partners: updated };
     });
-  };
+
+  const addProductImage = ({ key, imagePath }) =>
+    setData((prev) => {
+      const imgs = prev.partners[key].images || [];
+      return {
+        ...prev,
+        partners: {
+          ...prev.partners,
+          [key]: { ...prev.partners[key], images: [...imgs, imagePath] },
+        },
+      };
+    });
+
+  const removeProductImage = (partnerKey, imageSrc) =>
+    setData((prev) => {
+      const imgs = prev.partners[partnerKey].images.filter(
+        (i) => i !== imageSrc
+      );
+      return {
+        ...prev,
+        partners: {
+          ...prev.partners,
+          [partnerKey]: { ...prev.partners[partnerKey], images: imgs },
+        },
+      };
+    });
 
   if (!data)
     return (
@@ -72,15 +109,23 @@ export default function AdminProductsPartnersPage() {
 
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
+      {globalMessage && (
+        <GlobalMessage message={globalMessage} type={globalType} />
+      )}
       <h1 className="text-5xl font-bold mb-8">Products & Partners Editor</h1>
 
       <BannerSection banner={data.banner} updateText={handleTextUpdate} />
+
       <PartnersSection
         partners={data.partners}
-        handlePartnerFieldUpdate={handlePartnerFieldUpdate}
-        updatePartners={updatePartners}
-        removePartner={removePartner}
+        onUpdateField={handlePartnerFieldUpdate}
+        onAddPartner={updatePartners}
+        onRemovePartner={removePartner}
+        onAddImage={addProductImage}
+        onRemoveImage={removeProductImage}
+        showMessage={showGlobalMessage}
       />
+
       <SEOSection meta={data.meta} updateText={handleTextUpdate} />
     </div>
   );
@@ -91,9 +136,6 @@ export default function AdminProductsPartnersPage() {
 // -----------------------
 function BannerSection({ banner, updateText }) {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
-
-  const openPopup = () => setShowUploadPopup(true);
-  const closePopup = () => setShowUploadPopup(false);
 
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
@@ -109,7 +151,7 @@ function BannerSection({ banner, updateText }) {
         />
       </div>
       <button
-        onClick={openPopup}
+        onClick={() => setShowUploadPopup(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded mb-4 text-2xl"
       >
         Upload New Image
@@ -136,11 +178,11 @@ function BannerSection({ banner, updateText }) {
         <BannerImageUploadPopup
           page="products-and-partners"
           banner={banner}
-          onClose={closePopup}
+          onClose={() => setShowUploadPopup(false)}
           onUpdate={(newBanner) => {
             updateText("banner", "image", newBanner.image);
             updateText("banner", "alt", newBanner.alt);
-            closePopup();
+            setShowUploadPopup(false);
           }}
         />
       )}
@@ -149,68 +191,86 @@ function BannerSection({ banner, updateText }) {
 }
 
 // -----------------------
-// Partners Section (Cards)
+// Partners Section
 // -----------------------
 function PartnersSection({
   partners,
-  handlePartnerFieldUpdate,
-  updatePartners,
-  removePartner,
+  onUpdateField,
+  onAddPartner,
+  onRemovePartner,
+  onAddImage,
+  onRemoveImage,
+  showMessage,
 }) {
-  const [showAddPartnerPopup, setShowAddPartnerPopup] = useState(false);
+  const [showAddPartner, setShowAddPartner] = useState(false);
+  const [addImageKey, setAddImageKey] = useState(null);
 
-  // Delete handler for a partner.
-  const handleDeletePartner = async (partnerName) => {
-    if (!confirm("Are you sure you want to delete this partner?")) return;
+  const handleDeletePartner = async (name) => {
+    if (!confirm(`Delete partner "${name}"?`)) return;
     try {
       const res = await fetch("/api/partner/deletePartner", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: partnerName }),
+        body: JSON.stringify({ key: name }),
       });
-      const data = await res.json();
+      const json = await res.json();
       if (res.ok) {
-        removePartner(partnerName);
+        onRemovePartner(name);
+        showMessage("Partner deleted successfully!", "success");
       } else {
-        alert("Error deleting partner: " + (data.error || "Unknown error"));
+        showMessage(json.error || "Error deleting partner", "error");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error deleting partner: " + err.message);
+      showMessage(err.message, "error");
     }
   };
-
-  // Convert partners object to an array of [key, partner] entries.
-  const partnerEntries = Object.entries(partners);
 
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-3xl font-semibold">Our Partners</h2>
         <button
-          onClick={() => setShowAddPartnerPopup(true)}
+          onClick={() => setShowAddPartner(true)}
           className="px-4 py-2 bg-blue-500 text-white rounded text-2xl"
         >
           Add Partner
         </button>
       </div>
+
       <div className="flex flex-col gap-6">
-        {partnerEntries.map(([key, partner]) => (
+        {Object.entries(partners).map(([key, partner]) => (
           <PartnerCard
             key={key}
             index={key}
             partner={partner}
-            handlePartnerFieldUpdate={handlePartnerFieldUpdate}
+            onUpdateField={onUpdateField}
             onDelete={() => handleDeletePartner(partner.name)}
+            onAddImage={() => setAddImageKey(key)}
+            onRemoveImage={(src) => onRemoveImage(key, src)}
+            showMessage={showMessage}
           />
         ))}
       </div>
-      {showAddPartnerPopup && (
+
+      {showAddPartner && (
         <AddPartnerPopup
-          onClose={() => setShowAddPartnerPopup(false)}
-          onUpdate={(newPartner) => {
-            updatePartners(newPartner);
-            setShowAddPartnerPopup(false);
+          onClose={() => setShowAddPartner(false)}
+          onUpdate={(p) => {
+            onAddPartner(p);
+            showMessage("Partner added!", "success");
+            setShowAddPartner(false);
+          }}
+        />
+      )}
+
+      {addImageKey != null && (
+        <AddProductImagePopup
+          partnerKey={addImageKey}
+          onClose={() => setAddImageKey(null)}
+          onUpdate={({ imagePath }) => {
+            onAddImage({ key: addImageKey, imagePath });
+            showMessage("Image uploaded!", "success");
+            setAddImageKey(null);
           }}
         />
       )}
@@ -218,69 +278,112 @@ function PartnersSection({
   );
 }
 
-// A card for each partner with editable fields using PartnerEditableText.
-function PartnerCard({ index, partner, handlePartnerFieldUpdate, onDelete }) {
+// -----------------------
+// Partner Card
+// -----------------------
+function PartnerCard({
+  index,
+  partner,
+  onUpdateField,
+  onDelete,
+  onAddImage,
+  onRemoveImage,
+  showMessage,
+}) {
+  const [deletingSrc, setDeletingSrc] = useState(null);
+
+  const handleDeleteImage = async (src) => {
+    if (!confirm("Delete this product image?")) return;
+    setDeletingSrc(src);
+    try {
+      const res = await fetch("/api/partner/deleteProductImage", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ partnerKey: index, imagePath: src }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        onRemoveImage(index, src);
+        showMessage("Image deleted!", "success");
+      } else {
+        showMessage(json.error || "Error deleting image", "error");
+      }
+    } catch (err) {
+      showMessage(err.message, "error");
+    }
+    setDeletingSrc(null);
+  };
+
   return (
-    <div className="p-6 bg-gray-100 rounded shadow flex flex-col md:flex-row md:items-center gap-4">
-      <div className="relative w-full md:w-1/4 h-48">
-        <Image
-          src={partner.logo}
-          alt={partner.name + " logo"}
-          layout="fill"
-          objectFit="contain"
-          className="rounded"
-        />
-      </div>
-      <div className="flex flex-col gap-2 flex-grow">
-        <h3 className="text-3xl font-semibold">
-          <PartnerEditableText
-            index={index}
-            field="name"
-            text={partner.name}
-            onTextUpdated={(newValue) =>
-              handlePartnerFieldUpdate(index, "name", newValue)
-            }
+    <div className="p-6 bg-gray-100 rounded shadow">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative w-full md:w-1/4 h-48">
+          <Image
+            src={partner.logo}
+            alt={partner.name + " logo"}
+            layout="fill"
+            objectFit="contain"
+            className="rounded"
           />
-        </h3>
-        <p className="text-2xl">
-          <PartnerEditableText
-            index={index}
-            field="description"
-            text={partner.description}
-            onTextUpdated={(newValue) =>
-              handlePartnerFieldUpdate(index, "description", newValue)
-            }
-          />
-        </p>
-        <p className="text-2xl">
-          <PartnerEditableText
-            index={index}
-            field="link"
-            text={partner.link}
-            onTextUpdated={(newValue) =>
-              handlePartnerFieldUpdate(index, "link", newValue)
-            }
-          />
-        </p>
-        <div>
-          <a
-            href={partner.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline text-2xl"
+        </div>
+
+        <div className="flex-1 flex flex-col gap-2">
+          <h3 className="text-3xl font-semibold">
+            <PartnerEditableText
+              index={index}
+              field="name"
+              text={partner.name}
+              onTextUpdated={(v) => onUpdateField(index, "name", v)}
+            />
+          </h3>
+          <p className="text-2xl">
+            <PartnerEditableText
+              index={index}
+              field="description"
+              text={partner.description}
+              onTextUpdated={(v) => onUpdateField(index, "description", v)}
+            />
+          </p>
+        </div>
+
+        <div className="flex flex-col justify-between">
+          <button
+            onClick={onDelete}
+            className="px-4 py-2 bg-red-500 text-white rounded text-2xl mb-2"
           >
-            Visit
-          </a>
+            Delete Partner
+          </button>
+          <button
+            onClick={onAddImage}
+            className="px-4 py-2 bg-green-500 text-white rounded text-2xl"
+          >
+            Add Product Image
+          </button>
         </div>
       </div>
-      <div>
-        <button
-          onClick={onDelete}
-          className="px-4 py-2 bg-red-500 text-white rounded text-2xl"
-        >
-          Delete
-        </button>
-      </div>
+
+      {partner.images?.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          {partner.images.map((src, idx) => (
+            <div key={idx} className="relative w-full h-40">
+              <Image
+                src={src}
+                alt={`Product ${idx + 1}`}
+                layout="fill"
+                objectFit="cover"
+                className="rounded"
+              />
+              <button
+                onClick={() => handleDeleteImage(src)}
+                disabled={deletingSrc === src}
+                className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-sm"
+              >
+                {deletingSrc === src ? "Deleting..." : "Delete Image"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -299,7 +402,7 @@ function SEOSection({ meta, updateText }) {
             section="meta"
             field="title"
             text={meta.title}
-            onTextUpdated={(val) => updateText("meta", "title", val)}
+            onTextUpdated={(v) => updateText("meta", "title", v)}
           />
         </p>
         <p>
@@ -308,7 +411,7 @@ function SEOSection({ meta, updateText }) {
             section="meta"
             field="description"
             text={meta.description}
-            onTextUpdated={(val) => updateText("meta", "description", val)}
+            onTextUpdated={(v) => updateText("meta", "description", v)}
           />
         </p>
         <p>
@@ -317,7 +420,7 @@ function SEOSection({ meta, updateText }) {
             section="meta"
             field="keywords"
             text={meta.keywords}
-            onTextUpdated={(val) => updateText("meta", "keywords", val)}
+            onTextUpdated={(v) => updateText("meta", "keywords", v)}
           />
         </p>
       </div>
@@ -326,166 +429,123 @@ function SEOSection({ meta, updateText }) {
 }
 
 // -----------------------
-// EditableText Component (for one-level updates)
+// EditableText Component
 // -----------------------
 function EditableText({ section, field, text, onTextUpdated }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(text);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setValue(text);
-  }, [text]);
+  useEffect(() => setValue(text), [text]);
 
-  const saveChanges = async () => {
+  const save = async () => {
     setLoading(true);
     const payload = { [section]: { [field]: value } };
-
-    try {
-      const res = await fetch(`/api/updateContent/products-and-partners`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        onTextUpdated(value);
-        setEditing(false);
-      } else {
-        alert("Error saving changes: " + (data.error || "Unknown error"));
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error saving changes: " + err.message);
-    }
+    const res = await fetch(`/api/updateContent/products-and-partners`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
     setLoading(false);
+    if (res.ok) {
+      onTextUpdated(value);
+      setEditing(false);
+    } else {
+      alert("Error: " + (json.error || res.statusText));
+    }
   };
 
-  const cancelEditing = () => {
-    setValue(text);
-    setEditing(false);
-  };
-
-  return (
-    <span className="w-full inline-flex items-center">
-      {editing ? (
-        <>
-          <input
-            type="text"
-            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-          <button
-            onClick={saveChanges}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-          <button
-            onClick={cancelEditing}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <>
-          <span className="text-2xl">{text}</span>
-          <span
-            onClick={() => setEditing(true)}
-            className="cursor-pointer text-2xl ml-1 inline"
-          >
-            ✏️
-          </span>
-        </>
-      )}
+  return editing ? (
+    <>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="flex-grow text-2xl p-2 border rounded"
+      />
+      <button
+        onClick={save}
+        disabled={loading}
+        className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
+      >
+        {loading ? "Saving..." : "Save"}
+      </button>
+      <button
+        onClick={() => setEditing(false)}
+        disabled={loading}
+        className="ml-2 px-4 py-2 bg-gray-500 text-white rounded"
+      >
+        Cancel
+      </button>
+    </>
+  ) : (
+    <span className="inline-flex items-center">
+      <span>{text}</span>
+      <span onClick={() => setEditing(true)} className="cursor-pointer ml-1">
+        ✏️
+      </span>
     </span>
   );
 }
 
 // -----------------------
-// PartnerEditableText Component (for nested partner updates)
+// PartnerEditableText Component
 // -----------------------
 function PartnerEditableText({ index, field, text, onTextUpdated }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(text);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setValue(text);
-  }, [text]);
+  useEffect(() => setValue(text), [text]);
 
-  const saveChanges = async () => {
+  const save = async () => {
     setLoading(true);
-    // Build a nested payload using the partner's key (index) and a fixed field name.
-    const payload = {
-      partners: { [index]: { [field]: value } },
-    };
-
-    try {
-      const res = await fetch(`/api/updateContent/products-and-partners`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        onTextUpdated(value);
-        setEditing(false);
-      } else {
-        alert("Error saving changes: " + (data.error || "Unknown error"));
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error saving changes: " + err.message);
-    }
+    const payload = { partners: { [index]: { [field]: value } } };
+    const res = await fetch(`/api/updateContent/products-and-partners`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
     setLoading(false);
+    if (res.ok) {
+      onTextUpdated(value);
+      setEditing(false);
+    } else {
+      alert("Error: " + (json.error || res.statusText));
+    }
   };
 
-  const cancelEditing = () => {
-    setValue(text);
-    setEditing(false);
-  };
-
-  return (
-    <span className="w-full inline-flex items-center">
-      {editing ? (
-        <>
-          <input
-            type="text"
-            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-          <button
-            onClick={saveChanges}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-          <button
-            onClick={cancelEditing}
-            disabled={loading}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <>
-          <span className="text-2xl">{text}</span>
-          <span
-            onClick={() => setEditing(true)}
-            className="cursor-pointer text-2xl ml-1 inline"
-          >
-            ✏️
-          </span>
-        </>
-      )}
+  return editing ? (
+    <>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="flex-grow text-2xl p-2 border rounded"
+      />
+      <button
+        onClick={save}
+        disabled={loading}
+        className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
+      >
+        {loading ? "Saving..." : "Save"}
+      </button>
+      <button
+        onClick={() => setEditing(false)}
+        disabled={loading}
+        className="ml-2 px-4 py-2 bg-gray-500 text-white rounded"
+      >
+        Cancel
+      </button>
+    </>
+  ) : (
+    <span className="inline-flex items-center">
+      <span>{text}</span>
+      <span onClick={() => setEditing(true)} className="cursor-pointer ml-1">
+        ✏️
+      </span>
     </span>
   );
 }

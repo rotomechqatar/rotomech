@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
 import AboutUsImageUploadPopup from "@/components/admin/AboutUsImageUploadPopup";
@@ -8,15 +8,13 @@ import AboutUsImageUploadPopup from "@/components/admin/AboutUsImageUploadPopup"
 export default function AdminAboutUs() {
   const [data, setData] = useState(null);
 
-  // Fetch about-us content data on mount
   useEffect(() => {
     fetch("/api/getContent/about-us")
       .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch((err) => console.error(err));
+      .then(setData)
+      .catch(console.error);
   }, []);
 
-  // Handler to update a specific text field in the state
   const handleTextUpdate = (section, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -24,17 +22,31 @@ export default function AdminAboutUs() {
     }));
   };
 
-  // Handler to update an image in the aboutUs.images array
   const updateAboutUsImage = (index, newImagePath) => {
     setData((prev) => {
-      const updatedImages = [...prev.aboutUs.images];
-      updatedImages[index] = newImagePath;
-      return {
-        ...prev,
-        aboutUs: { ...prev.aboutUs, images: updatedImages },
-      };
+      const imgs = [...prev.aboutUs.images];
+      imgs[index] = newImagePath;
+      return { ...prev, aboutUs: { ...prev.aboutUs, images: imgs } };
     });
   };
+
+  // TeamInfo updaters
+  const updateDirectorField = (key, newValue) => {
+    setData((prev) => ({
+      ...prev,
+      teamInfo: {
+        ...prev.teamInfo,
+        director: { ...prev.teamInfo.director, [key]: newValue },
+      },
+    }));
+  };
+  const updateDirectorImage = (newImagePath) =>
+    updateDirectorField("image", newImagePath);
+  const updateTeamImage = (newImagePath) =>
+    setData((prev) => ({
+      ...prev,
+      teamInfo: { ...prev.teamInfo, teamImage: newImagePath },
+    }));
 
   if (!data)
     return (
@@ -51,6 +63,13 @@ export default function AdminAboutUs() {
         banner={data.banner}
         updateText={handleTextUpdate}
         page="about-us"
+      />
+
+      <TeamInfoSection
+        teamInfo={data.teamInfo}
+        updateDirectorField={updateDirectorField}
+        updateDirectorImage={updateDirectorImage}
+        updateTeamImage={updateTeamImage}
       />
 
       <AboutUsSection
@@ -75,21 +94,16 @@ export default function AdminAboutUs() {
 
       <CTASection CTA={data.cta} updateText={handleTextUpdate} />
 
-      {/* SEO Section */}
       <SEOSection meta={data.meta} updateText={handleTextUpdate} />
     </div>
   );
 }
 
 // -----------------------
-// Banner Section
+// Banner Section (unchanged)
 // -----------------------
 function BannerSection({ banner, updateText, page }) {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
-
-  const openPopup = () => setShowUploadPopup(true);
-  const closePopup = () => setShowUploadPopup(false);
-
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">Banner Section</h2>
@@ -104,7 +118,7 @@ function BannerSection({ banner, updateText, page }) {
         />
       </div>
       <button
-        onClick={openPopup}
+        onClick={() => setShowUploadPopup(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded mb-4 text-2xl"
       >
         Upload New Image
@@ -131,14 +145,135 @@ function BannerSection({ banner, updateText, page }) {
         <BannerImageUploadPopup
           page={page}
           banner={banner}
-          onClose={closePopup}
+          onClose={() => setShowUploadPopup(false)}
           onUpdate={(newBanner) => {
             updateText("banner", "image", newBanner.image);
             updateText("banner", "alt", newBanner.alt);
-            closePopup();
+            setShowUploadPopup(false);
           }}
         />
       )}
+    </section>
+  );
+}
+
+// -----------------------
+// Team Info Section with upload states
+// -----------------------
+function TeamInfoSection({
+  teamInfo,
+  updateDirectorField,
+  updateDirectorImage,
+  updateTeamImage,
+}) {
+  const directorInput = useRef(null);
+  const teamInput = useRef(null);
+  const [directorUploading, setDirectorUploading] = useState(false);
+  const [teamUploading, setTeamUploading] = useState(false);
+
+  const upload = async (field, file) => {
+    if (field === "director") setDirectorUploading(true);
+    else setTeamUploading(true);
+
+    const form = new FormData();
+    form.append("field", field);
+    form.append("file", file);
+
+    const res = await fetch("/api/about-team", {
+      method: "POST",
+      body: form,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      alert("Error uploading image: " + (json.error || res.statusText));
+    } else {
+      if (field === "director") updateDirectorImage(json.imagePath);
+      else updateTeamImage(json.imagePath);
+    }
+
+    if (field === "director") setDirectorUploading(false);
+    else setTeamUploading(false);
+  };
+
+  return (
+    <section className="mb-8 p-6 bg-white rounded shadow">
+      <h2 className="text-3xl font-semibold mb-4">Team Info</h2>
+
+      {/* Director */}
+      <div className="mb-6">
+        <h3 className="text-2xl font-semibold mb-2">Director</h3>
+        <div className="mb-4">
+          <EditableText
+            section="teamInfo.director"
+            field="name"
+            text={teamInfo.director.name}
+            onTextUpdated={(val) => updateDirectorField("name", val)}
+          />
+        </div>
+        <div className="mb-4">
+          <EditableText
+            section="teamInfo.director"
+            field="title"
+            text={teamInfo.director.title}
+            onTextUpdated={(val) => updateDirectorField("title", val)}
+          />
+        </div>
+        <div className="flex items-center mb-4">
+          <div className="w-48 h-48 relative mr-4">
+            <Image
+              src={teamInfo.director.image}
+              alt="Director"
+              layout="fill"
+              objectFit="cover"
+              className="rounded"
+            />
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            ref={directorInput}
+            className="hidden"
+            onChange={(e) => upload("director", e.target.files[0])}
+          />
+          <button
+            onClick={() => directorInput.current.click()}
+            disabled={directorUploading}
+            className="px-4 py-2 bg-blue-500 text-white rounded text-2xl disabled:opacity-50"
+          >
+            {directorUploading ? "Uploading..." : "Replace Director Image"}
+          </button>
+        </div>
+      </div>
+
+      {/* Team Image */}
+      <div>
+        <h3 className="text-2xl font-semibold mb-2">Team Image</h3>
+        <div className="flex items-center mb-4">
+          <div className="w-48 h-48 relative mr-4">
+            <Image
+              src={teamInfo.teamImage}
+              alt="Team"
+              layout="fill"
+              objectFit="cover"
+              className="rounded"
+            />
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            ref={teamInput}
+            className="hidden"
+            onChange={(e) => upload("teamImage", e.target.files[0])}
+          />
+          <button
+            onClick={() => teamInput.current.click()}
+            disabled={teamUploading}
+            className="px-4 py-2 bg-blue-500 text-white rounded text-2xl disabled:opacity-50"
+          >
+            {teamUploading ? "Uploading..." : "Replace Team Image"}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
@@ -205,12 +340,6 @@ function AboutUsSection({ aboutUs, updateText, updateImage }) {
 }
 
 function AboutUsImagesTable({ images, onUpdateClick }) {
-  const imageRows = images.map((src, index) => ({
-    index,
-    src,
-    name: `Image ${index + 1}`,
-  }));
-
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full table-auto border-collapse">
@@ -222,23 +351,23 @@ function AboutUsImagesTable({ images, onUpdateClick }) {
           </tr>
         </thead>
         <tbody>
-          {imageRows.map((img) => (
-            <tr key={img.index} className="text-center">
+          {images.map((src, idx) => (
+            <tr key={idx} className="text-center">
               <td className="p-2 border">
                 <div className="inline-block relative w-80 h-48">
                   <Image
-                    src={img.src}
-                    alt={`Image ${img.index + 1}`}
+                    src={src}
+                    alt={`Image ${idx + 1}`}
                     layout="fill"
                     objectFit="contain"
                     className="rounded"
                   />
                 </div>
               </td>
-              <td className="p-2 border text-2xl">{img.name}</td>
+              <td className="p-2 border text-2xl">{`Image ${idx + 1}`}</td>
               <td className="p-2 text-2xl border">
                 <button
-                  onClick={() => onUpdateClick(img.index)}
+                  onClick={() => onUpdateClick(idx)}
                   className="px-2 py-1 bg-blue-500 text-white rounded text-2xl"
                 >
                   Update Image
