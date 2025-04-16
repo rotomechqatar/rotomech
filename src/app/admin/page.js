@@ -23,11 +23,6 @@ export default function AdminDashboard() {
       description: "Manage products and partner listings.",
     },
     {
-      href: "/admin/clients",
-      title: "Edit Clients",
-      description: "Manage client testimonials and logos.",
-    },
-    {
       href: "/admin/contact",
       title: "Edit Contact",
       description: "Manage contact information and forms.",

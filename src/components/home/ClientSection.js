@@ -5,14 +5,19 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import ClientPopUp from "./ClientPopUp"; // Adjust path as needed
 
-export default function ClientSection({ content, clientData }) {
+export default function ClientSection({ clientData }) {
   const [popupOpen, setPopupOpen] = useState(false);
 
-  const clientLogos = Object.entries(content).map(([key, src], index) => ({
-    id: index + 1,
-    src,
-    alt: `Client ${index + 1}`,
-  }));
+  // Create a flat array of client logos from the nested clientData object.
+  const clientLogos = Object.entries(clientData).flatMap(
+    ([category, logos], catIndex) =>
+      Object.entries(logos).map(([key, src], idx) => ({
+        // Generate a unique ID using the category index and logo index.
+        id: catIndex * 100 + idx + 1,
+        src,
+        alt: `Client ${key}`,
+      }))
+  );
 
   const handleClick = () => {
     setPopupOpen(true);

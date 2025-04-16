@@ -17,10 +17,7 @@ export default async function HomePage() {
       <Banner content={content.banner} btn={true} />
       <PartnerSection content={content.partnerLogos} />
       <OurLegacy content={content.ourLegacy} />
-      <ClientSection
-        content={content.clientLogos}
-        clientData={content.clientData}
-      />
+      <ClientSection clientData={content.clientData} />
       <DirectorMessage content={content.directorMessage} />
       <CtaSection content={content.CTA} />
     </div>
