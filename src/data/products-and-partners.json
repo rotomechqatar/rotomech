@@ -72,6 +72,11 @@
         "/images/products/sample.jpg",
         "/images/products/sample.jpg"
       ]
+    },
+    "7": {
+      "name": "test",
+      "logo": "/logos/partnerLogo7.webp",
+      "description": "t3est"
     }
   },
   "procurementPartners": {
