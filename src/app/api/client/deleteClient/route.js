@@ -9,12 +9,12 @@ export async function DELETE(req) {
   const repo =
     process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
     process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_STAGING_BRANCH || "master";
+  const branch = process.env.GITHUB_STAGING_BRANCH;
 
   // Define the JSON file path for homepage data only.
   const homepageFilePath = "src/data/homepage.json";
 
-  // Parse request payload (expects JSON with the client type and key, e.g., { "type": "energy", "key": "logo1" })
+  // Parse request payload (expects JSON with the client type and name, e.g., { "type": "energy", "name": "logo14" })
   let body;
   try {
     body = await req.json();
@@ -25,13 +25,16 @@ export async function DELETE(req) {
       status: 400,
     });
   }
+
   const clientType = body.type;
-  const clientKey = body.key;
+  // Accept either "key" or "name" field
+  const clientKey = body.key ?? body.name;
   if (!clientType || !clientKey) {
     console.error("[DELETE CLIENT] Missing required fields in payload.");
-    return new Response(JSON.stringify({ error: "Missing required fields" }), {
-      status: 400,
-    });
+    return new Response(
+      JSON.stringify({ error: "Missing required fields (type + name)" }),
+      { status: 400 }
+    );
   }
   console.log("[DELETE CLIENT] Type:", clientType, "Key:", clientKey);
 
