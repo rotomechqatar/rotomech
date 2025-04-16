@@ -500,58 +500,86 @@ function AddProcurementLogoPopup({ onClose, onUploaded }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const submit = async () => {
+  const handleFile = (e) => {
+    if (e.target.files && e.target.files[0]) setFile(e.target.files[0]);
+  };
+
+  const upload = async () => {
     if (!file) {
-      alert("Select a .webp file first");
+      alert("Please choose a .webp image.");
       return;
     }
     if (file.type !== "image/webp") {
-      alert("Only .webp allowed");
+      alert("Only .webp files are allowed.");
       return;
     }
+
     setLoading(true);
-    const fd = new FormData();
-    fd.append("file", file);
+    const form = new FormData();
+    form.append("file", file);
 
-    /* filename preserved server‑side */
-    fd.append("filename", file.name);
-
-    const r = await fetch("/api/procurement-partner/add", {
-      method: "POST",
-      body: fd,
-    });
-    const j = await r.json();
-    setLoading(false);
-    if (r.ok) {
-      /* determine new key (logoN) from filename */
-      const match = file.name.match(/(\d+)\.webp$/i);
-      const key = match ? `logo${match[1]}` : `logo${Date.now()}`;
-      onUploaded({ key, imagePath: j.imagePath });
-    } else {
-      alert(j.error || "Upload failed");
+    try {
+      const res = await fetch("/api/procurement-partner/add", {
+        method: "POST",
+        body: form,
+      });
+      const json = await res.json();
+      if (res.ok) {
+        // server responds with { key, imagePath }
+        onUploaded(json); // → { key: "logo7", imagePath: "/logos/..." }
+        onClose();
+      } else {
+        alert(json.error || "Upload failed.");
+      }
+    } catch (err) {
+      alert(err.message || "Upload failed.");
     }
+    setLoading(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md space-y-6">
-        <h2 className="text-3xl font-bold">Add Procurement Partner Logo</h2>
-        <input
-          type="file"
-          accept=".webp"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-        />
-        <div className="flex justify-end gap-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50">
+      <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all duration-300 hover:scale-105">
+        <h2 className="text-4xl font-bold mb-8 text-center">
+          Add Procurement&nbsp;Partner Logo
+        </h2>
+
+        {/* File picker */}
+        <div className="mb-12">
+          <input
+            id="ppFileInput"
+            type="file"
+            accept=".webp"
+            className="hidden"
+            onChange={handleFile}
+          />
+          <label
+            htmlFor="ppFileInput"
+            className="flex items-center justify-center p-8 border-2 border-dashed border-gray-400 rounded-xl cursor-pointer hover:border-green-500 transition duration-300"
+          >
+            {file ? (
+              <span className="text-2xl">{file.name}</span>
+            ) : (
+              <span className="text-2xl">Click to choose a .webp file</span>
+            )}
+          </label>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex justify-end space-x-6">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-gray-500 text-white rounded"
+            disabled={loading}
+            className="px-8 py-4 bg-gray-600 text-white rounded-lg text-2xl transition-all duration-300 hover:bg-gray-700 hover:scale-105"
           >
             Cancel
           </button>
           <button
-            onClick={submit}
+            type="button"
+            onClick={upload}
             disabled={loading}
-            className="px-4 py-2 bg-green-600 text-white rounded"
+            className="px-8 py-4 bg-green-600 text-white rounded-lg text-2xl transition-all duration-300 hover:bg-green-700 hover:scale-105"
           >
             {loading ? "Uploading…" : "Upload"}
           </button>
