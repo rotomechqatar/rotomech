@@ -10,7 +10,6 @@ export default function AdminCareers() {
   const [showCareerPopup, setShowCareerPopup] = useState(false);
   const [editingCareerIndex, setEditingCareerIndex] = useState(null);
 
-  // Fetch careers content data on mount
   useEffect(() => {
     fetch("/api/getContent/careers")
       .then((res) => res.json())
@@ -18,7 +17,6 @@ export default function AdminCareers() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Handler to update a specific text field in nested objects (like banner or meta)
   const handleTextUpdate = (section, field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -26,7 +24,6 @@ export default function AdminCareers() {
     }));
   };
 
-  // Handler for top-level fields (like noJobs)
   const handleFieldUpdate = (field, newValue) => {
     setData((prev) => ({
       ...prev,
@@ -34,7 +31,6 @@ export default function AdminCareers() {
     }));
   };
 
-  // Update an existing career entry at index
   const updateCareer = (index, updatedCareer) => {
     setData((prev) => {
       const updatedCareers = [...prev.careers];
@@ -43,7 +39,6 @@ export default function AdminCareers() {
     });
   };
 
-  // Add a new career entry
   const addCareer = (newCareer) => {
     setData((prev) => ({
       ...prev,
@@ -51,7 +46,6 @@ export default function AdminCareers() {
     }));
   };
 
-  // Delete a career entry given its index and key
   const deleteCareer = async (index, key) => {
     if (!confirm("Are you sure you want to delete this career posting?")) {
       return;
@@ -62,15 +56,14 @@ export default function AdminCareers() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key }),
       });
-      const data = await res.json();
+      const result = await res.json();
       if (res.ok) {
-        // Remove career from state
         setData((prev) => {
           const updatedCareers = prev.careers.filter((_, i) => i !== index);
           return { ...prev, careers: updatedCareers };
         });
       } else {
-        alert("Error deleting career: " + (data.error || "Unknown error"));
+        alert("Error deleting career: " + (result.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
@@ -107,20 +100,18 @@ export default function AdminCareers() {
         deleteCareer={deleteCareer}
       />
 
-      {/* Add a new career if no careers exist */}
-      {(!data.careers || data.careers.length === 0) && (
-        <div className="mt-8">
-          <button
-            onClick={() => {
-              setEditingCareerIndex(null);
-              setShowCareerPopup(true);
-            }}
-            className="px-6 py-3 bg-green-500 text-white rounded text-2xl"
-          >
-            Add New Career
-          </button>
-        </div>
-      )}
+      {/* Always show the Add New Career button */}
+      <div className="mt-8">
+        <button
+          onClick={() => {
+            setEditingCareerIndex(null);
+            setShowCareerPopup(true);
+          }}
+          className="px-6 py-3 bg-green-500 text-white rounded text-2xl"
+        >
+          Add New Career
+        </button>
+      </div>
 
       {showCareerPopup && (
         <CareerPopup
@@ -145,20 +136,13 @@ export default function AdminCareers() {
         />
       )}
 
-      {/* SEO Settings Section */}
       <SEOSection meta={data.meta} updateText={handleTextUpdate} />
     </div>
   );
 }
 
-// -----------------------
-// Banner Section
-// -----------------------
 function BannerSection({ banner, updateText, page }) {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
-
-  const openPopup = () => setShowUploadPopup(true);
-  const closePopup = () => setShowUploadPopup(false);
 
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
@@ -174,38 +158,34 @@ function BannerSection({ banner, updateText, page }) {
         />
       </div>
       <button
-        onClick={openPopup}
+        onClick={() => setShowUploadPopup(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded mb-4 text-2xl"
       >
         Upload New Banner Image
       </button>
       <div className="text-2xl">
-        <p className="font-medium">
-          <EditableText
-            section="banner"
-            field="tagline"
-            text={banner.tagline}
-            onTextUpdated={(val) => updateText("banner", "tagline", val)}
-          />
-        </p>
-        <p className="text-gray-600">
-          <EditableText
-            section="banner"
-            field="sub"
-            text={banner.sub}
-            onTextUpdated={(val) => updateText("banner", "sub", val)}
-          />
-        </p>
+        <EditableText
+          section="banner"
+          field="tagline"
+          text={banner.tagline}
+          onTextUpdated={(val) => updateText("banner", "tagline", val)}
+        />
+        <EditableText
+          section="banner"
+          field="sub"
+          text={banner.sub}
+          onTextUpdated={(val) => updateText("banner", "sub", val)}
+        />
       </div>
       {showUploadPopup && (
         <BannerImageUploadPopup
           page={page}
           banner={banner}
-          onClose={closePopup}
+          onClose={() => setShowUploadPopup(false)}
           onUpdate={(newBanner) => {
             updateText("banner", "image", newBanner.image);
             updateText("banner", "alt", newBanner.alt);
-            closePopup();
+            setShowUploadPopup(false);
           }}
         />
       )}
@@ -213,138 +193,115 @@ function BannerSection({ banner, updateText, page }) {
   );
 }
 
-// -----------------------
-// No Jobs Section
-// -----------------------
 function NoJobsSection({ noJobs, updateField }) {
-  const displayText = typeof noJobs === "object" ? noJobs.message : noJobs;
+  const message = typeof noJobs === "object" ? noJobs.message : noJobs;
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">No Jobs Message</h2>
-      <p className="text-2xl">
-        <EditableText
-          section="noJobs"
-          field="message"
-          text={displayText}
-          onTextUpdated={(val) => updateField("noJobs", val)}
-        />
-      </p>
+      <EditableText
+        section="noJobs"
+        field="message"
+        text={message}
+        onTextUpdated={(val) => updateField("noJobs", { message: val })}
+      />
     </section>
   );
 }
 
-// -----------------------
-// Careers Section
-// -----------------------
 function CareersSection({
   careers,
   updateCareer,
   openCareerPopup,
   deleteCareer,
 }) {
-  if (!careers || careers.length === 0) {
-    return (
-      <section className="mb-8 p-6 bg-white rounded shadow text-2xl">
-        No careers available.
-      </section>
-    );
-  }
-
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">Careers</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 text-2xl border">Position</th>
-              <th className="p-2 text-2xl border">Description</th>
-              <th className="p-2 text-2xl border">Requirements</th>
-              <th className="p-2 text-2xl border">Created At</th>
-              <th className="p-2 text-2xl border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {careers.map((career, index) => (
-              <tr key={career.key || index} className="text-center">
-                <td className="p-2 border text-2xl">{career.position}</td>
-                <td className="p-2 border text-2xl">{career.description}</td>
-                <td className="p-2 border text-2xl">{career.requirements}</td>
-                <td className="p-2 border text-2xl">{career.created_at}</td>
-                <td className="p-2 border text-2xl space-x-2">
-                  <button
-                    onClick={() => openCareerPopup(index)}
-                    className="px-2 py-1 bg-blue-500 text-white rounded text-2xl"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteCareer(index, career.key)}
-                    className="px-2 py-1 bg-red-500 text-white rounded text-2xl"
-                  >
-                    Delete
-                  </button>
-                </td>
+      {!careers || careers.length === 0 ? (
+        <p className="text-2xl">No careers available.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2 text-2xl border">Position</th>
+                <th className="p-2 text-2xl border">Location</th>
+                <th className="p-2 text-2xl border">Description</th>
+                <th className="p-2 text-2xl border">Responsibilities</th>
+                <th className="p-2 text-2xl border">Qualifications</th>
+                <th className="p-2 text-2xl border">What We Offer</th>
+                <th className="p-2 text-2xl border">Created At</th>
+                <th className="p-2 text-2xl border">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="mt-4">
-        <button
-          onClick={() => openCareerPopup(null)}
-          className="px-6 py-3 bg-green-500 text-white rounded text-2xl"
-        >
-          Add New Career
-        </button>
-      </div>
+            </thead>
+            <tbody>
+              {careers.map((c, index) => (
+                <tr key={c.key || index} className="text-center">
+                  <td className="p-2 border text-2xl">{c.position}</td>
+                  <td className="p-2 border text-2xl">{c.location || "-"}</td>
+                  <td className="p-2 border text-2xl">{c.description}</td>
+                  <td className="p-2 border text-2xl">
+                    {(c.keyResponsibilities || []).join(", ")}
+                  </td>
+                  <td className="p-2 border text-2xl">
+                    {(c.qualifications || []).join(", ")}
+                  </td>
+                  <td className="p-2 border text-2xl">
+                    {(c.whatWeOffer || []).join(", ")}
+                  </td>
+                  <td className="p-2 border text-2xl">{c.created_at}</td>
+                  <td className="p-2 border text-2xl space-x-2">
+                    <button
+                      onClick={() => openCareerPopup(index)}
+                      className="px-2 py-1 bg-blue-500 text-white rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteCareer(index, c.key)}
+                      className="px-2 py-1 bg-red-500 text-white rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
 
-// -----------------------
-// SEO Section
-// -----------------------
 function SEOSection({ meta, updateText }) {
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">SEO Settings</h2>
       <div className="mb-4 text-2xl">
-        <p>
-          <span className="font-medium">Title: </span>
-          <EditableText
-            section="meta"
-            field="title"
-            text={meta.title}
-            onTextUpdated={(val) => updateText("meta", "title", val)}
-          />
-        </p>
-        <p>
-          <span className="font-medium">Description: </span>
-          <EditableText
-            section="meta"
-            field="description"
-            text={meta.description}
-            onTextUpdated={(val) => updateText("meta", "description", val)}
-          />
-        </p>
-        <p>
-          <span className="font-medium">Keywords: </span>
-          <EditableText
-            section="meta"
-            field="keywords"
-            text={meta.keywords}
-            onTextUpdated={(val) => updateText("meta", "keywords", val)}
-          />
-        </p>
+        <EditableText
+          section="meta"
+          field="title"
+          text={meta.title}
+          onTextUpdated={(val) => updateText("meta", "title", val)}
+        />
+        <EditableText
+          section="meta"
+          field="description"
+          text={meta.description}
+          onTextUpdated={(val) => updateText("meta", "description", val)}
+        />
+        <EditableText
+          section="meta"
+          field="keywords"
+          text={meta.keywords}
+          onTextUpdated={(val) => updateText("meta", "keywords", val)}
+        />
       </div>
     </section>
   );
 }
 
-// -----------------------
-// Editable Text Component
-// -----------------------
 function EditableText({ section, field, text, onTextUpdated }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(text);
@@ -378,32 +335,27 @@ function EditableText({ section, field, text, onTextUpdated }) {
     setLoading(false);
   };
 
-  const cancelEditing = () => {
-    setValue(text);
-    setEditing(false);
-  };
-
   return (
-    <span className="w-full inline-flex items-center">
+    <span className="inline-flex items-center">
       {editing ? (
         <>
           <input
             type="text"
-            className="flex-grow text-2xl p-2 border border-gray-300 rounded"
+            className="text-2xl p-2 border border-gray-300 rounded"
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />
           <button
             onClick={saveChanges}
             disabled={loading}
-            className="ml-2 px-4 py-2 bg-green-500 text-white rounded text-2xl"
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
           >
-            {loading ? "Saving..." : "Save Changes"}
+            {loading ? "Saving..." : "Save"}
           </button>
           <button
-            onClick={cancelEditing}
+            onClick={() => setEditing(false)}
             disabled={loading}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded"
           >
             Cancel
           </button>
@@ -413,7 +365,7 @@ function EditableText({ section, field, text, onTextUpdated }) {
           <span className="text-2xl">{text}</span>
           <span
             onClick={() => setEditing(true)}
-            className="cursor-pointer text-2xl ml-1 inline"
+            className="cursor-pointer text-2xl ml-1"
           >
             ✏️
           </span>

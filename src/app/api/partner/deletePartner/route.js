@@ -3,372 +3,214 @@ import { Buffer } from "buffer";
 export async function DELETE(req) {
   console.log("[DELETE PARTNER] Received delete partner request");
 
-  // Environment variables for GitHub API
+  // --- Auth & paths ---
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
   const repo =
     process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
     process.env.GITHUB_REPO;
   const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-  console.log("[DELETE PARTNER] Using repo:", repo, "branch:", branch);
-
-  // Define JSON file paths for homepage and products-and-partners data
   const homepageFilePath = "src/data/homepage.json";
   const partnersFilePath = "src/data/products-and-partners.json";
-  console.log("[DELETE PARTNER] Homepage file path:", homepageFilePath);
-  console.log("[DELETE PARTNER] Partners file path:", partnersFilePath);
 
-  // Parse request payload (expects a JSON payload with the partner key, e.g., { "key": "logo7" })
+  // --- Parse payload ---
   let body;
   try {
     body = await req.json();
-    console.log("[DELETE PARTNER] Parsed request body:", body);
-  } catch (err) {
-    console.error("[DELETE PARTNER] Error parsing request body:", err);
-    return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
+    console.log("[DELETE PARTNER] payload:", body);
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
     });
   }
-  const partnerKey = body.key;
-  if (!partnerKey) {
-    console.error("[DELETE PARTNER] Missing partner key in payload.");
-    return new Response(JSON.stringify({ error: "Missing partner key" }), {
+
+  // Unwrap key if it was passed as an object
+  let rawKey = body.key;
+  const key =
+    typeof rawKey === "object" && rawKey !== null ? rawKey.name : rawKey;
+  if (!key || typeof key !== "string") {
+    return new Response(JSON.stringify({ error: "Missing or invalid key" }), {
       status: 400,
     });
   }
-  console.log("[DELETE PARTNER] Partner key to delete:", partnerKey);
+  console.log("[DELETE PARTNER] Removing partner with key:", key);
 
-  // Fetch homepage.json from GitHub
-  const homepageUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}?ref=${branch}`;
-  console.log("[DELETE PARTNER] Fetching homepage data from URL:", homepageUrl);
-  const homepageResponse = await fetch(homepageUrl, {
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github+json",
-    },
-  });
-  const homepageData = await homepageResponse.json();
-  console.log("[DELETE PARTNER] Homepage response data:", homepageData);
-  if (!homepageResponse.ok) {
-    console.error(
-      "[DELETE PARTNER] Error fetching homepage.json:",
-      homepageData
-    );
-    return new Response(
-      JSON.stringify({
-        error: "Failed to retrieve homepage data",
-        details: homepageData,
-      }),
-      { status: 500 }
-    );
-  }
-  const homepageSha = homepageData.sha;
-  console.log("[DELETE PARTNER] Homepage file SHA:", homepageSha);
-  const homepageContentString = Buffer.from(
-    homepageData.content,
-    "base64"
-  ).toString("utf8");
-  console.log(
-    "[DELETE PARTNER] Raw homepage JSON string:",
-    homepageContentString
+  // --- Fetch homepage.json ---
+  const hpResp = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}?ref=${branch}`,
+    {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    }
   );
-  let homepageContent;
-  try {
-    homepageContent = JSON.parse(homepageContentString);
-  } catch (err) {
-    console.error("[DELETE PARTNER] Error parsing homepage JSON:", err);
+  const hpJson = await hpResp.json();
+  if (!hpResp.ok) {
+    console.error("[DELETE PARTNER] Cannot fetch homepage.json:", hpJson);
     return new Response(
-      JSON.stringify({
-        error: "Homepage JSON is invalid",
-        details: err.message,
-      }),
+      JSON.stringify({ error: "Cannot fetch homepage.json" }),
       { status: 500 }
     );
   }
-  console.log("[DELETE PARTNER] Parsed homepage content:", homepageContent);
-
-  // Fetch products-and-partners.json from GitHub
-  const partnersUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}?ref=${branch}`;
-  console.log("[DELETE PARTNER] Fetching partners data from URL:", partnersUrl);
-  const partnersResponse = await fetch(partnersUrl, {
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github+json",
-    },
-  });
-  const partnersData = await partnersResponse.json();
-  console.log("[DELETE PARTNER] Partners response data:", partnersData);
-  if (!partnersResponse.ok) {
-    console.error(
-      "[DELETE PARTNER] Error fetching products-and-partners.json:",
-      partnersData
-    );
-    return new Response(
-      JSON.stringify({
-        error: "Failed to retrieve partners data",
-        details: partnersData,
-      }),
-      { status: 500 }
-    );
-  }
-  const partnersSha = partnersData.sha;
-  console.log("[DELETE PARTNER] Partners file SHA:", partnersSha);
-  const partnersContentString = Buffer.from(
-    partnersData.content,
-    "base64"
-  ).toString("utf8");
-  console.log(
-    "[DELETE PARTNER] Raw partners JSON string:",
-    partnersContentString
+  const homepageSha = hpJson.sha;
+  const homepage = JSON.parse(
+    Buffer.from(hpJson.content, "base64").toString("utf8")
   );
-  let partnersContent;
-  try {
-    partnersContent = JSON.parse(partnersContentString);
-  } catch (err) {
-    console.error("[DELETE PARTNER] Error parsing partners JSON:", err);
-    return new Response(
-      JSON.stringify({
-        error: "Partners JSON is invalid",
-        details: err.message,
-      }),
-      { status: 500 }
-    );
+
+  // --- Find & delete logo file ---
+  const logoPath = homepage.partnerLogos?.[key];
+  if (!logoPath) {
+    console.error("[DELETE PARTNER] logoPath not found for key:", key);
+    return new Response(JSON.stringify({ error: "Partner not found" }), {
+      status: 404,
+    });
   }
-  console.log("[DELETE PARTNER] Parsed partners content:", partnersContent);
-
-  // Validate that the partner exists in homepageContent.partnerLogos
-  if (
-    !homepageContent.partnerLogos ||
-    !homepageContent.partnerLogos[partnerKey]
-  ) {
-    console.error(
-      "[DELETE PARTNER] Partner key not found in homepage data:",
-      partnerKey
-    );
-    return new Response(
-      JSON.stringify({ error: "Partner not found in homepage data" }),
-      { status: 404 }
-    );
-  }
-
-  // Get the logo path from homepage data
-  const logoPath = homepageContent.partnerLogos[partnerKey];
-  console.log("[DELETE PARTNER] Logo path to remove:", logoPath);
-
-  // Delete the image file from GitHub (located under public/logos/)
-  // Construct the repository image path. We expect logoPath to start with "/logos"
-  const repoImagePath = logoPath.startsWith("/logos")
-    ? "public" + logoPath
-    : logoPath;
-  console.log("[DELETE PARTNER] Repo image path for deletion:", repoImagePath);
-
-  // Fetch the current file info to get the file SHA for deletion
-  const imageFileUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${repoImagePath}?ref=${branch}`;
-  console.log(
-    "[DELETE PARTNER] Fetching image file info from URL:",
-    imageFileUrl
+  console.log("[DELETE PARTNER] Deleting logo at:", logoPath);
+  const logoRepoPath = `public${logoPath}`;
+  const logoInfoResp = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${logoRepoPath}?ref=${branch}`,
+    {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    }
   );
-  const imageResponse = await fetch(imageFileUrl, {
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github+json",
-    },
-  });
-  const imageData = await imageResponse.json();
-  console.log("[DELETE PARTNER] Image file info:", imageData);
-  if (!imageResponse.ok) {
-    console.error(
-      "[DELETE PARTNER] Error fetching image file info:",
-      imageData
-    );
-    return new Response(
-      JSON.stringify({
-        error: "Failed to retrieve image file info",
-        details: imageData,
-      }),
-      { status: 500 }
-    );
-  }
-  const imageSha = imageData.sha;
-  console.log("[DELETE PARTNER] Image file SHA:", imageSha);
-
-  // Delete the image file via GitHub API
-  const imageDeletePayload = {
-    message: `Delete partner image ${repoImagePath}`,
-    sha: imageSha,
-    branch: branch,
-  };
-  console.log(
-    "[DELETE PARTNER] Deleting image file with payload:",
-    imageDeletePayload
-  );
-  const imageDeleteResponse = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${repoImagePath}`,
+  const logoInfo = await logoInfoResp.json();
+  await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${logoRepoPath}`,
     {
       method: "DELETE",
       headers: {
         Authorization: `token ${token}`,
-        Accept: "application/vnd.github+json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(imageDeletePayload),
+      body: JSON.stringify({
+        message: `Delete ${key}`,
+        sha: logoInfo.sha,
+        branch,
+      }),
     }
   );
-  const imageDeleteResult = await imageDeleteResponse.json();
-  console.log("[DELETE PARTNER] Image delete result:", imageDeleteResult);
-  if (!imageDeleteResponse.ok) {
-    console.error(
-      "[DELETE PARTNER] Error deleting image file:",
-      imageDeleteResult
-    );
-    return new Response(
-      JSON.stringify({
-        error: "Failed to delete partner image",
-        details: imageDeleteResult,
+
+  // --- Remove entry from homepage.json ---
+  delete homepage.partnerLogos[key];
+  const hpUpdatedB64 = Buffer.from(JSON.stringify(homepage, null, 2)).toString(
+    "base64"
+  );
+  console.log("[DELETE PARTNER] updating homepage.json");
+  await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: `Remove ${key}`,
+        content: hpUpdatedB64,
+        sha: homepageSha,
+        branch,
       }),
-      { status: 500 }
-    );
-  }
-  console.log("[DELETE PARTNER] Image file deleted successfully.");
+    }
+  );
 
-  // Remove the partner from homepageContent.partnerLogos
-  delete homepageContent.partnerLogos[partnerKey];
-  console.log("[DELETE PARTNER] Removed partner key from homepage data.");
-
-  // Remove the partner from products-and-partners.json
-  // The updated structure stores partners as an object keyed by numeric strings.
-  if (
-    !partnersContent.partners ||
-    typeof partnersContent.partners !== "object"
-  ) {
-    console.error("[DELETE PARTNER] Invalid partners data structure");
+  // --- Fetch & parse products-and-partners.json ---
+  const ppResp = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}?ref=${branch}`,
+    {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    }
+  );
+  const ppJson = await ppResp.json();
+  if (!ppResp.ok) {
+    console.error("[DELETE PARTNER] Cannot fetch partners.json:", ppJson);
     return new Response(
-      JSON.stringify({ error: "Invalid partners data structure" }),
+      JSON.stringify({ error: "Cannot fetch partners.json" }),
       { status: 500 }
     );
   }
-  let partnerFound = false;
-  for (const key in partnersContent.partners) {
-    if (partnersContent.partners[key].logo === logoPath) {
-      delete partnersContent.partners[key];
-      partnerFound = true;
+  const partnersSha = ppJson.sha;
+  const partnersData = JSON.parse(
+    Buffer.from(ppJson.content, "base64").toString("utf8")
+  );
+
+  // --- Remove partner record & collect product images to delete ---
+  let imagesToDelete = [];
+  for (const k in partnersData.partners) {
+    if (partnersData.partners[k].logo === logoPath) {
+      imagesToDelete = partnersData.partners[k].images || [];
+      delete partnersData.partners[k];
       console.log(
-        "[DELETE PARTNER] Removed partner entry from products-and-partners data with key:",
-        key
+        "[DELETE PARTNER] removed data for partners.partners[",
+        k,
+        "]"
       );
       break;
     }
   }
-  if (!partnerFound) {
-    console.warn(
-      "[DELETE PARTNER] Partner not found in products-and-partners data"
+
+  // --- Delete each product image file ---
+  for (const imgUrl of imagesToDelete) {
+    const repoPath = `public${imgUrl}`;
+    console.log("[DELETE PARTNER] deleting product image:", repoPath);
+    const infoResp = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${repoPath}?ref=${branch}`,
+      {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github+json",
+        },
+      }
     );
+    const infoJson = await infoResp.json();
+    if (infoResp.ok) {
+      await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/contents/${repoPath}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `token ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: `Delete product image`,
+            sha: infoJson.sha,
+            branch,
+          }),
+        }
+      );
+    }
   }
 
-  // Update homepage.json on GitHub
-  const updatedHomepageContentString = JSON.stringify(homepageContent, null, 2);
-  console.log(
-    "[DELETE PARTNER] Updated homepage content string:",
-    updatedHomepageContentString
-  );
-  const updatedHomepageContentBase64 = Buffer.from(
-    updatedHomepageContentString
+  // --- Update products-and-partners.json with the partner removed ---
+  const ppUpdatedB64 = Buffer.from(
+    JSON.stringify(partnersData, null, 2)
   ).toString("base64");
-  const homepageUpdatePayload = {
-    message: `Delete partner ${partnerKey} from homepage`,
-    content: updatedHomepageContentBase64,
-    sha: homepageSha,
-    branch: branch,
-  };
-  console.log(
-    "[DELETE PARTNER] Homepage update payload:",
-    homepageUpdatePayload
-  );
-  const homepageUpdateUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}`;
-  console.log(
-    "[DELETE PARTNER] Updating homepage.json at URL:",
-    homepageUpdateUrl
-  );
-  const homepageUpdateResponse = await fetch(homepageUpdateUrl, {
-    method: "PUT",
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(homepageUpdatePayload),
-  });
-  const homepageUpdateResult = await homepageUpdateResponse.json();
-  console.log("[DELETE PARTNER] Homepage update result:", homepageUpdateResult);
-  if (!homepageUpdateResponse.ok) {
-    console.error(
-      "[DELETE PARTNER] Error updating homepage.json:",
-      homepageUpdateResult
-    );
-    return new Response(
-      JSON.stringify({
-        error: "Failed to update homepage.json",
-        details: homepageUpdateResult,
+  console.log("[DELETE PARTNER] updating products-and-partners.json");
+  await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: `Remove partner ${key}`,
+        content: ppUpdatedB64,
+        sha: partnersSha,
+        branch,
       }),
-      { status: 500 }
-    );
-  }
+    }
+  );
 
-  // Update products-and-partners.json on GitHub
-  const updatedPartnersContentString = JSON.stringify(partnersContent, null, 2);
-  console.log(
-    "[DELETE PARTNER] Updated partners content string:",
-    updatedPartnersContentString
-  );
-  const updatedPartnersContentBase64 = Buffer.from(
-    updatedPartnersContentString
-  ).toString("base64");
-  const partnersUpdatePayload = {
-    message: `Delete partner ${partnerKey} from products-and-partners`,
-    content: updatedPartnersContentBase64,
-    sha: partnersSha,
-    branch: branch,
-  };
-  console.log(
-    "[DELETE PARTNER] Partners update payload:",
-    partnersUpdatePayload
-  );
-  const partnersUpdateUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}`;
-  console.log(
-    "[DELETE PARTNER] Updating products-and-partners.json at URL:",
-    partnersUpdateUrl
-  );
-  const partnersUpdateResponse = await fetch(partnersUpdateUrl, {
-    method: "PUT",
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(partnersUpdatePayload),
+  return new Response(JSON.stringify({ message: "Partner deleted", key }), {
+    status: 200,
   });
-  const partnersUpdateResult = await partnersUpdateResponse.json();
-  console.log("[DELETE PARTNER] Partners update result:", partnersUpdateResult);
-  if (!partnersUpdateResponse.ok) {
-    console.error(
-      "[DELETE PARTNER] Error updating products-and-partners.json:",
-      partnersUpdateResult
-    );
-    return new Response(
-      JSON.stringify({
-        error: "Failed to update products-and-partners.json",
-        details: partnersUpdateResult,
-      }),
-      { status: 500 }
-    );
-  }
-
-  console.log("[DELETE PARTNER] Partner deletion completed successfully.");
-  return new Response(
-    JSON.stringify({
-      message: "Partner deleted successfully",
-      key: partnerKey,
-    }),
-    { status: 200 }
-  );
 }
