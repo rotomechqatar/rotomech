@@ -72,6 +72,12 @@
         "/images/products/sample.jpg",
         "/images/products/sample.jpg"
       ]
+    },
+    "6": {
+      "name": "test",
+      "logo": "/logos/partnerLogo7.webp",
+      "description": "test",
+      "link": "https://test.com"
     }
   },
   "procurementPartners": {
