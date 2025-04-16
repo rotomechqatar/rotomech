@@ -29,7 +29,7 @@ export default function Jobs({ careers, noCareer }) {
             {/* Gradient Border Overlay */}
             <div className="absolute -inset-0.5 rounded-[25px] bg-gradient-to-r from-green to-blue opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
 
-            <div className="relative border flex flex-col gap-[3rem] px-[5rem] py-[5rem] rounded-[25px] transition-all duration-500 hover:scale-103 hover:bg-black hover:text-white">
+            <div className="relative border h-full flex flex-col gap-[3rem] px-[5rem] py-[5rem] rounded-[25px] transition-all duration-500 hover:scale-103 hover:bg-black hover:text-white">
               <h2 className="text-[3rem] font-bold">{item.position}</h2>
 
               <div>
