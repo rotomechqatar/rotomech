@@ -50,7 +50,8 @@
       "logo3": "/logos/clientLogo3.webp",
       "logo4": "/logos/clientLogo4.webp",
       "logo5": "/logos/clientLogo5.webp",
-      "logo6": "/logos/clientLogo6.webp"
+      "logo6": "/logos/clientLogo6.webp",
+      "logo14": "/logos/clientLogo14.webp"
     },
     "infrastructure": {
       "logo7": "/logos/clientLogo7.webp",
@@ -59,7 +60,8 @@
       "logo10": "/logos/clientLogo10.webp",
       "logo11": "/logos/clientLogo11.webp",
       "logo12": "/logos/clientLogo12.webp",
-      "logo13": "/logos/clientLogo13.webp"
+      "logo13": "/logos/clientLogo13.webp",
+      "logo15": "/logos/clientLogo15.webp"
     }
   }
 }
