@@ -21,7 +21,9 @@
       "keyResponsibilities": [
         "testing",
         "testing",
-        "testing"
+        "testing",
+        "testing",
+        "this is new and added"
       ],
       "qualifications": [
         "testing",
@@ -37,6 +39,7 @@
       "key": 1
     },
     {
+<<<<<<< HEAD
       "position": "testing",
       "location": "Doha, Qatar",
       "description": "testing",
@@ -56,6 +59,32 @@
         "testing"
       ],
       "created_at": "09/24/2001",
+=======
+      "position": "melvin",
+      "location": "melfin",
+      "description": "nwerfjkglHB",
+      "keyResponsibilities": [
+        "kjgklhhjkb"
+      ],
+      "qualifications": [
+        "uigikjgij",
+        "qwe",
+        "qw",
+        "e qw",
+        "e",
+        "qw e",
+        "qw e",
+        "qw e",
+        "qw e",
+        "qw e",
+        "qw e",
+        "qw e"
+      ],
+      "whatWeOffer": [
+        "jhbjkb"
+      ],
+      "created_at": "jn",
+>>>>>>> dbf266bb8b11ac179fc3d1e1d5c6d268bb293ed9
       "key": 2
     }
   ]
