@@ -22,7 +22,7 @@ export async function DELETE(req) {
   } catch (err) {
     console.error("[DELETE CLIENT] Error parsing request body:", err);
     return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
-      status: 40,
+      status: 400,
     });
   }
 
