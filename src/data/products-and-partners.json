@@ -75,11 +75,10 @@
     }
   },
   "procurementPartners": {
-    "logo1": "/logos/partnerLogo1.webp",
-    "logo2": "/logos/partnerLogo2.webp",
-    "logo3": "/logos/partnerLogo3.webp",
-    "logo4": "/logos/partnerLogo4.webp",
-    "logo5": "/logos/partnerLogo5.webp",
-    "logo6": "/logos/partnerLogo6.webp"
+    "logo1": "/logos/procurementPartner1.webp",
+    "logo2": "/logos/procurementPartner2.webp",
+    "logo3": "/logos/procurementPartner3.webp",
+    "logo4": "/logos/procurementPartner4.webp",
+    "logo5": "/logos/procurementPartner5.webp"
   }
 }

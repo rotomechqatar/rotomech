@@ -25,18 +25,19 @@ export default function PartnerSection({ content, type }) {
 
   return (
     <section className="mt-[10rem] overflow-x-hidden pb-[5rem] px-[15rem] max-11xl:px-[10rem] max-6xl:px-[5rem]">
-      {type && (
-        <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
-          Our Partners
-        </h2>
-      )}
+      <h2 className="text-[5rem] font-bold text-left mb-[5rem]">
+        {type === "procurement" ? "Procurement Partners" : "Our Partners"}
+      </h2>
+
       {type ? (
         // When type exists, no link and no hover effect will be applied.
-        carouselContent
+        <div className="gradient-border hover:scale-105">{carouselContent}</div>
       ) : (
         // Otherwise, wrap the carousel in a Link with the hover effect.
         <Link href="/products-and-partners">
-          <div className="hover:scale-105">{carouselContent}</div>
+          <div className="gradient-border hover:scale-105">
+            {carouselContent}
+          </div>
         </Link>
       )}
       <style jsx>{`
