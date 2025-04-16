@@ -9,7 +9,7 @@ export async function POST(req) {
   const repo =
     process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
     process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_STAGING_BRANCH || "master";
+  const branch = process.env.GITHUB_STAGING_BRANCH;
 
   // Define the JSON file path for homepage data only.
   const homepageFilePath = "src/data/homepage.json";
