@@ -16,8 +16,23 @@
   "careers": [
     {
       "position": "testing",
+      "location": "Doha, Qatar",
       "description": "testing",
-      "requirements": "testing",
+      "keyResponsibilities": [
+        "testing",
+        "testing",
+        "testing"
+      ],
+      "qualifications": [
+        "testing",
+        "testing",
+        "testing"
+      ],
+      "whatWeOffer": [
+        "testing",
+        "testing",
+        "testing"
+      ],
       "created_at": "09/24/2001",
       "key": 1
     },

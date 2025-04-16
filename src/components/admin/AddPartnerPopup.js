@@ -80,7 +80,7 @@ export default function AddPartnerPopup({ onClose, onUpdate }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
-              placeholder="Enter a short description"
+              placeholder="Enter description"
               required
             />
           </div>
@@ -91,7 +91,7 @@ export default function AddPartnerPopup({ onClose, onUpdate }) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
               className="w-full text-2xl p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300"
-              placeholder="Enter partner website URL"
+              placeholder="Start with https://"
               required
             />
           </div>

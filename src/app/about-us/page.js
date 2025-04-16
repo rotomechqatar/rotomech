@@ -6,6 +6,7 @@ import path from "path";
 import CTA from "../../components/about-us/CTA";
 import OurValues from "../../components/about-us/OurValues";
 import WhyChooseUs from "../../components/about-us/WhyChooseUs";
+import TeamSection from "@/components/about-us/TeamSection";
 
 export default async function page() {
   const filePath = path.join(process.cwd(), "src/data", "about-us.json");
@@ -15,6 +16,7 @@ export default async function page() {
   return (
     <div>
       <Banner content={content.banner} />
+      <TeamSection content={content.teamInfo} />
       <PageIntro contnet={content.aboutUs} />
       <MissionAndVision
         mission={content.ourMission}
