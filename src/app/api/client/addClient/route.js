@@ -6,7 +6,6 @@ export async function POST(req) {
   // Environment variables for GitHub API
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
-  // Get the repo name from GITHUB_REPO (handle both full URL or repo name)
   const repo =
     process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
     process.env.GITHUB_REPO;
@@ -67,7 +66,7 @@ export async function POST(req) {
   const fileBuffer = Buffer.from(await file.arrayBuffer());
   const imageBase64 = fileBuffer.toString("base64").replace(/\n/g, "");
 
-  // Ensure clientData exists and ensure the given type exists
+  // Ensure clientData exists and initialize type bucket
   if (
     !homepageContent.clientData ||
     typeof homepageContent.clientData !== "object"
@@ -78,20 +77,21 @@ export async function POST(req) {
   if (!homepageContent.clientData[clientType]) {
     homepageContent.clientData[clientType] = {};
   }
-  const clientsObj = homepageContent.clientData[clientType];
 
-  // Determine the next available index within the given client type.
-  const keys = Object.keys(clientsObj);
-  let newIndex;
-  if (keys.length > 0) {
-    // Extract numeric parts and get the maximum, then add 1.
-    const indices = keys
-      .map((key) => parseInt(key.replace("logo", ""), 10))
-      .filter((num) => !isNaN(num));
-    newIndex = Math.max(...indices) + 1;
-  } else {
-    newIndex = 1;
-  }
+  // —–– GLOBAL INDEX LOGIC —––––
+  // Gather every "logoX" key across all types:
+  const allKeys = Object.values(homepageContent.clientData).flatMap((typeObj) =>
+    Object.keys(typeObj)
+  );
+
+  // Extract numeric suffixes and filter valid numbers:
+  const indices = allKeys
+    .map((key) => parseInt(key.replace(/^logo/, ""), 10))
+    .filter((n) => !isNaN(n));
+
+  // Next index is max+1, or 1 if none exist:
+  const newIndex = indices.length ? Math.max(...indices) + 1 : 1;
+  // —––––––––––––––––––––––––––––––––––––––––––––
 
   // Construct new file name and image path for the client logo.
   const newFileName = `clientLogo${newIndex}.webp`;
@@ -136,8 +136,8 @@ export async function POST(req) {
     );
   }
 
-  // Update homepage.json: add the new client entry under the proper type.
-  clientsObj[`logo${newIndex}`] = newImagePath;
+  // Update homepage.json: add the new client entry under the correct type.
+  homepageContent.clientData[clientType][`logo${newIndex}`] = newImagePath;
   const updatedHomepageContentString = JSON.stringify(homepageContent, null, 2);
   const updatedHomepageContentBase64 = Buffer.from(
     updatedHomepageContentString
