@@ -3,7 +3,13 @@
 import { useRef } from "react";
 import gsap from "gsap";
 
-export default function Button({ text, textSize, bgc, disabled = false }) {
+export default function Button({
+  text,
+  textSize,
+  bgc,
+  disabled = false,
+  onClick, // <-- accept a user-supplied onClick prop
+}) {
   const buttonRef = useRef(null);
 
   const createRipple = (e) => {
@@ -53,7 +59,13 @@ export default function Button({ text, textSize, bgc, disabled = false }) {
     <button
       ref={buttonRef}
       disabled={disabled}
+      // Keep the existing ripple on hover if desired:
       onMouseEnter={createRipple}
+      // Combine the ripple with the caller's onClick:
+      onClick={(e) => {
+        createRipple(e);
+        if (onClick) onClick(e);
+      }}
       className={`cursor-pointer relative overflow-hidden px-8 py-4 rounded-xl border backdrop-blur-3xl transition-all duration-300 text-black bg-white shadow-xl hover:scale-102 ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
