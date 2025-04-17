@@ -72,6 +72,16 @@
         "/images/products/sample.jpg",
         "/images/products/sample.jpg"
       ]
+    },
+    "7": {
+      "name": "test",
+      "logo": "/logos/partnerLogo8.webp",
+      "description": "testt",
+      "images": [
+        "/images/products/test1.webp",
+        "/images/products/test2.webp",
+        "/images/products/test3.webp"
+      ]
     }
   },
   "procurementPartners": {
