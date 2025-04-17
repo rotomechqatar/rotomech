@@ -1,3 +1,4 @@
+/* AdminProductsPartnersPage.jsx */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,15 +7,15 @@ import BannerImageUploadPopup from "@/components/admin/BannerImageUploadPopup";
 import AddPartnerPopup from "@/components/admin/AddPartnerPopup";
 import AddProductImagePopup from "@/components/admin/AddProductImagePopup";
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  GLOBAL MESSAGE OVERLAY                                                  */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* GLOBAL TOAST                                                */
+/* ─────────────────────────────────────────────────────────── */
 function GlobalMessage({ message, type }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
       <div
         className={`p-6 rounded shadow-lg text-2xl text-white ${
-          type === "success" ? "bg-green-500" : "bg-red-500"
+          type === "success" ? "bg-green-600" : "bg-red-600"
         }`}
       >
         {message}
@@ -23,120 +24,106 @@ function GlobalMessage({ message, type }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  MAIN ADMIN PAGE                                                         */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* MAIN PAGE                                                   */
+/* ─────────────────────────────────────────────────────────── */
 export default function AdminProductsPartnersPage() {
   const [data, setData] = useState(null);
-  const [globalMessage, setGlobalMsg] = useState("");
-  const [globalType, setGlobalType] = useState("success");
+  const [toast, setToast] = useState({ msg: "", type: "success" });
 
-  /* helper to show temporary notifications */
+  /* helper */
   const flash = (msg, type = "success") => {
-    setGlobalMsg(msg);
-    setGlobalType(type);
-    setTimeout(() => setGlobalMsg(""), 3000);
+    setToast({ msg, type });
+    setTimeout(() => setToast({ msg: "", type }), 3000);
   };
 
-  /* fetch JSON once on mount */
+  /* fetch once */
   useEffect(() => {
     fetch("/api/getContent/products-and-partners")
       .then((r) => r.json())
       .then(setData)
-      .catch((err) => console.error(err));
+      .catch(console.error);
   }, []);
 
-  /* top‑level text update (meta / banner) */
+  /* ---------- state helpers ---------- */
   const updateText = (section, field, value) =>
-    setData((prev) => ({
-      ...prev,
-      [section]: { ...prev[section], [field]: value },
-    }));
+    setData((p) => ({ ...p, [section]: { ...p[section], [field]: value } }));
 
-  /* partner field update (name / desc) */
   const updatePartnerField = (key, field, value) =>
-    setData((prev) => ({
-      ...prev,
+    setData((p) => ({
+      ...p,
       partners: {
-        ...prev.partners,
-        [key]: { ...prev.partners[key], [field]: value },
+        ...p.partners,
+        [key]: { ...p.partners[key], [field]: value },
       },
     }));
 
-  /* add new partner object */
-  const addPartner = (partner) =>
-    setData((prev) => {
-      const nextKey = (
-        Math.max(0, ...Object.keys(prev.partners).map(Number)) + 1
+  const addPartner = (obj) =>
+    setData((p) => {
+      const next = (
+        Math.max(0, ...Object.keys(p.partners).map(Number)) + 1
       ).toString();
-      return { ...prev, partners: { ...prev.partners, [nextKey]: partner } };
+      return { ...p, partners: { ...p.partners, [next]: obj } };
     });
 
-  /* remove partner by name */
-  const removePartner = (name) =>
-    setData((prev) => {
-      const p = { ...prev.partners };
-      Object.keys(p).forEach((k) => {
-        if (p[k].name === name) delete p[k];
-      });
-      return { ...prev, partners: p };
+  const removePartner = (key) =>
+    setData((p) => {
+      const copy = { ...p.partners };
+      delete copy[key];
+      return { ...p, partners: copy };
     });
 
-  /* add / remove product image   */
   const addProdImg = ({ key, imagePath }) =>
-    setData((prev) => {
-      const imgs = prev.partners[key].images || [];
+    setData((p) => {
+      const imgs = p.partners[key].images || [];
       return {
-        ...prev,
+        ...p,
         partners: {
-          ...prev.partners,
-          [key]: { ...prev.partners[key], images: [...imgs, imagePath] },
-        },
-      };
-    });
-  const delProdImg = (key, src) =>
-    setData((prev) => {
-      const imgs = (prev.partners[key].images || []).filter((i) => i !== src);
-      return {
-        ...prev,
-        partners: {
-          ...prev.partners,
-          [key]: { ...prev.partners[key], images: imgs },
+          ...p.partners,
+          [key]: { ...p.partners[key], images: [...imgs, imagePath] },
         },
       };
     });
 
-  /* ───────────  NEW – Procurement partner helpers ─────────── */
+  const delProdImg = (key, src) =>
+    setData((p) => {
+      const imgs = (p.partners[key].images || []).filter((i) => i !== src);
+      return {
+        ...p,
+        partners: {
+          ...p.partners,
+          [key]: { ...p.partners[key], images: imgs },
+        },
+      };
+    });
+
   const addProcLogo = ({ key, imagePath }) =>
-    setData((prev) => ({
-      ...prev,
-      procurementPartners: { ...prev.procurementPartners, [key]: imagePath },
+    setData((p) => ({
+      ...p,
+      procurementPartners: { ...p.procurementPartners, [key]: imagePath },
     }));
 
   const removeProcLogo = (key) =>
-    setData((prev) => {
-      const obj = { ...prev.procurementPartners };
-      delete obj[key];
-      return { ...prev, procurementPartners: obj };
+    setData((p) => {
+      const copy = { ...p.procurementPartners };
+      delete copy[key];
+      return { ...p, procurementPartners: copy };
     });
 
-  /* loading splash */
+  /* ---------- render ---------- */
   if (!data)
     return (
       <div className="p-6 text-center text-white text-2xl">
-        Loading all data. Please wait...
+        Loading all data. Please wait…
       </div>
     );
 
-  /* ─────────── page JSX ─────────── */
   return (
     <div className="admin-dashboard p-6 bg-gray-50 min-h-screen">
-      {globalMessage && (
-        <GlobalMessage message={globalMessage} type={globalType} />
-      )}
+      {toast.msg && <GlobalMessage {...toast} />}
 
       <h1 className="text-5xl font-bold mb-8">
-        Products &amp; Partners Editor
+        Products&nbsp;&amp;&nbsp;Partners Editor
       </h1>
 
       <BannerSection banner={data.banner} updateText={updateText} />
@@ -151,7 +138,6 @@ export default function AdminProductsPartnersPage() {
         flash={flash}
       />
 
-      {/* NEW PROCUREMENT SECTION */}
       <ProcurementSection
         logos={data.procurementPartners}
         onAddLogo={addProcLogo}
@@ -164,11 +150,11 @@ export default function AdminProductsPartnersPage() {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  BANNER SECTION                                                          */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* BANNER SECTION                                             */
+/* ─────────────────────────────────────────────────────────── */
 function BannerSection({ banner, updateText }) {
-  const [showPop, setShowPop] = useState(false);
+  const [show, setShow] = useState(false);
 
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
@@ -186,7 +172,7 @@ function BannerSection({ banner, updateText }) {
       </div>
 
       <button
-        onClick={() => setShowPop(true)}
+        onClick={() => setShow(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded mb-4 text-2xl"
       >
         Upload New Image
@@ -211,15 +197,15 @@ function BannerSection({ banner, updateText }) {
         </p>
       </div>
 
-      {showPop && (
+      {show && (
         <BannerImageUploadPopup
           page="products-and-partners"
           banner={banner}
-          onClose={() => setShowPop(false)}
-          onUpdate={(nb) => {
-            updateText("banner", "image", nb.image);
-            updateText("banner", "alt", nb.alt);
-            setShowPop(false);
+          onClose={() => setShow(false)}
+          onUpdate={({ image, alt }) => {
+            updateText("banner", "image", image);
+            updateText("banner", "alt", alt);
+            setShow(false);
           }}
         />
       )}
@@ -227,9 +213,9 @@ function BannerSection({ banner, updateText }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  PARTNERS (with product images)                                          */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* PARTNERS SECTION                                           */
+/* ─────────────────────────────────────────────────────────── */
 function PartnersSection({
   partners,
   onUpdateField,
@@ -241,24 +227,26 @@ function PartnersSection({
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [imgKey, setImgKey] = useState(null);
+  const [deleting, setDeleting] = useState({}); // { key: true }
 
-  /* backend deletion */
-  const deletePartner = async (name) => {
-    if (!confirm(`Delete partner "${name}"?`)) return;
+  const deletePartner = async (key) => {
+    if (!confirm(`Delete partner "${key}"?`)) return;
+    setDeleting((p) => ({ ...p, [key]: true }));
     try {
-      const res = await fetch("/api/partner/deletePartner", {
+      const r = await fetch("/api/partner/deletePartner", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: name }),
+        body: JSON.stringify({ key }),
       });
-      const out = await res.json();
-      if (res.ok) {
-        onRemovePartner(name);
+      const j = await r.json();
+      if (r.ok) {
+        onRemovePartner(key);
         flash("Partner deleted", "success");
-      } else flash(out.error || "Error deleting partner", "error");
+      } else flash(j.error || "Error deleting partner", "error");
     } catch (e) {
       flash(e.message, "error");
     }
+    setDeleting((p) => ({ ...p, [key]: false }));
   };
 
   return (
@@ -280,7 +268,8 @@ function PartnersSection({
             index={k}
             partner={p}
             onUpdateField={onUpdateField}
-            onDelete={() => deletePartner(p.name)}
+            onDelete={() => deletePartner(k)}
+            deleting={!!deleting[k]}
             onAddImage={() => setImgKey(k)}
             onRemoveImage={(src) => onRemoveImage(k, src)}
             flash={flash}
@@ -288,7 +277,6 @@ function PartnersSection({
         ))}
       </div>
 
-      {/* pop‑ups */}
       {showAdd && (
         <AddPartnerPopup
           onClose={() => setShowAdd(false)}
@@ -299,7 +287,7 @@ function PartnersSection({
           }}
         />
       )}
-      {imgKey !== null && (
+      {imgKey && (
         <AddProductImagePopup
           partnerKey={imgKey}
           onClose={() => setImgKey(null)}
@@ -314,23 +302,24 @@ function PartnersSection({
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  INDIVIDUAL PARTNER CARD                                                 */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* SINGLE PARTNER CARD                                         */
+/* ─────────────────────────────────────────────────────────── */
 function PartnerCard({
   index,
   partner,
   onUpdateField,
   onDelete,
+  deleting,
   onAddImage,
   onRemoveImage,
   flash,
 }) {
-  const [busy, setBusy] = useState("");
+  const [busyImg, setBusyImg] = useState(""); // holds src being deleted
 
   const deleteImg = async (src) => {
     if (!confirm("Delete this product image?")) return;
-    setBusy(src);
+    setBusyImg(src);
     try {
       const r = await fetch("/api/partner/deleteProductImage", {
         method: "DELETE",
@@ -341,13 +330,11 @@ function PartnerCard({
       if (r.ok) {
         onRemoveImage(src);
         flash("Image deleted", "success");
-      } else {
-        flash(j.error || "Server error", "error");
-      }
+      } else flash(j.error || "Server error", "error");
     } catch (e) {
       flash(e.message, "error");
     }
-    setBusy("");
+    setBusyImg("");
   };
 
   return (
@@ -385,9 +372,12 @@ function PartnerCard({
         <div className="flex flex-col justify-between">
           <button
             onClick={onDelete}
-            className="px-4 py-2 bg-red-500 text-white rounded text-2xl mb-2"
+            disabled={deleting}
+            className={`px-4 py-2 rounded text-2xl mb-2 ${
+              deleting ? "bg-red-300" : "bg-red-500 text-white"
+            }`}
           >
-            Delete Partner
+            {deleting ? "Deleting…" : "Delete Partner"}
           </button>
           <button
             onClick={onAddImage}
@@ -411,10 +401,12 @@ function PartnerCard({
               />
               <button
                 onClick={() => deleteImg(src)}
-                disabled={busy === src}
-                className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-sm"
+                disabled={busyImg === src}
+                className={`absolute top-2 right-2 px-2 py-1 rounded text-sm ${
+                  busyImg === src ? "bg-red-300" : "bg-red-600 text-white"
+                }`}
               >
-                {busy === src ? "Deleting…" : "Delete Image"}
+                {busyImg === src ? "Deleting…" : "Delete Image"}
               </button>
             </div>
           ))}
@@ -424,15 +416,16 @@ function PartnerCard({
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  NEW  ‑‑   PROCUREMENT PARTNER LOGOS                                     */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* PROCUREMENT LOGOS                                          */
+/* ─────────────────────────────────────────────────────────── */
 function ProcurementSection({ logos, onAddLogo, onRemoveLogo, flash }) {
   const [showAdd, setShowAdd] = useState(false);
+  const [busy, setBusy] = useState({}); // { key: true }
 
-  /* delete backend + state */
   const deleteLogo = async (key) => {
     if (!confirm("Delete this procurement partner?")) return;
+    setBusy((p) => ({ ...p, [key]: true }));
     try {
       const r = await fetch("/api/procurement-partner/delete", {
         method: "DELETE",
@@ -443,12 +436,11 @@ function ProcurementSection({ logos, onAddLogo, onRemoveLogo, flash }) {
       if (r.ok) {
         onRemoveLogo(key);
         flash("Logo deleted", "success");
-      } else {
-        flash(j.error || "Server error", "error");
-      }
+      } else flash(j.error || "Server error", "error");
     } catch (e) {
       flash(e.message, "error");
     }
+    setBusy((p) => ({ ...p, [key]: false }));
   };
 
   return (
@@ -463,22 +455,23 @@ function ProcurementSection({ logos, onAddLogo, onRemoveLogo, flash }) {
         </button>
       </div>
 
-      {/* grid of logos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {Object.entries(logos).map(([k, src]) => (
           <div key={k} className="relative w-full h-40 bg-gray-100 rounded">
             <Image src={src} alt={k} layout="fill" objectFit="contain" />
             <button
               onClick={() => deleteLogo(k)}
-              className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-sm"
+              disabled={busy[k]}
+              className={`absolute top-2 right-2 px-2 py-1 rounded text-sm ${
+                busy[k] ? "bg-red-300" : "bg-red-600 text-white"
+              }`}
             >
-              Delete
+              {busy[k] ? "Deleting…" : "Delete"}
             </button>
           </div>
         ))}
       </div>
 
-      {/* simple upload pop‑up */}
       {showAdd && (
         <AddProcurementLogoPopup
           onClose={() => setShowAdd(false)}
@@ -493,65 +486,49 @@ function ProcurementSection({ logos, onAddLogo, onRemoveLogo, flash }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  SIMPLE POP‑UP FOR PROCUREMENT LOGO UPLOAD                               */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* ADD‑PROCUREMENT POPUP (unchanged UI, prog‑safe)            */
+/* ─────────────────────────────────────────────────────────── */
 function AddProcurementLogoPopup({ onClose, onUploaded }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleFile = (e) => {
-    if (e.target.files && e.target.files[0]) setFile(e.target.files[0]);
-  };
-
   const upload = async () => {
-    if (!file) {
-      alert("Please choose a .webp image.");
-      return;
-    }
-    if (file.type !== "image/webp") {
-      alert("Only .webp files are allowed.");
-      return;
-    }
+    if (!file) return alert("Choose a .webp image.");
+    if (file.type !== "image/webp") return alert("Only .webp allowed.");
 
     setLoading(true);
     const form = new FormData();
     form.append("file", file);
 
     try {
-      const res = await fetch("/api/procurement-partner/add", {
+      const r = await fetch("/api/procurement-partner/add", {
         method: "POST",
         body: form,
       });
-      const json = await res.json();
-      if (res.ok) {
-        // server responds with { key, imagePath }
-        onUploaded(json); // → { key: "logo7", imagePath: "/logos/..." }
-        onClose();
-      } else {
-        alert(json.error || "Upload failed.");
-      }
-    } catch (err) {
-      alert(err.message || "Upload failed.");
+      const j = await r.json();
+      if (r.ok) onUploaded(j);
+      else alert(j.error || "Upload failed");
+    } catch (e) {
+      alert(e.message || "Upload error");
     }
     setLoading(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50">
-      <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all duration-300 hover:scale-105">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-2xl mx-4">
         <h2 className="text-4xl font-bold mb-8 text-center">
           Add Procurement&nbsp;Partner Logo
         </h2>
 
-        {/* File picker */}
         <div className="mb-12">
           <input
             id="ppFileInput"
             type="file"
             accept=".webp"
             className="hidden"
-            onChange={handleFile}
+            onChange={(e) => e.target.files && setFile(e.target.files[0])}
           />
           <label
             htmlFor="ppFileInput"
@@ -565,21 +542,18 @@ function AddProcurementLogoPopup({ onClose, onUploaded }) {
           </label>
         </div>
 
-        {/* Action buttons */}
         <div className="flex justify-end space-x-6">
           <button
-            type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-8 py-4 bg-gray-600 text-white rounded-lg text-2xl transition-all duration-300 hover:bg-gray-700 hover:scale-105"
+            className="px-8 py-4 bg-gray-600 text-white rounded-lg text-2xl"
           >
             Cancel
           </button>
           <button
-            type="button"
             onClick={upload}
             disabled={loading}
-            className="px-8 py-4 bg-green-600 text-white rounded-lg text-2xl transition-all duration-300 hover:bg-green-700 hover:scale-105"
+            className="px-8 py-4 bg-green-600 text-white rounded-lg text-2xl"
           >
             {loading ? "Uploading…" : "Upload"}
           </button>
@@ -589,9 +563,9 @@ function AddProcurementLogoPopup({ onClose, onUploaded }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  SEO SECTION (unchanged)                                                 */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* SEO SECTION                                                */
+/* ─────────────────────────────────────────────────────────── */
 function SEOSection({ meta, updateText }) {
   return (
     <section className="mb-8 p-6 bg-white rounded shadow">
@@ -615,9 +589,9 @@ function SEOSection({ meta, updateText }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  GENERIC INLINE EDIT FIELD                                               */
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/* REUSABLE INLINE EDIT                                       */
+/* ─────────────────────────────────────────────────────────── */
 function EditableText({ section, field, text, onTextUpdated }) {
   const [edit, setEdit] = useState(false);
   const [val, setVal] = useState(text);
@@ -634,13 +608,11 @@ function EditableText({ section, field, text, onTextUpdated }) {
       body: JSON.stringify(payload),
     });
     const j = await r.json();
-    setBusy(false);
     if (r.ok) {
       onTextUpdated(val);
       setEdit(false);
-    } else {
-      alert(j.error || "Save error");
-    }
+    } else alert(j.error || "Save error");
+    setBusy(false);
   };
 
   return edit ? (
@@ -675,62 +647,13 @@ function EditableText({ section, field, text, onTextUpdated }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  PARTNER‑SCOPED INLINE EDIT                                              */
-/* ────────────────────────────────────────────────────────────────────────── */
-function PartnerEditableText({ index, field, text, onTextUpdated }) {
-  const [edit, setEdit] = useState(false);
-  const [val, setVal] = useState(text);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => setVal(text), [text]);
-
-  const save = async () => {
-    setBusy(true);
-    const payload = { partners: { [index]: { [field]: val } } };
-    const r = await fetch("/api/updateContent/products-and-partners", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const j = await r.json();
-    setBusy(false);
-    if (r.ok) {
-      onTextUpdated(val);
-      setEdit(false);
-    } else {
-      alert(j.error || "Save error");
-    }
-  };
-
-  return edit ? (
-    <>
-      <input
-        value={val}
-        onChange={(e) => setVal(e.target.value)}
-        className="flex-grow text-2xl p-2 border rounded"
-      />
-      <button
-        onClick={save}
-        disabled={busy}
-        className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
-      >
-        {busy ? "Saving…" : "Save"}
-      </button>
-      <button
-        onClick={() => setEdit(false)}
-        disabled={busy}
-        className="ml-2 px-4 py-2 bg-gray-500 text-white rounded"
-      >
-        Cancel
-      </button>
-    </>
-  ) : (
-    <span className="inline-flex items-center">
-      <span>{text}</span>
-      <span onClick={() => setEdit(true)} className="cursor-pointer ml-1">
-        ✏️
-      </span>
-    </span>
+/* partner‑scoped edit */
+function PartnerEditableText(props) {
+  return (
+    <EditableText
+      {...props}
+      onTextUpdated={(v) => props.onTextUpdated(v)}
+      section="partners"
+    />
   );
 }
