@@ -1,5 +1,6 @@
 import Footer from "@/components/footer/Footer";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import Header from "@/components/header/Header";
 import fs from "fs/promises";
 import path from "path";
@@ -54,6 +55,7 @@ export async function generateMetadata() {
 export default async function RootLayout({ children }) {
   return (
     <html lang="en">
+      <Analytics />
       <body suppressHydrationWarning={true}>
         <Header />
         {children}
