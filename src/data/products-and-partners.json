@@ -70,6 +70,17 @@
         "/images/products/sample.jpg",
         "/images/products/sample.jpg"
       ]
+    },
+    "7": {
+      "name": "test",
+      "logo": "/logos/partnerLogo7.webp",
+      "description": "test",
+      "images": [
+        "/images/products/test1.webp",
+        "/images/products/test2.webp",
+        "/images/products/test3.webp",
+        "/images/products/test4.webp"
+      ]
     }
   },
   "procurementPartners": {
