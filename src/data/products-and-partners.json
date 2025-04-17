@@ -77,9 +77,7 @@
       "name": "test",
       "logo": "/logos/partnerLogo7.webp",
       "description": "test",
-      "images": [
-        "/images/products/test1.webp"
-      ]
+      "images": []
     }
   },
   "procurementPartners": {
