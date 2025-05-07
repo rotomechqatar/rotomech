@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import Header from "@/components/header/Header";
 import fs from "fs/promises";
 import path from "path";
+import UnderDevelopment from "@/components/UnderDevelopment";
 
 export async function generateMetadata() {
   const filePath = path.join(process.cwd(), "src/data", "homepage.json");
@@ -52,14 +53,23 @@ export async function generateMetadata() {
   };
 }
 
-export default async function RootLayout({ children }) {
+// export default async function RootLayout({ children }) {
+//   return (
+//     <html lang="en">
+//       <Analytics />
+//       <body suppressHydrationWarning={true}>
+//         <Header />
+//         {children}
+//         <Footer />
+//       </body>
+//     </html>
+//   );
+// }
+export default async function RootLayout() {
   return (
     <html lang="en">
-      <Analytics />
       <body suppressHydrationWarning={true}>
-        <Header />
-        {children}
-        <Footer />
+        <UnderDevelopment />
       </body>
     </html>
   );
