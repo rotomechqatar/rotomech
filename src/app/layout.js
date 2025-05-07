@@ -65,6 +65,7 @@ export async function generateMetadata() {
 //     </html>
 //   );
 // }
+
 export default async function RootLayout() {
   return (
     <html lang="en">

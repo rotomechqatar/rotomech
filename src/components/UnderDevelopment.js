@@ -13,7 +13,7 @@ export default function UnderDevelopment() {
         style={{ height: "300px", width: "300px" }}
       />
       <h1 className="text-6xl font-bold mb-4 animate-bounce">
-        Stay Tuned. Page Do not exist yet!
+        Stay Tuned. Page will be published after the development.
       </h1>
       <p className="text-5xl mb-8">This page is currently under development.</p>
       <div className="space-y-2 text-xl">
