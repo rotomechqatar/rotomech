@@ -52,6 +52,7 @@ export async function generateMetadata() {
     },
   };
 }
+//root layout
 
 export default async function RootLayout({ children }) {
   return (
