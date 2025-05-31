@@ -54,25 +54,25 @@ export async function generateMetadata() {
 }
 //root layout
 
-// export default async function RootLayout({ children }) {
-//   return (
-//     <html lang="en">
-//       <Analytics />
-//       <body suppressHydrationWarning={true}>
-//         <Header />
-//         {children}
-//         <Footer />
-//       </body>
-//     </html>
-//   );
-// }
-
-export default async function RootLayout() {
+export default async function RootLayout({ children }) {
   return (
     <html lang="en">
+      <Analytics />
       <body suppressHydrationWarning={true}>
-        <UnderDevelopment />
+        <Header />
+        {children}
+        <Footer />
       </body>
     </html>
   );
 }
+
+// export default async function RootLayout() {
+//   return (
+//     <html lang="en">
+//       <body suppressHydrationWarning={true}>
+//         <UnderDevelopment />
+//       </body>
+//     </html>
+//   );
+// }
