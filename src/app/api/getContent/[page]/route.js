@@ -43,7 +43,13 @@ export async function GET(request, { params }) {
     );
 
     // Return the decoded content.
-    return new Response(contentString, { status: 200 });
+    return new Response(contentString, {
+      status: 200,
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
     // Return an error response if something goes wrong.
     return new Response(
@@ -51,7 +57,13 @@ export async function GET(request, { params }) {
         error: "Error while fetching content",
         details: error.message,
       }),
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store",
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 }

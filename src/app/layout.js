@@ -53,14 +53,14 @@ export async function generateMetadata() {
 }
 //root layout
 
-export default async function RootLayout({ children }) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Analytics />
       <body suppressHydrationWarning={true}>
         <Header />
         {children}
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
