@@ -182,7 +182,6 @@ function ContactInfoSection({ head, text, updateField }) {
     <section className="mb-8 p-6 bg-white rounded shadow">
       <h2 className="text-3xl font-semibold mb-4">
         <EditableText
-          section="contact"
           field="head"
           text={head}
           onTextUpdated={(val) => updateField("head", val)}
@@ -190,7 +189,6 @@ function ContactInfoSection({ head, text, updateField }) {
       </h2>
       <p className="text-2xl">
         <EditableText
-          section="contact"
           field="text"
           text={text}
           onTextUpdated={(val) => updateField("text", val)}
@@ -422,7 +420,10 @@ function EditableText({ section, field, text, onTextUpdated }) {
 
   const saveChanges = async () => {
     setLoading(true);
-    const payload = { [section]: { [field]: value } };
+    // Without a section the field is saved at the top level (e.g. head, text).
+    const payload = section
+      ? { [section]: { [field]: value } }
+      : { [field]: value };
     try {
       const res = await fetch(`/api/updateContent/contact-us`, {
         method: "POST",

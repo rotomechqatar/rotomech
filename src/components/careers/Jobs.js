@@ -67,7 +67,7 @@ export default function Jobs({ careers, noCareer }) {
         ))
       ) : (
         <h2 className="text-center text-[3rem] w-full col-span-2">
-          {noCareer}
+          {noCareer?.message ?? noCareer}
         </h2>
       )}
 

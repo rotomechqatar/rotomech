@@ -580,7 +580,11 @@ function EditableText({ section, field, text, onTextUpdated }) {
 
   const saveChanges = async () => {
     setLoading(true);
-    const payload = { [section]: { [field]: value } };
+    // A dotted section such as "teamInfo.director" becomes nested JSON:
+    // { teamInfo: { director: { [field]: value } } }
+    const payload = section
+      .split(".")
+      .reduceRight((acc, key) => ({ [key]: acc }), { [field]: value });
 
     try {
       const res = await fetch(`/api/updateContent/about-us`, {

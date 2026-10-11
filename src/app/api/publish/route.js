@@ -27,7 +27,12 @@ export async function POST(request) {
         }),
       }
     );
-    const mergePublishData = await mergePublishResponse.json();
+    // 204 means "already up to date": GitHub sends an empty body, so there is
+    // nothing to parse and the publish carries on as a success.
+    const mergePublishData =
+      mergePublishResponse.status === 204
+        ? null
+        : await mergePublishResponse.json();
     if (!mergePublishResponse.ok) {
       return new Response(
         JSON.stringify({

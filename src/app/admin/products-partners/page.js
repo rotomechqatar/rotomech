@@ -592,7 +592,7 @@ function SEOSection({ meta, updateText }) {
 /* ─────────────────────────────────────────────────────────── */
 /* REUSABLE INLINE EDIT                                       */
 /* ─────────────────────────────────────────────────────────── */
-function EditableText({ section, field, text, onTextUpdated }) {
+function EditableText({ section, index, field, text, onTextUpdated }) {
   const [edit, setEdit] = useState(false);
   const [val, setVal] = useState(text);
   const [busy, setBusy] = useState(false);
@@ -601,7 +601,11 @@ function EditableText({ section, field, text, onTextUpdated }) {
 
   const save = async () => {
     setBusy(true);
-    const payload = { [section]: { [field]: val } };
+    // Partner edits carry the partner key: { partners: { "3": { name } } }
+    const payload =
+      index !== undefined
+        ? { [section]: { [index]: { [field]: val } } }
+        : { [section]: { [field]: val } };
     const r = await fetch("/api/updateContent/products-and-partners", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
