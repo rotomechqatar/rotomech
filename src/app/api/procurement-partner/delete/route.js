@@ -5,7 +5,6 @@
 import { Buffer } from "buffer";
 
 export async function DELETE(req) {
-  console.log("[DEL PP] received delete‑procurement‑partner request");
 
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
@@ -114,6 +113,5 @@ export async function DELETE(req) {
       { status: 500 }
     );
 
-  console.log("[DEL PP] success – removed", key);
   return Response.json({ success: true });
 }

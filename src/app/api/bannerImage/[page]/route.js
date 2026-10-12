@@ -5,11 +5,9 @@ import { Buffer } from "buffer";
 export async function POST(req, { params }) {
   // Get the page parameter.
   const { page } = await params;
-  console.log("[UPLOAD] Received upload request for page:", page);
 
   // Define the JSON file path for the page.
   const jsonFilePath = `src/data/${page}.json`;
-  console.log("[UPLOAD] JSON file path:", jsonFilePath);
 
   // Retrieve current JSON file from GitHub.
   const token = process.env.GITHUB_TOKEN;
@@ -18,10 +16,8 @@ export async function POST(req, { params }) {
     process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
     process.env.GITHUB_REPO;
   const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-  console.log("[UPLOAD] Using branch:", branch, "owner:", owner, "repo:", repo);
 
   const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${jsonFilePath}?ref=${branch}`;
-  console.log("[UPLOAD] Fetching JSON file from URL:", getUrl);
   const getResponse = await fetch(getUrl, {
     headers: {
       Authorization: `token ${token}`,
@@ -44,7 +40,6 @@ export async function POST(req, { params }) {
     "utf8"
   );
   const currentContent = JSON.parse(currentContentString);
-  console.log("[UPLOAD] Successfully loaded JSON content.");
 
   // Parse incoming form data.
   const formData = await req.formData();
@@ -53,12 +48,6 @@ export async function POST(req, { params }) {
   const section = formData.get("section"); // should be "banner"
   const file = formData.get("file");
 
-  console.log("[UPLOAD] Incoming form data:", {
-    name: nameField,
-    alt: altField,
-    section,
-    fileType: file?.type,
-  });
 
   if (!nameField || !section || !file) {
     console.error("[UPLOAD] Missing parameters in form data.");
@@ -101,10 +90,6 @@ export async function POST(req, { params }) {
     repoNewImagePath = newImagePath.startsWith("/images")
       ? "public" + newImagePath
       : newImagePath;
-    console.log(
-      "[UPLOAD] Found existing banner image. Using file path:",
-      newImagePath
-    );
   } else {
     // No existing banner image, compute a new one.
     const newFileName = `${nameField}.webp`;
@@ -112,18 +97,11 @@ export async function POST(req, { params }) {
     repoNewImagePath = newImagePath.startsWith("/images")
       ? "public" + newImagePath
       : newImagePath;
-    console.log(
-      "[UPLOAD] No existing banner image. New file name:",
-      newFileName
-    );
-    console.log("[UPLOAD] New image path (raw):", newImagePath);
   }
   const posixNewImagePath = newImagePath.replace(/\\/g, "/");
-  console.log("[UPLOAD] Repo new image path for upload:", repoNewImagePath);
 
   // Define URL for the image file in the repository.
   const fileUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${repoNewImagePath}`;
-  console.log("[UPLOAD] File URL:", fileUrl);
 
   // --- If an existing banner image exists, delete it ---
   const fileMetaResponse = await fetch(fileUrl, {
@@ -140,7 +118,6 @@ export async function POST(req, { params }) {
       sha: latestFileSha,
       branch: branch,
     };
-    console.log("[UPLOAD] Deleting existing file with payload:", deletePayload);
     const deleteResponse = await fetch(fileUrl, {
       method: "DELETE",
       headers: {
@@ -170,9 +147,7 @@ export async function POST(req, { params }) {
         { status: 500 }
       );
     }
-    console.log("[UPLOAD] Existing banner image deleted successfully.");
   } else {
-    console.log("[UPLOAD] No existing banner image found at", repoNewImagePath);
   }
 
   // --- Upload the new banner image ---
@@ -181,7 +156,6 @@ export async function POST(req, { params }) {
     content: imageBase64,
     branch: branch,
   };
-  console.log("[UPLOAD] Uploading new image to URL:", fileUrl);
   const putResponse = await fetch(fileUrl, {
     method: "PUT",
     headers: {
@@ -211,13 +185,11 @@ export async function POST(req, { params }) {
       { status: 500 }
     );
   }
-  console.log("[UPLOAD] New banner image uploaded successfully.");
 
   // --- Update the JSON file ---
   // For banner, update only the image path and alt text.
   currentContent[section].image = posixNewImagePath;
   currentContent[section].alt = altField;
-  console.log("[UPLOAD] Updated JSON content for banner.");
 
   const updatedContentString = JSON.stringify(currentContent, null, 2);
   const updatedContentBase64 =
@@ -229,7 +201,6 @@ export async function POST(req, { params }) {
     branch: branch,
   };
   const updateUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${jsonFilePath}`;
-  console.log("[UPLOAD] Updating JSON file at URL:", updateUrl);
   const updateResponse = await fetch(updateUrl, {
     method: "PUT",
     headers: {
@@ -250,7 +221,6 @@ export async function POST(req, { params }) {
       { status: 500 }
     );
   }
-  console.log("[UPLOAD] JSON file updated successfully.");
 
   // Return the updated banner details.
   return new Response(

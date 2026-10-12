@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 
 export async function POST(req) {
-  console.log("[ABOUT-TEAM] Received image replace request");
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
   const repo =
@@ -97,6 +96,5 @@ export async function POST(req) {
     );
   }
 
-  console.log("[ABOUT-TEAM] Image replaced successfully at", imagePath);
   return new Response(JSON.stringify({ imagePath }), { status: 200 });
 }

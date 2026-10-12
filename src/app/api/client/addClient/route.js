@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 
 export async function POST(req) {
-  console.log("[ADD CLIENT] Received add client request");
 
   // Environment variables for GitHub API
   const token = process.env.GITHUB_TOKEN;
@@ -173,7 +172,6 @@ export async function POST(req) {
     );
   }
 
-  console.log("[ADD CLIENT] Client added successfully");
   return new Response(
     JSON.stringify({
       message: "Client added successfully",

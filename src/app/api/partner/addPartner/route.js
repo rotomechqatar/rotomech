@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 
 export async function POST(req) {
-  console.log("[ADD PARTNER] Received add partner request");
 
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
@@ -66,13 +65,6 @@ export async function POST(req) {
   const logoFile = form.get("file");
   const productFiles = form.getAll("productImages");
 
-  console.log(
-    "[ADD PARTNER] name, description, logoFile, #productImages:",
-    name,
-    description,
-    logoFile?.name,
-    productFiles.length
-  );
 
   if (!name || !description || !logoFile || productFiles.length === 0) {
     return new Response(
@@ -98,7 +90,6 @@ export async function POST(req) {
   const logoRepoPath = `public/logos/${logoFilename}`;
   const logoB64 = Buffer.from(await logoFile.arrayBuffer()).toString("base64");
 
-  console.log("[ADD PARTNER] uploading logo:", logoRepoPath);
   await fetch(
     `https://api.github.com/repos/${owner}/${repo}/contents/${logoRepoPath}`,
     {
@@ -121,7 +112,6 @@ export async function POST(req) {
   const hpUpdatedB64 = Buffer.from(JSON.stringify(homepage, null, 2)).toString(
     "base64"
   );
-  console.log("[ADD PARTNER] updating homepage.json");
   await fetch(
     `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}`,
     {
@@ -152,7 +142,6 @@ export async function POST(req) {
     const imgRepoPath = `public/images/products/${imgFilename}`;
     const imgB64 = Buffer.from(await pf.arrayBuffer()).toString("base64");
 
-    console.log("[ADD PARTNER] uploading product image:", imgRepoPath);
     await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${imgRepoPath}`,
       {
@@ -187,7 +176,6 @@ export async function POST(req) {
   const ppUpdatedB64 = Buffer.from(
     JSON.stringify(partnersData, null, 2)
   ).toString("base64");
-  console.log("[ADD PARTNER] updating products-and-partners.json");
   await fetch(
     `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}`,
     {

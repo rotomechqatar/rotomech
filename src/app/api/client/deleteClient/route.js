@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 
 export async function DELETE(req) {
-  console.log("[DELETE CLIENT] Received delete client request");
 
   // Environment variables for GitHub API
   const token = process.env.GITHUB_TOKEN;
@@ -18,7 +17,6 @@ export async function DELETE(req) {
   let body;
   try {
     body = await req.json();
-    console.log("[DELETE CLIENT] Parsed request body:", body);
   } catch (err) {
     console.error("[DELETE CLIENT] Error parsing request body:", err);
     return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
@@ -36,7 +34,6 @@ export async function DELETE(req) {
       { status: 400 }
     );
   }
-  console.log("[DELETE CLIENT] Type:", clientType, "Key:", clientKey);
 
   // Fetch homepage.json from GitHub
   const homepageUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}?ref=${branch}`;
@@ -95,7 +92,6 @@ export async function DELETE(req) {
 
   // Get the logo path from homepage data
   const logoPath = homepageContent.clientData[clientType][clientKey];
-  console.log("[DELETE CLIENT] Logo path to remove:", logoPath);
 
   // Delete the image file from GitHub (assumes logos stored in public/logos/)
   const repoImagePath = logoPath.startsWith("/logos")
@@ -153,11 +149,9 @@ export async function DELETE(req) {
       { status: 500 }
     );
   }
-  console.log("[DELETE CLIENT] Image file deleted successfully.");
 
   // Remove the client entry from homepageContent.clientData
   delete homepageContent.clientData[clientType][clientKey];
-  console.log("[DELETE CLIENT] Removed client entry from homepage data.");
 
   // Update homepage.json on GitHub with the new clientData
   const updatedHomepageContentString = JSON.stringify(homepageContent, null, 2);
@@ -195,7 +189,6 @@ export async function DELETE(req) {
     );
   }
 
-  console.log("[DELETE CLIENT] Client deletion completed successfully.");
   return new Response(
     JSON.stringify({
       message: "Client deleted successfully",

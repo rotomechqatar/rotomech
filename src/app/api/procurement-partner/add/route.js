@@ -5,7 +5,6 @@
 import { Buffer } from "buffer";
 
 export async function POST(req) {
-  console.log("[ADD PP] received add‑procurement‑partner request");
 
   /* ───── env + constants ───── */
   const token = process.env.GITHUB_TOKEN;
@@ -119,6 +118,5 @@ export async function POST(req) {
       { status: 500 }
     );
 
-  console.log("[ADD PP] success – logo", idx);
   return Response.json({ key: `logo${idx}`, imagePath: imgPath });
 }

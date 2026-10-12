@@ -6,10 +6,8 @@ import path from "path";
 export async function POST(req, { params }) {
   // Await params before using its properties
   const { page } = await params;
-  console.log("[UPLOAD] Received upload request for page:", page);
 
   const jsonFilePath = `src/data/${page}.json`;
-  console.log("[UPLOAD] JSON file path:", jsonFilePath);
 
   // Retrieve current JSON file from GitHub.
   const token = process.env.GITHUB_TOKEN;
@@ -18,10 +16,8 @@ export async function POST(req, { params }) {
     process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
     process.env.GITHUB_REPO;
   const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-  console.log("[UPLOAD] Using branch:", branch, "owner:", owner, "repo:", repo);
 
   const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${jsonFilePath}?ref=${branch}`;
-  console.log("[UPLOAD] Fetching JSON file from URL:", getUrl);
   const getResponse = await fetch(getUrl, {
     headers: {
       Authorization: `token ${token}`,
@@ -44,10 +40,6 @@ export async function POST(req, { params }) {
     "utf8"
   );
   const currentContent = JSON.parse(currentContentString);
-  console.log(
-    "[UPLOAD] Successfully loaded JSON content from GitHub.",
-    currentContent
-  );
 
   // Clone the request before reading the body
   const reqClone = req.clone();
@@ -69,12 +61,6 @@ export async function POST(req, { params }) {
   let nameField = payload.name;
   // For legacy images, an optional "index" can be provided to indicate which image to replace.
   let providedIndex = payload.index;
-  console.log("[UPLOAD] Incoming payload:", {
-    alt,
-    section,
-    name: nameField,
-    index: providedIndex,
-  });
 
   if (!imageBase64 || !section || alt === undefined) {
     console.error("[UPLOAD] Missing required parameters in payload.");
@@ -147,10 +133,6 @@ export async function POST(req, { params }) {
         ? existingImagePath.slice(1)
         : existingImagePath;
     }
-    console.log(
-      "[UPLOAD] Deleting existing legacy image at repo path:",
-      existingRepoImagePath
-    );
 
     // Get file details (to retrieve sha) for the existing image.
     const getImageUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${existingRepoImagePath}?ref=${branch}`;
@@ -182,7 +164,6 @@ export async function POST(req, { params }) {
       branch: branch,
     };
     const deleteUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${existingRepoImagePath}`;
-    console.log("[UPLOAD] Deleting existing image via URL:", deleteUrl);
     const deleteResponse = await fetch(deleteUrl, {
       method: "DELETE",
       headers: {
@@ -206,7 +187,6 @@ export async function POST(req, { params }) {
         { status: 500 }
       );
     }
-    console.log("[UPLOAD] Existing legacy image deleted successfully.");
   } else {
     // For any other section that allows multiple images, append a new one.
     let index = 1;
@@ -228,12 +208,9 @@ export async function POST(req, { params }) {
     posixNewImagePath = `/images/${newFileName}`;
   }
 
-  console.log("[UPLOAD] New file name:", newFileName);
-  console.log("[UPLOAD] New image path (raw):", posixNewImagePath);
 
   // Normalize path to POSIX.
   const posixPath = posixNewImagePath.replace(/\\/g, "/");
-  console.log("[UPLOAD] Normalized image path (POSIX):", posixPath);
 
   // Compute repo path for upload.
   if (posixPath.startsWith("/images")) {
@@ -243,7 +220,6 @@ export async function POST(req, { params }) {
       ? posixPath.slice(1)
       : posixPath;
   }
-  console.log("[UPLOAD] Repo new image path for upload:", repoNewImagePath);
 
   // Upload the new image to GitHub.
   const putPayload = {
@@ -252,8 +228,6 @@ export async function POST(req, { params }) {
     branch: branch,
   };
   const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${repoNewImagePath}`;
-  console.log("[UPLOAD] Uploading new image to URL:", putUrl);
-  console.log("[UPLOAD] PUT payload:", putPayload);
 
   const putResponse = await fetch(putUrl, {
     method: "PUT",
@@ -275,7 +249,6 @@ export async function POST(req, { params }) {
       { status: 500 }
     );
   }
-  console.log("[UPLOAD] New image uploaded successfully.");
 
   // Update JSON content with new image data.
   if (section === "banner") {
@@ -301,7 +274,6 @@ export async function POST(req, { params }) {
     currentContent[section][`alt${index}`] = alt;
     currentContent[section][`name${index}`] = nameField;
   }
-  console.log("[UPLOAD] Updated JSON content with new image data.");
 
   // Write updated JSON content back to GitHub.
   const updatedContentString = JSON.stringify(currentContent, null, 2);
@@ -314,7 +286,6 @@ export async function POST(req, { params }) {
     branch: branch,
   };
   const updateUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${jsonFilePath}`;
-  console.log("[UPLOAD] Updating JSON file at URL:", updateUrl);
   const updateResponse = await fetch(updateUrl, {
     method: "PUT",
     headers: {
@@ -335,12 +306,7 @@ export async function POST(req, { params }) {
       { status: 500 }
     );
   }
-  console.log("[UPLOAD] JSON file updated successfully.");
 
-  console.log(
-    "[UPLOAD] Image uploaded successfully with filename:",
-    newFileName
-  );
   return new Response(
     JSON.stringify({
       message: "Image uploaded successfully",
