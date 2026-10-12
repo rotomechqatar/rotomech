@@ -61,6 +61,13 @@ export default function RootLayout({ children }) {
         {children}
         <Footer />
         <Analytics />
+        {/* Developer credit, printed once to the browser console on page load */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'console.log("Designed and developed by Melvin Prince - melvinprince.io")',
+          }}
+        />
       </body>
     </html>
   );
