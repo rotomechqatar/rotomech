@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -33,7 +33,7 @@ jobs:
           # Generate a random number (0 for upload, 1 for delete)
           op=$(( RANDOM % 2 ))
           echo "Operation chosen (0 for upload, 1 for delete): $op"
-          echo "::set-output name=operation::$op"
+          echo "operation=$op" >> "$GITHUB_OUTPUT"
 
       - name: Execute Operation
         run: |
