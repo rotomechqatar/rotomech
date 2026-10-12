@@ -46,7 +46,8 @@ export async function GET(request, { params }) {
     return new Response(contentString, {
       status: 200,
       headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        // Admin editors must always see the latest saved content.
+        "Cache-Control": "no-store",
         "Content-Type": "application/json",
       },
     });
