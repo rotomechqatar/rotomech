@@ -17,6 +17,7 @@ All of these are set in the Vercel project settings for production. `NEXT_PUBLIC
 | Variable | Used by | Purpose |
 |---|---|---|
 | `ADMIN_USERS` | `/api/login` | Admin panel logins as comma-separated `username:password` pairs, e.g. `alice:secret1,bob:secret2`. Every listed user can log in. |
+| `ADMIN_SESSION_SECRET` | `/api/login`, middleware | Secret used to sign admin session cookies (HMAC-SHA256). Must be a random string of at least 32 characters, e.g. from `openssl rand -base64 48`. If it is missing or too short, admin login fails. Changing it logs out every admin. |
 | `GITHUB_TOKEN` | all admin save routes, `/api/publish` | GitHub token with read/write access to this repository's contents. The admin panel saves content by committing to GitHub. |
 | `GITHUB_OWNER` | same | GitHub account that owns the repository (e.g. `rotomechqatar`). |
 | `GITHUB_REPO` | same | Repository name (`rotomech`). `owner/rotomech` or the full `https://github.com/...` URL also work. |

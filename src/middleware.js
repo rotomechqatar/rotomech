@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 
-export function middleware(req) {
+export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
   // Create a NextResponse instance to modify headers
@@ -20,13 +21,15 @@ export function middleware(req) {
     return res;
   }
 
-  // Check for the auth cookie on admin pages and API routes
-  const token = req.cookies.get("auth-token");
-  if (!token) {
-    // Redirect unauthenticated users to the login page
+  // Require a valid signed session on admin pages and API routes
+  const session = await verifySessionToken(req.cookies.get(SESSION_COOKIE)?.value);
+  if (!session) {
+    // Redirect unauthenticated users to the login page and drop any bad cookie
     const url = req.nextUrl.clone();
     url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    redirect.cookies.delete(SESSION_COOKIE);
+    return redirect;
   }
 
   // User is authenticated – allow the request to proceed
