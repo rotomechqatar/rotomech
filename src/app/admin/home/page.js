@@ -61,12 +61,13 @@ export default function AdminHomepage() {
     }));
   };
 
+  // newPartner is the addPartner response: { logoKey, partner: { logo, ... } }
   const updatePartnerLogos = (newPartner) => {
     setData((prev) => ({
       ...prev,
       partnerLogos: {
         ...prev.partnerLogos,
-        [`logo${newPartner.index}`]: newPartner.imagePath,
+        [newPartner.logoKey]: newPartner.partner.logo,
       },
     }));
   };
@@ -81,13 +82,13 @@ export default function AdminHomepage() {
 
   // Update client logos by adding the new logo to the correct type group
   const updateClientLogos = (newClient) => {
-    // newClient should have: { type, name, imagePath }
+    // newClient is the addClient response: { type, key, imagePath }
     setData((prev) => {
       const newClientData = { ...prev.clientData };
       if (!newClientData[newClient.type]) {
         newClientData[newClient.type] = {};
       }
-      newClientData[newClient.type][newClient.name] = newClient.imagePath;
+      newClientData[newClient.type][newClient.key] = newClient.imagePath;
       return { ...prev, clientData: newClientData };
     });
   };
@@ -247,7 +248,10 @@ function PartnerLogosSection({
           Add Partner
         </button>
       </div>
-      <ImageTable images={logos} onDelete={handleDeletePartner} />
+      <ImageTable
+        images={logos}
+        onDelete={(img) => handleDeletePartner(img.name)}
+      />
       {showAddPartnerPopup && (
         <AddPartnerPopup
           onClose={() => setShowAddPartnerPopup(false)}

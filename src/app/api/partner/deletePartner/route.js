@@ -16,7 +16,7 @@ export async function DELETE(req) {
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const partnerKey = body.key != null ? String(body.key) : "";
+  let partnerKey = body.key != null ? String(body.key) : "";
   if (!partnerKey) {
     return Response.json({ error: "Missing or invalid key" }, { status: 400 });
   }
@@ -25,7 +25,19 @@ export async function DELETE(req) {
     const cfg = githubConfig();
     const pp = await getJson(cfg, partnersFilePath);
     const partnersData = pp.data;
-    const partner = partnersData.partners?.[partnerKey];
+    let partner = partnersData.partners?.[partnerKey];
+
+    // The homepage editor identifies a partner by its logo slot ("logo3"), so
+    // resolve that to the partner record using the same logo
+    if (!partner && /^logo\d+$/.test(partnerKey)) {
+      const hp = await getJson(cfg, homepageFilePath);
+      const logoPath = hp.data.partnerLogos?.[partnerKey];
+      const match = Object.entries(partnersData.partners || {}).find(
+        ([, p]) => logoPath && p.logo === logoPath
+      );
+      if (match) [partnerKey, partner] = match;
+    }
+
     if (!partner) {
       return Response.json({ error: "Partner not found" }, { status: 404 });
     }

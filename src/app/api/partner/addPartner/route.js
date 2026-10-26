@@ -109,7 +109,12 @@ export async function POST(req) {
     homepage.partnerLogos[logoKey] = logoPath;
     await putJson(cfg, homepageFilePath, homepage, hp.sha, `Add ${logoKey}`);
 
-    return Response.json({ message: "Partner added", partnerKey, partner });
+    return Response.json({
+      message: "Partner added",
+      partnerKey,
+      logoKey,
+      partner,
+    });
   } catch (err) {
     return errorResponse(err, "ADD PARTNER");
   }

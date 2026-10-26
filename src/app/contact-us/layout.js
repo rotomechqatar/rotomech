@@ -5,7 +5,7 @@ export async function generateMetadata() {
   const filePath = path.join(
     process.cwd(),
     "src/data",
-    "products-and-partners.json"
+    "contact-us.json"
   );
   const data = await fs.readFile(filePath, "utf8");
   const content = JSON.parse(data);

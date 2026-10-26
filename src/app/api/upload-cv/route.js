@@ -25,8 +25,14 @@ const json = (body, status) => Response.json(body, { status });
 const sanitize = (str) => String(str || "").replace(/[^a-zA-Z0-9]/g, "").slice(0, 50);
 
 export async function POST(request) {
+  let formData;
   try {
-    const formData = await request.formData();
+    formData = await request.formData();
+  } catch {
+    return json({ error: "Expected a multipart form upload." }, 400);
+  }
+
+  try {
     const file = formData.get("file");
     const name = sanitize(formData.get("name")) || "applicant";
 
