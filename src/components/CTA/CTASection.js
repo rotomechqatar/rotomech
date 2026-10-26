@@ -42,7 +42,7 @@ export default function CtaSection({ content }) {
         >
           {content.text}
         </motion.p>
-        <Link href="/contact">
+        <Link href="/contact-us">
           <Button text="Contact Us" textSize="3rem" />
         </Link>
       </motion.div>

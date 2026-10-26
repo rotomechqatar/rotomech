@@ -57,6 +57,10 @@ export default function ContactForm({ content, type, page }) {
     // For careers submissions, if a file was selected, upload it first.
     let fileUrl = "";
     if (type === "careers" && file) {
+      if (file.size > 4 * 1024 * 1024) {
+        setStatus("File is too large. Maximum size is 4 MB.");
+        return;
+      }
       setStatus("Uploading file...");
       console.log("Uploading file:", file);
       fileUrl = await uploadFileWithCustomName(file, userName);
@@ -66,26 +70,19 @@ export default function ContactForm({ content, type, page }) {
         return;
       }
       console.log("File uploaded successfully. URL:", fileUrl);
-      // Append a hidden input with the file URL so EmailJS can include it.
-      const fileUrlInput = document.createElement("input");
-      fileUrlInput.setAttribute("type", "hidden");
-      fileUrlInput.setAttribute("name", "fileUrl");
-      fileUrlInput.setAttribute("value", fileUrl);
-      formRef.current.appendChild(fileUrlInput);
-
-      // Remove the file input from the form so that EmailJS doesn't include the file blob.
-      const fileInput = formRef.current.querySelector(
-        'input[type="file"][name="resume"]'
-      );
-      if (fileInput) {
-        fileInput.remove();
-      }
     }
+
+    // Build the EmailJS params from the form. The file blob itself is not sent,
+    // only the uploaded file's URL.
+    const params = Object.fromEntries(formData.entries());
+    delete params.resume;
+    if (fileUrl) params.fileUrl = fileUrl;
+    params["g-recaptcha-response"] = captchaValue;
 
     setStatus("Sending...");
     console.log("Sending email with EmailJS...");
 
-    emailjs.sendForm(serviceId, templateId, formRef.current, publicKey).then(
+    emailjs.send(serviceId, templateId, params, publicKey).then(
       () => {
         console.log("EmailJS: Message sent successfully!");
         setStatus("Message sent successfully!");
@@ -96,8 +93,11 @@ export default function ContactForm({ content, type, page }) {
         setFile(null);
       },
       (error) => {
-        console.error("EmailJS error:", error);
+        console.error("EmailJS error:", error?.status, error?.text || error);
         setStatus("Failed to send message. Please try again.");
+        // A reCAPTCHA token can only be used once, so get a fresh one for the retry.
+        recaptchaRef.current.reset();
+        setCaptchaValue("");
       }
     );
   };
@@ -208,16 +208,11 @@ export default function ContactForm({ content, type, page }) {
               className="border border-gray-300 rounded-xl py-3 px-4 text-[2rem] focus:outline-none focus:border-blue-500 h-[20rem]"
             ></textarea>
           </div>
-          {/* Hidden input to include the reCAPTCHA token */}
-          <input
-            type="hidden"
-            name="g-recaptcha-response"
-            value={captchaValue}
-          />
           <div>
             <ReCAPTCHA
               sitekey={recaptchaSiteKey}
               onChange={onRecaptchaChange}
+              onExpired={() => setCaptchaValue("")}
               ref={recaptchaRef}
             />
           </div>

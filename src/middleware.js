@@ -13,10 +13,12 @@ export async function middleware(req) {
   );
   res.headers.set("X-Hidden-Backlink", "https://www.melvinprince.io");
 
-  // Allow unauthenticated access for the login page and login API
+  // Allow unauthenticated access for the login page, login API and the
+  // public careers CV upload
   if (
     pathname.startsWith("/admin/login") ||
-    pathname.startsWith("/api/login")
+    pathname.startsWith("/api/login") ||
+    pathname === "/api/upload-cv"
   ) {
     return res;
   }
