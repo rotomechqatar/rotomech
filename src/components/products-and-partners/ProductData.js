@@ -1,67 +1,80 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 
 export default function ProductData({ content }) {
   // Convert the partners object to an array
   const partners = Object.values(content);
-  // Set the first partner as the default selected partner
-  const [selectedPartner, setSelectedPartner] = useState(partners[0]);
+  // Start on the first partner that actually has product images
+  const [selected, setSelected] = useState(
+    Math.max(
+      0,
+      partners.findIndex((p) => p.images?.length),
+    ),
+  );
+  const selectedPartner = partners[selected];
+  if (!selectedPartner) return null;
+  const images = selectedPartner.images || [];
 
   return (
     <div className="px-[15rem] max-12xl:px-[10rem] max-6xl:px-[5rem] py-[10rem]">
       <h2 className="mb-[4rem] text-[3rem]">Product Information</h2>
-      <div className="flex flex-col gap-[5rem]">
-        {/* Partners horizontal scrollable bar */}
-        <div className="overflow-x-auto pb-[2rem]">
-          <ul className="flex space-x-4">
-            {partners.map((partner) => (
-              <motion.li
-                key={partner.name}
-                whileHover={{ scale: 1.02 }}
-                className={`cursor-pointer p-3 rounded-2xl transition-colors text-[2rem] font-semibold whitespace-nowrap ${
-                  selectedPartner.name === partner.name
-                    ? "bg-blue text-white"
-                    : "bg-blue-100 hover:bg-gray-200"
-                }`}
-                onClick={() => setSelectedPartner(partner)}
-              >
-                {partner.name}
-              </motion.li>
-            ))}
-          </ul>
-        </div>
+      <div className="flex flex-col gap-[4rem]">
+        {/* Partner tabs wrap onto new lines so every partner stays visible */}
+        <ul className="flex flex-wrap gap-4">
+          {partners.map((partner, i) => (
+            <motion.li
+              key={i}
+              whileHover={{ scale: 1.02 }}
+              className={`cursor-pointer p-3 rounded-2xl transition-colors text-[2rem] font-semibold ${
+                selected === i
+                  ? "bg-blue text-white"
+                  : "bg-blue-100 hover:bg-gray-200"
+              }`}
+              onClick={() => setSelected(i)}
+            >
+              {partner.name}
+            </motion.li>
+          ))}
+        </ul>
 
         {/* Product images grid for selected partner */}
         <div className="p-4">
-          <AnimatePresence exitBeforeEnter>
-            <motion.div
-              key={selectedPartner.name}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h4 className="text-[1.5rem] mb-[1rem] font-bold">Products</h4>
-              <div className="grid grid-cols-3 gap-4 max-10xl:grid-cols-2 max-6xl:grid-cols-1 items-center justify-center h-[90vh] overflow-auto">
-                {selectedPartner.images.map((img, i) => (
+          {/* Keyed so each partner switch remounts and fades in; no exit
+              step, so the new products never wait on the old ones */}
+          <motion.div
+            key={selected}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h4 className="text-[1.5rem] mb-[2rem] font-bold">Products</h4>
+            {images.length ? (
+              <div className="grid grid-cols-3 gap-[4rem] max-10xl:grid-cols-2 max-6xl:grid-cols-1">
+                {images.map((img, i) => (
                   <div
-                    key={i}
-                    className="relative h-[30rem] w-[30rem] rounded-[25px] shadow-2xl overflow-hidden justify-self-center"
+                    key={img}
+                    className="relative h-[30rem] w-[30rem] max-w-full rounded-[25px] shadow-2xl overflow-hidden justify-self-center bg-white"
                   >
                     <Image
                       src={img}
                       alt={`${selectedPartner.name} product ${i + 1}`}
                       className="object-cover"
                       fill
+                      sizes="30rem"
                     />
                   </div>
                 ))}
               </div>
-            </motion.div>
-          </AnimatePresence>
+            ) : (
+              <p className="text-[1.8rem] text-gray-500">
+                Product details for {selectedPartner.name} are available on
+                request.
+              </p>
+            )}
+          </motion.div>
         </div>
       </div>
     </div>

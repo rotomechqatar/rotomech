@@ -623,28 +623,45 @@ function EditableText({ section, index, field, text, onTextUpdated }) {
     setBusy(false);
   };
 
+  // Long text (descriptions, SEO fields) gets a multi-line box
+  const multiline = (text || "").length > 60;
+
   return edit ? (
-    <>
-      <input
-        value={val}
-        onChange={(e) => setVal(e.target.value)}
-        className="flex-grow text-2xl p-2 border rounded"
-      />
-      <button
-        onClick={save}
-        disabled={busy}
-        className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
-      >
-        {busy ? "Saving…" : "Save"}
-      </button>
-      <button
-        onClick={() => setEdit(false)}
-        disabled={busy}
-        className="ml-2 px-4 py-2 bg-gray-500 text-white rounded"
-      >
-        Cancel
-      </button>
-    </>
+    <span className="flex flex-col gap-2 w-full">
+      {multiline ? (
+        <textarea
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          rows={Math.min(14, Math.max(5, Math.ceil(val.length / 90)))}
+          className="w-full text-2xl font-normal p-3 border rounded resize-y"
+        />
+      ) : (
+        <input
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          className="w-full text-2xl font-normal p-3 border rounded"
+        />
+      )}
+      <span className="flex">
+        <button
+          onClick={save}
+          disabled={busy}
+          className="px-4 py-2 bg-green-500 text-white rounded text-2xl"
+        >
+          {busy ? "Saving…" : "Save"}
+        </button>
+        <button
+          onClick={() => {
+            setVal(text);
+            setEdit(false);
+          }}
+          disabled={busy}
+          className="ml-2 px-4 py-2 bg-gray-500 text-white rounded text-2xl"
+        >
+          Cancel
+        </button>
+      </span>
+    </span>
   ) : (
     <span className="inline-flex items-center">
       <span>{text}</span>
