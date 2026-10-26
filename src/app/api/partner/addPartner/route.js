@@ -1,74 +1,29 @@
 import { Buffer } from "buffer";
+import {
+  githubConfig,
+  getJson,
+  putFile,
+  putJson,
+  freePath,
+  errorResponse,
+} from "@/app/lib/githubContent";
+
+const homepageFilePath = "src/data/homepage.json";
+const partnersFilePath = "src/data/products-and-partners.json";
+
+const logoNumber = (str) => Number(/(\d+)(\.webp)?$/.exec(str || "")?.[1] || 0);
 
 export async function POST(req) {
-
-  const token = process.env.GITHUB_TOKEN;
-  const owner = process.env.GITHUB_OWNER;
-  const repo =
-    process.env.GITHUB_REPO.replace("https://github.com/", "").split("/")[1] ||
-    process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-
-  const homepageFilePath = "src/data/homepage.json";
-  const partnersFilePath = "src/data/products-and-partners.json";
-
-  // Fetch homepage.json
-  const hpResp = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}?ref=${branch}`,
-    {
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: "application/vnd.github+json",
-      },
-    }
-  );
-  const hpJson = await hpResp.json();
-  if (!hpResp.ok) {
-    console.error("[ADD PARTNER] Error fetching homepage.json:", hpJson);
-    return new Response(
-      JSON.stringify({ error: "Cannot fetch homepage.json" }),
-      { status: 500 }
-    );
-  }
-  const homepageSha = hpJson.sha;
-  const homepage = JSON.parse(
-    Buffer.from(hpJson.content, "base64").toString("utf8")
-  );
-
-  // Fetch products-and-partners.json
-  const ppResp = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}?ref=${branch}`,
-    {
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: "application/vnd.github+json",
-      },
-    }
-  );
-  const ppJson = await ppResp.json();
-  if (!ppResp.ok) {
-    console.error("[ADD PARTNER] Error fetching partners.json:", ppJson);
-    return new Response(
-      JSON.stringify({ error: "Cannot fetch partners.json" }),
-      { status: 500 }
-    );
-  }
-  const partnersSha = ppJson.sha;
-  const partnersData = JSON.parse(
-    Buffer.from(ppJson.content, "base64").toString("utf8")
-  );
-
   // Parse form data
   const form = await req.formData();
-  const name = form.get("name");
-  const description = form.get("description");
+  const name = form.get("name")?.trim();
+  const description = form.get("description")?.trim();
   const logoFile = form.get("file");
   const productFiles = form.getAll("productImages");
 
-
   if (!name || !description || !logoFile || productFiles.length === 0) {
-    return new Response(
-      JSON.stringify({ error: "Missing fields or no product images" }),
+    return Response.json(
+      { error: "Missing fields or no product images" },
       { status: 400 }
     );
   }
@@ -76,130 +31,86 @@ export async function POST(req) {
     logoFile.type !== "image/webp" ||
     productFiles.some((f) => f.type !== "image/webp")
   ) {
-    return new Response(JSON.stringify({ error: "Only .webp allowed" }), {
-      status: 400,
-    });
+    return Response.json({ error: "Only .webp allowed" }, { status: 400 });
   }
 
-  // Upload partner logo
-  const partnerLogos = homepage.partnerLogos || {};
-  let idx = 1;
-  while (partnerLogos[`logo${idx}`]) idx++;
-  const logoFilename = `partnerLogo${idx}.webp`;
-  const logoPath = `/logos/${logoFilename}`;
-  const logoRepoPath = `public/logos/${logoFilename}`;
-  const logoB64 = Buffer.from(await logoFile.arrayBuffer()).toString("base64");
+  try {
+    const cfg = githubConfig();
+    const hp = await getJson(cfg, homepageFilePath);
+    const pp = await getJson(cfg, partnersFilePath);
+    const homepage = hp.data;
+    const partnersData = pp.data;
+    homepage.partnerLogos = homepage.partnerLogos || {};
+    partnersData.partners = partnersData.partners || {};
 
-  await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${logoRepoPath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Upload ${logoFilename}`,
-        content: logoB64,
-        branch,
-      }),
+    // Reject an exact duplicate (same name), e.g. from a double submit
+    const sameName = Object.values(partnersData.partners).some(
+      (p) => p.name?.trim().toLowerCase() === name.toLowerCase()
+    );
+    if (sameName) {
+      return Response.json(
+        { error: `A partner named "${name}" already exists` },
+        { status: 409 }
+      );
     }
-  );
 
-  // Update homepage.json
-  homepage.partnerLogos = homepage.partnerLogos || {};
-  homepage.partnerLogos[`logo${idx}`] = logoPath;
-  const hpUpdatedB64 = Buffer.from(JSON.stringify(homepage, null, 2)).toString(
-    "base64"
-  );
-  await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${homepageFilePath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Add partnerLogo${idx}`,
-        content: hpUpdatedB64,
-        sha: homepageSha,
-        branch,
-      }),
-    }
-  );
+    // Logo number: above every number in use (homepage slots and partner
+    // logos), so a new partner never reuses another partner's logo file.
+    const used = [
+      ...Object.keys(homepage.partnerLogos),
+      ...Object.values(homepage.partnerLogos),
+      ...Object.values(partnersData.partners).map((p) => p.logo),
+    ].map(logoNumber);
+    const { path: logoRepoPath, n: idx } = await freePath(
+      cfg,
+      (n) => `public/logos/partnerLogo${n}.webp`,
+      Math.max(0, ...used) + 1
+    );
+    const logoPath = logoRepoPath.replace(/^public/, "");
+    const logoKey = `logo${idx}`;
 
-  // Prepare product images
-  const sanitize = (str) => str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-  const baseName = sanitize(name);
-  const imageUrls = [];
-
-  for (let i = 0; i < productFiles.length; i++) {
-    const pf = productFiles[i];
-    const num = i + 1;
-    const imgFilename = `${baseName}${num}.webp`;
-    const imgPath = `/images/products/${imgFilename}`;
-    const imgRepoPath = `public/images/products/${imgFilename}`;
-    const imgB64 = Buffer.from(await pf.arrayBuffer()).toString("base64");
-
-    await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${imgRepoPath}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: `Upload ${imgFilename}`,
-          content: imgB64,
-          branch,
-        }),
-      }
+    await putFile(
+      cfg,
+      logoRepoPath,
+      Buffer.from(await logoFile.arrayBuffer()).toString("base64"),
+      `Upload partnerLogo${idx}.webp`
     );
 
-    imageUrls.push(imgPath);
-  }
-
-  // Update products-and-partners.json
-  partnersData.partners = partnersData.partners || {};
-  const nextKey = (
-    Math.max(...Object.keys(partnersData.partners).map((k) => +k), 0) + 1
-  ).toString();
-  partnersData.partners[nextKey] = {
-    name,
-    logo: logoPath,
-    description,
-    images: imageUrls,
-  };
-
-  const ppUpdatedB64 = Buffer.from(
-    JSON.stringify(partnersData, null, 2)
-  ).toString("base64");
-  await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${partnersFilePath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Add partner ${name}`,
-        content: ppUpdatedB64,
-        sha: partnersSha,
-        branch,
-      }),
+    // Product images get a timestamp so names never collide with old files
+    const baseName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    const stamp = Date.now();
+    const imageUrls = [];
+    for (let i = 0; i < productFiles.length; i++) {
+      const imgFilename = `${baseName}-${stamp}-${i + 1}.webp`;
+      await putFile(
+        cfg,
+        `public/images/products/${imgFilename}`,
+        Buffer.from(await productFiles[i].arrayBuffer()).toString("base64"),
+        `Upload ${imgFilename}`
+      );
+      imageUrls.push(`/images/products/${imgFilename}`);
     }
-  );
 
-  return new Response(
-    JSON.stringify({
-      message: "Partner added",
-      key: `logo${idx}`,
-      logo: logoPath,
-      images: imageUrls,
-    }),
-    { status: 200 }
-  );
+    // Update products-and-partners.json
+    const partnerKey = (
+      Math.max(0, ...Object.keys(partnersData.partners).map(Number)) + 1
+    ).toString();
+    const partner = { name, logo: logoPath, description, images: imageUrls };
+    partnersData.partners[partnerKey] = partner;
+    await putJson(
+      cfg,
+      partnersFilePath,
+      partnersData,
+      pp.sha,
+      `Add partner ${name}`
+    );
+
+    // Update homepage.json (partner logo carousel)
+    homepage.partnerLogos[logoKey] = logoPath;
+    await putJson(cfg, homepageFilePath, homepage, hp.sha, `Add ${logoKey}`);
+
+    return Response.json({ message: "Partner added", partnerKey, partner });
+  } catch (err) {
+    return errorResponse(err, "ADD PARTNER");
+  }
 }

@@ -58,13 +58,12 @@ export default function AdminProductsPartnersPage() {
       },
     }));
 
-  const addPartner = (obj) =>
-    setData((p) => {
-      const next = (
-        Math.max(0, ...Object.keys(p.partners).map(Number)) + 1
-      ).toString();
-      return { ...p, partners: { ...p.partners, [next]: obj } };
-    });
+  // Use the key the server assigned, so later edits hit the right record
+  const addPartner = ({ partnerKey, partner }) =>
+    setData((p) => ({
+      ...p,
+      partners: { ...p.partners, [partnerKey]: partner },
+    }));
 
   const removePartner = (key) =>
     setData((p) => {
@@ -230,7 +229,7 @@ function PartnersSection({
   const [deleting, setDeleting] = useState({}); // { key: true }
 
   const deletePartner = async (key) => {
-    if (!confirm(`Delete partner "${key}"?`)) return;
+    if (!confirm(`Delete partner "${partners[key]?.name || key}"?`)) return;
     setDeleting((p) => ({ ...p, [key]: true }));
     try {
       const r = await fetch("/api/partner/deletePartner", {
@@ -241,7 +240,12 @@ function PartnersSection({
       const j = await r.json();
       if (r.ok) {
         onRemovePartner(key);
-        flash("Partner deleted", "success");
+        flash(
+          j.warnings?.length
+            ? "Partner deleted (some files could not be removed)"
+            : "Partner deleted",
+          "success"
+        );
       } else flash(j.error || "Error deleting partner", "error");
     } catch (e) {
       flash(e.message, "error");
