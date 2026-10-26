@@ -1,85 +1,55 @@
 import { Buffer } from "buffer";
+import {
+  githubConfig,
+  getJson,
+  putFile,
+  putJson,
+  errorResponse,
+} from "@/app/lib/githubContent";
+
+const path = "src/data/products-and-partners.json";
 
 export async function POST(req) {
-  const token = process.env.GITHUB_TOKEN;
-  const owner = process.env.GITHUB_OWNER;
-  const repo = process.env.GITHUB_REPO.split("/").pop();
-  const branch = process.env.GITHUB_STAGING_BRANCH || "master";
-
   const form = await req.formData();
   const key = form.get("partnerKey");
   const file = form.get("file");
   if (!key || !file) {
-    return new Response(
-      JSON.stringify({ error: "Missing partnerKey or file" }),
+    return Response.json(
+      { error: "Missing partnerKey or file" },
       { status: 400 }
     );
   }
+  if (file.type !== "image/webp") {
+    return Response.json({ error: "Only .webp allowed" }, { status: 400 });
+  }
 
-  // Fetch partners JSON
-  const path = "src/data/products-and-partners.json";
-  const metaUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
-  const metaRes = await fetch(metaUrl, {
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.github+json",
-    },
-  });
-  const metaJson = await metaRes.json();
-  const sha = metaJson.sha;
-  const json = JSON.parse(
-    Buffer.from(metaJson.content, "base64").toString("utf8")
-  );
-
-  // compute next image filename
-  const partner = json.partners[key];
-  const base = partner.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-  const idx = (partner.images || []).length + 1;
-  const fname = `${base}${idx}.webp`;
-  const repoPath = `public/images/products/${fname}`;
-  const webPath = `/images/products/${fname}`;
-
-  // upload file
-  const buf = Buffer.from(await file.arrayBuffer());
-  const b64 = buf.toString("base64");
-  await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${repoPath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Add product image ${fname}`,
-        content: b64,
-        branch,
-      }),
+  try {
+    const cfg = githubConfig();
+    const { sha, data: json } = await getJson(cfg, path);
+    const partner = json.partners?.[key];
+    if (!partner) {
+      return Response.json({ error: "Partner not found" }, { status: 404 });
     }
-  );
 
-  // update JSON
-  partner.images = partner.images || [];
-  partner.images.push(webPath);
-  const updated = Buffer.from(JSON.stringify(json, null, 2)).toString("base64");
-  await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Add image to partner ${key}`,
-        content: updated,
-        sha,
-        branch,
-      }),
-    }
-  );
+    // Timestamped name: a count-based name collides with files left over
+    // from earlier deletes, and GitHub rejects writes to an existing path
+    const base = partner.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    const fname = `${base}-${Date.now()}.webp`;
+    const webPath = `/images/products/${fname}`;
 
-  return new Response(JSON.stringify({ partnerKey: key, imagePath: webPath }), {
-    status: 200,
-  });
+    await putFile(
+      cfg,
+      `public${webPath}`,
+      Buffer.from(await file.arrayBuffer()).toString("base64"),
+      `Add product image ${fname}`
+    );
+
+    partner.images = partner.images || [];
+    partner.images.push(webPath);
+    await putJson(cfg, path, json, sha, `Add image to partner ${key}`);
+
+    return Response.json({ partnerKey: key, imagePath: webPath });
+  } catch (err) {
+    return errorResponse(err, "ADD PRODUCT IMAGE");
+  }
 }
