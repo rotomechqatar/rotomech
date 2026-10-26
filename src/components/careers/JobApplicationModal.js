@@ -47,30 +47,26 @@ export default function JobApplicationModal({ job, onClose }) {
 
     let fileUrl = "";
     if (file) {
+      if (file.size > 4 * 1024 * 1024) {
+        setStatus("File is too large. Maximum size is 4 MB.");
+        return;
+      }
       setStatus("Uploading file...");
       fileUrl = await uploadFileWithCustomName(file, userName);
       if (!fileUrl) {
         setStatus("Failed to upload file. Please try again.");
         return;
       }
-      // Add hidden input so EmailJS can include the file URL
-      const fileUrlInput = document.createElement("input");
-      fileUrlInput.setAttribute("type", "hidden");
-      fileUrlInput.setAttribute("name", "fileUrl");
-      fileUrlInput.setAttribute("value", fileUrl);
-      formRef.current.appendChild(fileUrlInput);
-
-      // Remove the file input (so we don't send the actual file blob to EmailJS)
-      const fileInput = formRef.current.querySelector(
-        'input[type="file"][name="resume"]'
-      );
-      if (fileInput) {
-        fileInput.remove();
-      }
     }
 
+    // Build the EmailJS params from the form (send the file URL, not the file blob)
+    const params = Object.fromEntries(formData.entries());
+    delete params.resume;
+    if (fileUrl) params.fileUrl = fileUrl;
+    params["g-recaptcha-response"] = captchaValue;
+
     setStatus("Sending...");
-    emailjs.sendForm(serviceId, templateId, formRef.current, publicKey).then(
+    emailjs.send(serviceId, templateId, params, publicKey).then(
       () => {
         setStatus("Message sent successfully!");
         setIsSubmitted(true);
@@ -80,8 +76,11 @@ export default function JobApplicationModal({ job, onClose }) {
         setFile(null);
       },
       (error) => {
-        console.error("EmailJS error:", error);
+        console.error("EmailJS error:", error?.status, error?.text || error);
         setStatus("Failed to send message. Please try again.");
+        // reCAPTCHA tokens are single-use, so require a fresh one for the retry
+        recaptchaRef.current.reset();
+        setCaptchaValue("");
       }
     );
   };
@@ -310,6 +309,7 @@ export default function JobApplicationModal({ job, onClose }) {
               <ReCAPTCHA
                 sitekey={recaptchaSiteKey}
                 onChange={onRecaptchaChange}
+                onExpired={() => setCaptchaValue("")}
                 ref={recaptchaRef}
                 className="my-4"
               />

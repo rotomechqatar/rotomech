@@ -23,8 +23,11 @@ All of these are set in the Vercel project settings for production. `NEXT_PUBLIC
 | `GITHUB_REPO` | same | Repository name (`rotomech`). `owner/rotomech` or the full `https://github.com/...` URL also work. |
 | `GITHUB_STAGING_BRANCH` | all admin save routes, `/api/publish` | Branch the admin panel saves to. **Must be set to `staging`.** If it is missing, most save routes fall back to `master` (edits go live without publishing) and a few fail. |
 | `GITHUB_DEPLOY_BRANCH` | `/api/publish` | Branch Vercel deploys from. Defaults to `master`. |
-| `NEXT_PUBLIC_SUPABASE_URL` | contact and careers forms | Supabase project URL, used to upload applicants' CVs. Also required at build time. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | contact and careers forms | Supabase public (anon) key. |
+| `R2_ACCOUNT_ID` | `/api/upload-cv` | Cloudflare account ID. Applicants' CVs from the careers forms are stored in Cloudflare R2. |
+| `R2_ACCESS_KEY_ID` | `/api/upload-cv` | R2 API token access key (Object Read & Write, limited to the CV bucket). Secret: never prefix with `NEXT_PUBLIC_`. |
+| `R2_SECRET_ACCESS_KEY` | `/api/upload-cv` | R2 API token secret key. Secret. |
+| `R2_BUCKET` | `/api/upload-cv` | R2 bucket name (`rotomech-forms`). |
+| `R2_PUBLIC_URL` | `/api/upload-cv` | Public URL of the bucket (`https://rotomech.digimaxqatar.com`). The CV link in each application email starts with it. |
 | `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY` | contact and careers forms | EmailJS public key. |
 | `NEXT_PUBLIC_EMAILJS_SERVICE_ID` | contact and careers forms | EmailJS service ID. |
 | `NEXT_PUBLIC_EMAILJS_CONTACT_TEMPLATE_ID` | contact form | EmailJS template for contact messages. |
@@ -42,6 +45,6 @@ Site content lives in `src/data/*.json` and images in `public/`. There is no dat
 
 Because content is committed to `master` by the admin panel, developers should merge code changes into `master` only when `staging` has no unpublished edits (`git log origin/master..origin/staging` is empty), so the next publish does not conflict.
 
-## Scheduled job
+## CV uploads
 
-`.github/workflows/image_editor.yml` runs every 3 days and uploads a random image from `public/active` to Supabase storage, or deletes one (`script/upload.js`, `script/delete.js`). This keeps the free-tier Supabase project, which stores CV uploads, from being paused for inactivity. It can also be run manually from the repository's **Actions** tab.
+The careers forms send the CV to `/api/upload-cv`, which stores it in the R2 bucket under `cv/` with a random file name and returns its public URL. EmailJS then emails that link, not the file. CVs are limited to 4 MB (PDF, DOC or DOCX) because Vercel rejects larger request bodies.
