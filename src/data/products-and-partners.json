@@ -11,41 +11,13 @@
     "alt": "products-and-partners-banner"
   },
   "partners": {
-    "3": {
-      "name": "Nasr Seals Pvt. Ltd.",
-      "logo": "/logos/partnerLogo3.webp",
-      "description": "Nasr Seals Pvt. Ltd., incorporated on December 11, 2018, is a Mumbai-based manufacturer of mechanical shaft seals, catering to the diversified requirements of process industries. The company offers a wide range of mechanical seals, including Cartridge Seals, Agitator Seals, High Pressure Agitator Seals, Teflon Bellow Seals, Conical Spring Seals, Double Agitator Seals, Rubber Bellow Seals, Metal Bellow Seals, Wave Spring Seals, Reverse Balanced Seals, test rigs for mechanical seals, and more. ",
-      "images": []
-    },
-    "4": {
-      "name": "WILLIAMS - An Ingersoll rand Business",
-      "logo": "/logos/partnerLogo4.webp",
-      "description": "Williams is currently the leading supplier of pneumatically-driven metering pumps for the global oil & gas industry. Our metering pumps and related products have become a standard with most of the world’s oil & gas companies. Williams revolutionized the natural gas distribution industry by developing a method for the positive injection of mercaptans, chemicals for introducing odor into natural gas. Prior to the use of positive injection, the gas industry used the inaccurate bypass method of odorizing natural gas. The  williams’ design approach, which introduced precision, increased safety in an industry that requires a very high level of safety because the public is a customer",
-      "images": []
-    },
-    "5": {
-      "name": "UT Pumps & System",
-      "logo": "/logos/partnerLogo5.webp",
-      "description": "UT Pumps is a leading manufacturer and supplier of innovative pump solutions designed to meet the demands of diverse industrial, water treatment, and oil & gas applications. Renowned for its commitment to quality and efficiency, UT Pumps delivers robust, reliable, and energy-efficient fluid handling systems that help customers optimize their operations. With cutting-edge technology and a focus on sustainability, UT Pumps stands out as a trusted partner in delivering advanced pumping solutions worldwide.",
-      "images": []
-    },
-    "6": {
-      "name": "HETA - Filtration and Separation",
-      "logo": "/logos/partnerLogo6.webp",
-      "description": "HETA is a globally operating engineering specialist company and anufacturer of filters and separators. Since 2010, HETA has been a member of the PACO group. PACO is a leader in the world market for high-quality metal wire  loths, filters, and sieves. HETA and PACO provide their commitment to the  usiness location in Germany based on conviction and experience.",
-      "images": []
-    },
-    "8": {
-      "name": "Del PD Pumps & Gears (P) Ltd",
-      "logo": "/logos/partnerLogo8.webp",
-      "description": "Rotodel Pumps, with four decades of expertise, delivers high-efficiency gear pumps, excelling in handling both high and low-viscosity liquids through innovative design and proven performance.",
-      "images": []
-    },
-    "9": {
-      "name": "WTS Energy",
+    "1": {
+      "name": "HETA VERFAHRENSTECHNIK GMBH",
       "logo": "/logos/partnerLogo1.webp",
-      "description": "WTS Energy, founded in 2000 and headquartered in The Hague, South Holland, is a leading globally operating staffing and recruitment company focused on the international oil, gas, and renewable energy industries. The company provides professional personnel and outsourcing services, including recruitment campaigns, manpower supply, and workforce management services for projects and operations worldwide. With a presence in over 20 countries across four continents, WTS Energy supports energy companies in their transition to a carbon-neutral society by developing and delivering local talent worldwide.",
-      "images": []
+      "description": "Filtration and Seperation Expert",
+      "images": [
+        "/images/products/hetaverfahrenstechnikgmbh-1793277671476-1.webp"
+      ]
     }
   },
   "procurementPartners": {
