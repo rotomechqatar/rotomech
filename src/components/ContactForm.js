@@ -209,12 +209,21 @@ export default function ContactForm({ content, type, page }) {
             ></textarea>
           </div>
           <div>
-            <ReCAPTCHA
-              sitekey={recaptchaSiteKey}
-              onChange={onRecaptchaChange}
-              onExpired={() => setCaptchaValue("")}
-              ref={recaptchaRef}
-            />
+            {/* Google's script throws "Missing required parameters: sitekey" when
+                the key is unset, so only render the widget when it exists. Without
+                it the form still cannot be submitted (no captcha token). */}
+            {recaptchaSiteKey ? (
+              <ReCAPTCHA
+                sitekey={recaptchaSiteKey}
+                onChange={onRecaptchaChange}
+                onExpired={() => setCaptchaValue("")}
+                ref={recaptchaRef}
+              />
+            ) : (
+              <p className="text-[1.6rem] text-red-500">
+                reCAPTCHA is not configured (NEXT_PUBLIC_RECAPTCHA_SITE_KEY is missing).
+              </p>
+            )}
           </div>
           <Button
             text="Send Message"

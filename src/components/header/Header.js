@@ -28,14 +28,9 @@ export default async function Header() {
             </li>
           ))}
         </ul>
-        <a
-          href={content.profile}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="pl-[2rem]"
-        >
-          <Button text="Company Profile" textSize="2rem" />
-        </a>
+        <Link href="/contact-us" className="pl-[2rem]">
+          <Button text="Request for Quote" textSize="2rem" />
+        </Link>
       </div>
 
       {/* 
@@ -43,9 +38,9 @@ export default async function Header() {
         Hidden above 900px (shown below) => hidden max-9xl:flex
       */}
       <div className="hidden max-9xl:flex items-center gap-[2rem]">
-        <a href={content.profile} target="_blank" rel="noopener noreferrer">
-          <Button text="Company Profile" textSize="2rem" />
-        </a>
+        <Link href="/contact-us">
+          <Button text="Request for Quote" textSize="2rem" />
+        </Link>
         <MobileMenu menu={content.menu} />
       </div>
     </div>

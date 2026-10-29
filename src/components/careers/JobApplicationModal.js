@@ -306,13 +306,22 @@ export default function JobApplicationModal({ job, onClose }) {
               </div>
 
               {/* reCAPTCHA */}
-              <ReCAPTCHA
-                sitekey={recaptchaSiteKey}
-                onChange={onRecaptchaChange}
-                onExpired={() => setCaptchaValue("")}
-                ref={recaptchaRef}
-                className="my-4"
-              />
+              {/* Google's script throws "Missing required parameters: sitekey" when
+                  the key is unset, so only render the widget when it exists. Without
+                  it the form still cannot be submitted (no captcha token). */}
+              {recaptchaSiteKey ? (
+                <ReCAPTCHA
+                  sitekey={recaptchaSiteKey}
+                  onChange={onRecaptchaChange}
+                  onExpired={() => setCaptchaValue("")}
+                  ref={recaptchaRef}
+                  className="my-4"
+                />
+              ) : (
+                <p className="my-4 text-[1.6rem] text-red-500">
+                  reCAPTCHA is not configured (NEXT_PUBLIC_RECAPTCHA_SITE_KEY is missing).
+                </p>
+              )}
 
               {/* Submit Button */}
               <Button

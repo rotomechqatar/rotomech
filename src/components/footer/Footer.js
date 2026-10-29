@@ -12,7 +12,7 @@ export default async function Footer() {
     <div className="bg-black text-white grid grid-cols-3 px-[15rem] py-[5rem] max-11xl:px-[10rem] max-6xl:px-[5rem] max-8xl:grid-cols-2 max-6xl:grid-cols-1 max-6xl:gap-[2rem]">
       <div className="flex flex-col gap-[2rem] max-8xl:items-center">
         <Logo type="footer" />
-        <p className="text-[1.5rem] w-[50%] max-8xl:w-[80%] max-8xl:text-center">
+        <p className="text-[1.5rem] w-[50%] max-8xl:w-[80%] max-8xl:text-center whitespace-pre-line">
           {content.address}
         </p>
         <ul className="flex gap-[1rem]">
