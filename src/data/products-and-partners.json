@@ -10,16 +10,7 @@
     "image": "/images/partners-banner.webp",
     "alt": "products-and-partners-banner"
   },
-  "partners": {
-    "1": {
-      "name": "HETA VERFAHRENSTECHNIK GMBH",
-      "logo": "/logos/partnerLogo1.webp",
-      "description": "Filtration and Seperation Expert",
-      "images": [
-        "/images/products/hetaverfahrenstechnikgmbh-1793277671476-1.webp"
-      ]
-    }
-  },
+  "partners": {},
   "procurementPartners": {
     "logo2": "/logos/procurementPartner2.webp",
     "logo3": "/logos/procurementPartner3.webp"
