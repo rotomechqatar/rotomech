@@ -42,6 +42,18 @@ export async function DELETE(req) {
       return Response.json({ error: "Partner not found" }, { status: 404 });
     }
 
+    // Keep at least one partner, so the partners section can't be emptied by
+    // accident: a replacement has to be added before the last one goes
+    if (Object.keys(partnersData.partners).length <= 1) {
+      return Response.json(
+        {
+          error:
+            "This is the last partner and can't be deleted. Add the new partner first, then delete this one.",
+        },
+        { status: 409 }
+      );
+    }
+
     // Remove the partner record first: that is what the site renders from
     delete partnersData.partners[partnerKey];
     await putJson(

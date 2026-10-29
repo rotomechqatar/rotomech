@@ -9,6 +9,7 @@ export async function generateMetadata() {
   );
   const data = await fs.readFile(filePath, "utf8");
   const content = JSON.parse(data);
+  content.meta = content.meta || {};
 
   return {
     title: content.meta.title,

@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 
 export default function ProductData({ content }) {
-  // Convert the partners object to an array
-  const partners = Object.values(content);
+  // Convert the partners object to an array, skipping unusable entries
+  const partners = Object.values(content || {}).filter((p) => p && p.name);
   // Start on the first partner that actually has product images
   const [selected, setSelected] = useState(
     Math.max(
@@ -16,7 +16,7 @@ export default function ProductData({ content }) {
   );
   const selectedPartner = partners[selected];
   if (!selectedPartner) return null;
-  const images = selectedPartner.images || [];
+  const images = (selectedPartner.images || []).filter(Boolean);
 
   return (
     <div className="px-[15rem] max-12xl:px-[10rem] max-6xl:px-[5rem] py-[10rem]">

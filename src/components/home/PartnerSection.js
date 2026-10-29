@@ -4,11 +4,15 @@ import Carousel from "@/components/Carousel";
 import Link from "next/link";
 
 export default function PartnerSection({ content, type }) {
-  const partnerLogos = Object.entries(content).map(([key, src], index) => ({
-    id: index + 1,
-    src,
-    alt: `Partner ${index + 1}`,
-  }));
+  // Skip empty slots; with no logos at all the section is left out
+  const partnerLogos = Object.values(content || {})
+    .filter((src) => typeof src === "string" && src)
+    .map((src, index) => ({
+      id: index + 1,
+      src,
+      alt: `Partner ${index + 1}`,
+    }));
+  if (!partnerLogos.length) return null;
 
   const carouselContent = (
     <div className="gradient-border p-[.5rem] rounded-xl shadow-xl transition-all duration-1000">

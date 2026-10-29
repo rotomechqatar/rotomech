@@ -16,12 +16,12 @@ export default async function page() {
   return (
     <section>
       <Banner content={content.banner} />
-      <PartnerInfo content={content.partners} />
+      <PartnerInfo content={content.partners || {}} />
       <PartnerSection
-        content={content.procurementPartners}
+        content={content.procurementPartners || {}}
         type="procurement"
       />
-      <ProductData content={content.partners} />
+      <ProductData content={content.partners || {}} />
     </section>
   );
 }

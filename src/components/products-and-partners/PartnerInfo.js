@@ -4,18 +4,28 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
+// The three carousel slots (top, centre, bottom) for the partner at `index`.
+// With fewer than three partners a slot that would repeat a partner already
+// shown is left empty (null), so the section works for any partner count.
+function windowAt(items, index) {
+  const n = items.length;
+  const at = (i) => items[((i % n) + n) % n];
+  const center = at(index);
+  const top = n > 1 ? at(index + 1) : null;
+  const bottom = n > 2 ? at(index - 1) : null;
+  return [top, center, bottom];
+}
+
 export default function PartnerInfiniteCarousel({ content }) {
-  // Convert content to an array if it's not already.
-  const partnerItems = Array.isArray(content)
-    ? content
-    : Object.values(content);
+  // Convert content to an array, skipping entries that can't be rendered
+  // (a partner without a name or logo would crash the build).
+  const partnerItems = (
+    Array.isArray(content) ? content : Object.values(content || {})
+  ).filter((p) => p && p.name && p.logo);
+  const count = partnerItems.length;
 
-  // Assume partnerItems has at least three items.
-  const [visibleLogos, setVisibleLogos] = useState(partnerItems.slice(0, 3));
-  // nextIndex points to the next logo in the array (cyclically)
-  const [nextIndex, setNextIndex] = useState(3);
-
-  // State to determine if current screen is mobile (width < 900px)
+  // `active` is the index of the partner shown in the centre slot.
+  const [active, setActive] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
@@ -24,17 +34,19 @@ export default function PartnerInfiniteCarousel({ content }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Cycle through partner items every 5 seconds.
+  // Cycle through partner items every 5 seconds: the top logo moves into the
+  // centre and the others shift down. Nothing to cycle with one partner.
   useEffect(() => {
-    const timer = setInterval(() => {
-      const newLogo = partnerItems[nextIndex % partnerItems.length];
-      // Shift logos: new logo enters at beginning, previous items shift down.
-      setVisibleLogos((prev) => [newLogo, prev[0], prev[1]]);
-      setNextIndex((prev) => prev + 1);
-    }, 5000);
-
+    if (count < 2) return;
+    const timer = setInterval(() => setActive((prev) => prev + 1), 5000);
     return () => clearInterval(timer);
-  }, [partnerItems, nextIndex]);
+  }, [count]);
+
+  // No partners: render nothing rather than crash the page.
+  if (!count) return null;
+
+  const visibleLogos = windowAt(partnerItems, active);
+  const current = visibleLogos[1];
 
   // Outer container classes:
   // Desktop: horizontal layout with specific padding and height.
@@ -65,7 +77,7 @@ export default function PartnerInfiniteCarousel({ content }) {
               // For screens below 900px, only display the middle logo.
               <motion.div
                 className="relative w-full h-[8rem] pt-[15rem] flex justify-center items-center"
-                key={visibleLogos[1].name}
+                key={current.name}
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 50 }}
@@ -74,8 +86,8 @@ export default function PartnerInfiniteCarousel({ content }) {
                 <div className="gradient-border rounded-[25px]">
                   <div className="relative w-[12rem] h-[10rem] scale-155">
                     <Image
-                      src={visibleLogos[1].logo}
-                      alt={visibleLogos[1].name}
+                      src={current.logo}
+                      alt={current.name}
                       fill
                       className="object-contain"
                     />
@@ -85,6 +97,7 @@ export default function PartnerInfiniteCarousel({ content }) {
             ) : (
               // Desktop: render all logos with animated positioning.
               visibleLogos.map((item, i) => {
+                if (!item) return null; // empty slot (fewer than 3 partners)
                 const variants = {
                   initial: { y: i === 0 ? -300 : (i - 1) * 150, scale: 1 },
                   animate: { y: (i - 1) * 150, scale: i === 1 ? 1.15 : 1 },
@@ -130,7 +143,7 @@ export default function PartnerInfiniteCarousel({ content }) {
         <div className={infoContainerClasses}>
           <AnimatePresence mode="wait">
             <motion.div
-              key={visibleLogos[1].name} // Active detail for the center item.
+              key={current.name} // Active detail for the center item.
               initial={
                 isMobile ? { opacity: 0, x: -50 } : { opacity: 0, y: -50 }
               }
@@ -139,16 +152,19 @@ export default function PartnerInfiniteCarousel({ content }) {
               transition={{ duration: 1, ease: "linear" }}
             >
               <h2 className="text-[4rem] font-bold mb-4">
-                {visibleLogos[1].name}
+                {current.name}
               </h2>
               <p className="mb-[2rem] text-[1.6rem] text-justify">
-                {visibleLogos[1].description}
+                {current.description}
               </p>
               <div className="flex flex-wrap gap-4">
-                {visibleLogos[1].images.slice(0, 3).map((image, index) => (
+                {(current.images || [])
+                  .filter(Boolean)
+                  .slice(0, 3)
+                  .map((image, index) => (
                   <div key={index} className="relative w-[15rem] h-[15rem]">
                     <Image
-                      src={image || "/images/placeholder.png"}
+                      src={image}
                       alt={`Partner image ${index + 1}`}
                       fill
                       className="object-cover rounded-[25px]"
